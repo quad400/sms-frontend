@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-source-sans), "Source Sans 3", ui-sans-serif, sans-serif;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .auth-atmosphere {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 60%),
+      radial-gradient(900px 500px at 90% 0%, color-mix(in oklab, var(--brand) 14%, transparent), transparent 55%),
+      linear-gradient(180deg, color-mix(in oklab, var(--background) 92%, var(--brand)), var(--background));
+  }
+
+  .motion-page-enter {
+    animation: page-enter 240ms ease-out both;
+  }
+
+  .motion-step-swap {
+    animation: step-swap 220ms ease-out both;
+  }
+
+  .motion-error-in {
+    animation: error-in 180ms ease-out both;
+  }
+
+  .motion-shell-main {
+    animation: page-enter 220ms ease-out both;
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes step-swap {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes error-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-page-enter,
+  .motion-step-swap,
+  .motion-error-in,
+  .motion-shell-main {
+    animation: none !important;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

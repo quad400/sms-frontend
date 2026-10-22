@@ -1,0 +1,56 @@
+---
+description: Shells, shared patterns, forms, design tokens, motion and a11y bar.
+globs: src/**/*.{ts,tsx,css}
+alwaysApply: false
+---
+
+# UI Patterns
+
+## Prefer existing patterns
+
+`DataTable`, `FilterBar`, `EntityHeader`, `StatusBadge`, `MoneyText`, `MoneyInput`, `ConfirmDialog`, `ReasonDialog`, `AsyncJobBanner`, `FileUploader`, `PermissionGate`, `ClassPicker`, `ChildSwitcher`, `EmptyState`, `SignedFileLink`.
+
+- Record tabs = separate routes (`/admin/students/12/fees`) for deep links and lazy load.
+- Destructive / cancel / reject / reopen / edit-after-lock → `ReasonDialog` or `ConfirmDialog` as the page spec says.
+- Lists past 200 rows on one page → virtualise.
+- Components do **one job**; data enters via props or feature hooks — never call the API client from UI (see `15-architecture-layers.mdc`).
+
+## Forms
+
+React Hook Form + Zod. Derive schemas from OpenAPI types where possible. Show backend `details` as field errors. Generate `clientRef` / Idempotency-Key when the form opens, not on each click.
+
+## Design tokens
+
+- Calm, high contrast, school-friendly — not a SaaS purple glow theme.
+- Neutral base (warm slate/stone) + **one brand colour** from school profile via CSS variables: `--brand`, `--brand-foreground`, surfaces, borders, muted. Dark mode uses the same tokens.
+- Typography: **Source Sans 3** (humanist sans) for UI; `font-variant-numeric: tabular-nums` for money and scores. No decorative display fonts in admin tables.
+- Atmosphere on **public auth only**: soft layered gradient / subtle pattern behind the centered auth card (brand at low opacity). App shells stay clean and dense — no decorative hero chrome inside `/admin`, `/staff`, etc.
+- **Avoid:** purple-on-white / purple-indigo gradients, cream + terracotta serif kits, broadsheet newspaper layouts, neon glows, emoji ornamentation, pill-stat clusters.
+
+## Motion (presence, not noise)
+
+Shared utilities in `lib/motion` / CSS. Use these beats:
+
+| Motion | Use |
+|---|---|
+| Page enter | Auth card / shell main: fade + 8–12px rise, ~200–280ms, ease-out |
+| Step swap | Login ↔ 2FA: crossfade; preserve focus |
+| Feedback | Button pending spinner; toast slide; field error fade-in |
+| Shell | Sidebar width transition; mobile tab bar mount |
+
+- Prefer CSS / Tailwind `transition-*` for auth. Respect `prefers-reduced-motion: reduce` (instant or opacity-only).
+- No infinite decorative loops, parallax, or staggered cascades on admin table rows.
+- Skeletons pulse gently; avoid layout shift.
+
+## Auth page composition
+
+- One composition: brand (logo + school name) as the strongest signal, one form, one primary CTA, forgot-password link — no KPI strips or promo cards.
+- Centered card with soft shadow/border; full-bleed atmospheric background on public routes only.
+
+## Accessibility and performance
+
+- WCAG 2.2 AA: keyboard, focus rings, `aria-live` for errors, not colour-alone status.
+- Parent/student home JS budget under 150 KB. LCP under 2.5 s on mid-range Android (throttled).
+- Server components for first paint; skeletons; every list paginated.
+- Vocabulary: Session, Term, Class, Arm, Enrolment, Guardian, CA.
+- PDFs: signed URL in iframe/new tab — frontend never renders report cards.

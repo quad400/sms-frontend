@@ -1,0 +1,53 @@
+---
+description: How to implement a page from the frontend specs.
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Building Pages from Specs
+
+## Spec map
+
+| Side | Spec path | Route prefix |
+|---|---|---|
+| Public | `docs/pages.md` | `/` |
+| Admin | `docs/01`–`07-*.md` | `/admin` |
+| Staff | `docs/mnt/.../staff/pages.md` | `/staff` |
+| Parent | `docs/mnt/.../parent/pages.md` | `/parent` |
+| Student | `docs/mnt/.../student/pages.md` | `/student` |
+| IT | `docs/mnt/.../it/pages.md` | `/it` |
+| Shared | `docs/architecture-and-conventions.md` | n/a |
+
+Index and decisions: `docs/README.md`.
+
+## Page template (every page)
+
+1. **Server page first** — no `'use client'` on `page.tsx`; gate permission/session on the server.
+2. **Layout** — match block placement; use the side's shell.
+3. **Data** — server-load what you can; client islands use feature hooks for the rest. Campus cookie as `campusId` when supported.
+4. **Actions** — wire exact methods/paths via `features/<domain>/hooks` → `api`; use Confirm/Reason dialogs as specified.
+5. **Fields** — forms/tables only as listed; one concern per component.
+6. **States** — loading skeletons, empty, 404 not-available, async banners, locks, withheld (fee clearance).
+
+## Checklist before marking done
+
+- [ ] `page.tsx` is a Server Component; client boundaries are leaf components only
+- [ ] Domain code lives in `features/<domain>/` with `api` + `hooks` + `components` split
+- [ ] No direct API calls from components
+- [ ] Permission on route and each mutating control
+- [ ] URL state for list filters/pagination
+- [ ] Lookups by code/id correctly
+- [ ] Money via minor units
+- [ ] Idempotency / `clientRef` where the spec requires it
+- [ ] Real endpoints only — operation must exist in `docs/openapi.json`; if missing, add/sync OpenAPI + backend first; never stub
+- [ ] Playwright: happy, denied, out-of-scope, axe
+
+## Build order (do not skip ahead)
+
+1. Shared (session proxy, client, shells, DataTable, PermissionGate, lookups, errors)
+2. Public login/password
+3. Admin students + structure + users/roles
+4. Staff attendance/gradebook + offline
+5. Admin assessment + fees
+6. Parent + student portals
+7. Admin admissions + communication, then IT

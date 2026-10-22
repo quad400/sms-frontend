@@ -1,0 +1,52 @@
+---
+description: Source layout, import boundaries and feature folder shape.
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Source Layout and Import Boundaries
+
+## Target tree
+
+```
+src/
+  app/
+    (public)/  (admin)/admin/  (staff)/staff/
+    (parent)/parent/  (student)/student/  (it)/it/
+    api/session/  api/proxy/[...path]/
+    layout.tsx
+  middleware.ts
+  features/<name>/{api,components,hooks,schemas,types}/
+  components/{ui,patterns,shells}/
+  lib/{api,auth,money,utils,motion}/
+  styles/
+```
+
+Admin route folders mirror `docs/01`–`07`. Feature folders mirror backend modules: `students`, `staff`, `attendance`, `academics`, `assessment`, `fees`, `admissions`, `communication`, `portal`, `reporting`, `rbac`, `users`, `audit`, `config`, `notifications`, `documents`, `system`, `account`, `auth`.
+
+## Import rules (lint-enforced)
+
+| From | May import |
+|---|---|
+| `app/*` | `features/*`, `components/*`, `lib/*` |
+| `features/<a>` | `components/*`, `lib/*` — **not** `features/<b>` |
+| Side A pages | Own side + `features` + `components` + `lib` — **not** Side B pages |
+
+If two sides need the same widget, move it to `components/patterns` or a shared feature (e.g. `features/account`).
+
+## Feature shape
+
+```
+features/fees/
+  api/           # openapi-fetch wrappers / query keys
+  components/    # feature-only UI (no direct API calls)
+  hooks/         # useInvoices, useRecordPayment → api/
+  schemas/       # Zod forms
+  types/         # view models if needed beyond OpenAPI
+```
+
+See `15-architecture-layers.mdc` for anti-patterns (API-in-component, client pages, fat components).
+
+## Shells
+
+Authenticated sides use `AuthenticatedPortalLayout` + `PortalShell` (or a thin side-specific wrapper). Public auth uses `PublicShell`. Do not invent ad-hoc full-page chrome. Content widths: admin 1440, parent/student 960.

@@ -1,0 +1,41 @@
+---
+description: Session cookies, portal gating and permission-driven UI.
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Auth and Permissions
+
+## Session
+
+1. Login: `POST /api/session/login` → backend `POST /auth/login` → set `httpOnly` cookies → return `{ user }` or `{ challenge }` for 2FA.
+2. `middleware.ts`: refresh when access token is within 60s of expiry; on failure redirect `/login?next=<path>`.
+3. Load `GET /auth/me` once on the server into a provider; refetch on window focus.
+4. Idle timeout from `security-policy` settings: 60s warning, then logout.
+5. Forced 2FA enrol blocks navigation until confirmed when policy requires it.
+
+## Portal routing after login
+
+| `userType` | Land on |
+|---|---|
+| `admin` (school management) | `/admin` |
+| `staff` | `/staff` |
+| `parent` | `/parent` |
+| `student` | `/student` |
+
+Also expose `/it` when the user has any of `system-update.*`, `backup.*`, `licensing.*`, `jobs.*` (or related IT permissions). Multi-portal users switch from the account menu.
+
+Coarse middleware: `/parent/*` → parent, `/student/*` → student, `/it/*` → system permission. Fine checks stay in `<PermissionGate>` + backend.
+
+## Permissions in UI
+
+```tsx
+// ✅
+can('fees.invoice.create')
+<PermissionGate permission="fees.invoice.create">...</PermissionGate>
+
+// ❌ never
+user.roles.includes('Bursar')
+```
+
+Prefer disabled button + tooltip when hiding an action would confuse the user. Menu items declare the permission they need. Out-of-scope ids → standard "not found or not available to you" page, never a raw error.

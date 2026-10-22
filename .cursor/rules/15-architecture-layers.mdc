@@ -1,0 +1,88 @@
+---
+description: Layering — RSC pages, feature domains, hooks over API, one-job components.
+globs: src/**/*.{ts,tsx}
+alwaysApply: true
+---
+
+# Architecture Layers (anti-patterns)
+
+## Ownership
+
+| Layer | Owns | Must not |
+|---|---|---|
+| `app/**/page.tsx` | Route, permission gate, server data fetch, compose feature UI | `'use client'`, fetch via browser client, fat UI |
+| `features/<domain>/` | One backend/domain only (`fees`, `students`, `auth`, …) | Import another feature; become a dumping ground |
+| `features/*/api/` | Typed `openapi-fetch` wrappers + query keys | UI, React hooks |
+| `features/*/hooks/` | TanStack Query / domain logic; calls `api/` | JSX |
+| `features/*/components/` | Presentational / interactive UI for that domain | Call `lib/api` or `features/*/api` directly |
+| `components/ui` | Primitives (shadcn) | Domain knowledge |
+| `components/patterns` | Cross-feature widgets | Feature-specific API calls |
+| `lib/*` | Shared infra (api client, auth, money) | Feature UI |
+
+## Data flow (required)
+
+```
+page (RSC) → feature hook or server api helper → lib/api client → /api/proxy
+                ↑
+         client component only consumes hooks / props
+```
+
+```tsx
+// ❌ BAD — API in a component
+'use client';
+export function InvoiceList() {
+  const [rows, setRows] = useState([]);
+  useEffect(() => { api.GET('/fees/invoices').then(...) }, []);
+}
+
+// ✅ GOOD — hook owns data; component renders
+'use client';
+export function InvoiceList() {
+  const { data, isPending } = useInvoices(filters);
+  if (isPending) return <Skeleton />;
+  return <DataTable rows={data} />;
+}
+```
+
+## Screens are server-first
+
+- Default every `page.tsx` / `layout.tsx` to a **Server Component**.
+- Push `'use client'` to the smallest leaf that needs state, effects, or browser APIs.
+- Server page loads initial data (or passes ids); client children hydrate via hooks with that input.
+
+```tsx
+// ❌ BAD
+'use client';
+export default function FeesPage() { return <FeesScreen />; }
+
+// ✅ GOOD
+export default async function FeesPage() {
+  const user = await fetchSessionUser();
+  return <FeesScreen campusId={user.campusIds[0]} />; // client island
+}
+```
+
+## One job per component
+
+- One concern: list, form, row actions, dialog — not all four.
+- If a file mixes data fetching, form state, and layout, split into hook + presentational pieces.
+- Name by role: `InvoiceTable`, `RecordPaymentDialog`, `useRecordPayment` — not `FeesStuff`.
+
+## Typing
+
+- Prefer OpenAPI-generated types from `src/lib/api/schema.ts`; Zod for forms/params.
+- No `any`, `@ts-ignore`, or untyped fetch results. Props and hook returns must be explicit.
+- Feature `types/` only for view models that OpenAPI does not already cover.
+
+## Feature folder checklist
+
+```
+features/<domain>/
+  api/          # typed wrappers only
+  hooks/        # useX → api/
+  components/   # UI only; use hooks or props
+  schemas/      # Zod
+  types/        # optional view models
+```
+
+New domain → new `features/<domain>`. Do not stretch `auth` or a random feature to hold unrelated modules.

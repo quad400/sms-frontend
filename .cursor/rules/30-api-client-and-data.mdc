@@ -1,0 +1,54 @@
+---
+description: API proxy client, errors, money, lookups, pagination, idempotency.
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# API Client and Data Rules
+
+## Client
+
+- Wrap `openapi-fetch` in `lib/api/client.ts`. Calls go to `/api/proxy/*` only.
+- **API contract:** `docs/openapi.json` (in this frontend repo). Generate types with `openapi-typescript` from that file. Regenerate; never hand-edit. CI fails if generated types drift.
+- Call only operations that exist in `docs/openapi.json`. Do not invent paths or shapes.
+- Every request: fresh `X-Request-Id` (UUID). Surface `requestId` on error screens with a copy button.
+- Paths in page specs are relative to `/api/v1`.
+
+## Who may call the client
+
+- **Allowed:** `features/<domain>/api/*`, server components / route handlers, `lib/*` helpers.
+- **Forbidden:** `features/*/components/*`, `components/**`, and random `useEffect` fetch in UI.
+- Client UI reaches the network only through `features/*/hooks/*` (TanStack Query) that wrap `api/`.
+- Keep wrappers fully typed from `src/lib/api/schema.ts` — no untyped `fetch` or `any` responses.
+
+## Errors
+
+Shape: `{ statusCode, code, message, details, requestId }`.
+
+| Status / code | UI |
+|---|---|
+| 400 + `details` | Field errors on the form |
+| 409 / 422 | Toast with `message` |
+| 403 / 404 | Full-page not-available |
+| 5xx / network | Retry banner |
+| `LICENSE_READ_ONLY` | Global banner; disable all mutations |
+| `MODULE_NOT_LICENSED` | Hide or disable the module entry |
+| `INVOICE_ALREADY_PAID` | Message + refresh invoice |
+
+## Money
+
+- Persist/display via `amountMinor` (integer) + currency from school profile.
+- `MoneyInput` converts typed decimals with string math — never `parseFloat` for money.
+
+## Lookups
+
+- Fetch `GET /lookups` in root layout; hydrate `LookupProvider`.
+- `lookup('fees.invoiceStatus').byCode('paid')` / `.byId(id)`.
+- Logic: `code`. Writes: `id`. Badge colours in `lib/lookups/colours.ts`.
+
+## Lists and writes
+
+- Pagination: `{ data, meta: { page, pageSize, total } }`. Keep page/sort/filters in the URL.
+- Idempotency: key per user intent (form mount), reuse on retry — payments, checkout, sync. Disable submit while pending.
+- Async 202: `{ jobId, statusUrl }` → `useAsyncJob` + `<AsyncJobBanner>`; invalidate queries on terminal status.
+- Files: upload `POST /files`, then attach id. Downloads: fresh signed URL; never cache signed URLs.

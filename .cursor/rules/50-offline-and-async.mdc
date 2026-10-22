@@ -1,0 +1,29 @@
+---
+description: Offline outbox (attendance/scores) and async job polling.
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Offline and Async Jobs
+
+## Offline (staff only)
+
+Allowed offline: take attendance, enter scores, view today's timetable. Never queue payments, publishing, approvals, or admin edits.
+
+1. Serwist caches app shell, staff dashboard, allocated class lists, today's timetable.
+2. Dexie `outbox`: `{ clientRef, entity, action, payload, clientTimestamp, status }`. `clientRef = crypto.randomUUID()` at mark time.
+3. Sync on `online` and every 30s: `POST /sync/batches` with Idempotency-Key. Statuses: `applied`, `duplicate`, `conflict`, `rejected`.
+4. Header sync chip: Offline | Syncing N | All synced | N need attention.
+5. Conflicts: `GET /sync/conflicts`; resolve with `keepServer` / `applyClient` only if `offline-sync.conflict.resolve`.
+6. Locked registers / submitted assessments reject offline edits — show server reason.
+
+## Async jobs (202)
+
+Batch invoices, promotions, imports, exports, report runs, backups, report-card regeneration.
+
+- Poll `statusUrl` every 2s (backoff to 10s) via `useAsyncJob`.
+- `<AsyncJobBanner>` survives navigation (small client store); toast on finish; invalidate queries.
+
+## Parent payments
+
+Never mark success from gateway redirect alone. Return page polls invoice until paid (≤60s) or shows "confirming". Checkout uses Idempotency-Key from Pay screen mount.
