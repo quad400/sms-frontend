@@ -1,6 +1,6 @@
 import { isApiErrorBody, type ApiErrorBody } from '@/lib/api/errors';
 
-const DEFAULT_BACKEND_URL = 'http://localhost:3000';
+const DEFAULT_BACKEND_URL = 'http://localhost:4000';
 
 export function getBackendUrl(): string {
   return process.env.BACKEND_URL?.replace(/\/$/, '') || DEFAULT_BACKEND_URL;

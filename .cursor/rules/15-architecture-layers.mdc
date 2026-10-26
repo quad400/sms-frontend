@@ -12,8 +12,8 @@ alwaysApply: true
 |---|---|---|
 | `app/**/page.tsx` | Route, permission gate, server data fetch, compose feature UI | `'use client'`, fetch via browser client, fat UI |
 | `features/<domain>/` | One backend/domain only (`fees`, `students`, `auth`, …) | Import another feature; become a dumping ground |
-| `features/*/api/` | Typed `openapi-fetch` wrappers + query keys | UI, React hooks |
-| `features/*/hooks/` | TanStack Query / domain logic; calls `api/` | JSX |
+| `features/*/api/` | Typed `openapi-fetch` wrappers + query keys; always `unwrap` | UI, React hooks; local error/unwrap copies |
+| `features/*/hooks/` | TanStack Query / domain logic; calls `api/` | JSX; untyped `data`/`error` |
 | `features/*/components/` | Presentational / interactive UI for that domain | Call `lib/api` or `features/*/api` directly |
 | `components/ui` | Primitives (shadcn) | Domain knowledge |
 | `components/patterns` | Cross-feature widgets | Feature-specific API calls |
@@ -72,17 +72,21 @@ export default async function FeesPage() {
 
 - Prefer OpenAPI-generated types from `src/lib/api/schema.ts`; Zod for forms/params.
 - No `any`, `@ts-ignore`, or untyped fetch results. Props and hook returns must be explicit.
-- Feature `types/` only for view models that OpenAPI does not already cover.
+- `api/` helpers: explicit params and `Promise<Dto>` (unwrapped via `unwrap` from `@/lib/api/errors`).
+- `hooks/`: TanStack Query generics — `useQuery<TData, ApiClientError>`, `useMutation<TData, ApiClientError, TVariables>`.
+- Session-route helpers (login/2FA) return typed result unions in `types.ts`, not `unknown` blobs.
+- Feature `types.ts` only for view models / aliases that OpenAPI does not already cover (or session shapes).
 
 ## Feature folder checklist
 
 ```
 features/<domain>/
-  api/          # typed wrappers only
-  hooks/        # useX → api/
+  api/          # one typed wrapper file per operation + keys.ts
+  hooks/        # one typed hook file per useX → api/
   components/   # UI only; use hooks or props
-  schemas/      # Zod
-  types/        # optional view models
+  schemas.ts    # Zod
+  types.ts      # optional view models / DTO aliases
+  index.ts      # public barrel
 ```
 
 New domain → new `features/<domain>`. Do not stretch `auth` or a random feature to hold unrelated modules.

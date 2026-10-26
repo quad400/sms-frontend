@@ -1,10 +1,11 @@
 'use client';
 
 import { useMemo } from 'react';
-import { usePortalInvoices } from '../hooks/use-portal';
+import { usePortalInvoices } from '../hooks/use-portal-invoices';
 import { QueryState } from './query-state';
 import { asArray, asRecord, num, str } from '@/lib/utils/record';
 import { formatMoneyMinor } from '@/lib/money/format';
+import { PageHeader } from '@/components/patterns/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function StudentFees() {
@@ -31,12 +32,10 @@ export function StudentFees() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Fees</h1>
-        <p className="text-sm text-muted-foreground">
-          For information only. Ask the school office if you have questions.
-        </p>
-      </div>
+      <PageHeader
+        title="Fees"
+        description="For information only. Ask the school office if you have questions."
+      />
 
       <QueryState isPending={query.isPending} error={query.error}>
         <Card>

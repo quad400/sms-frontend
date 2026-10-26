@@ -1,4 +1,4 @@
-import { StudentAttendance } from '@/features/portal/components/student-attendance';
+import { StudentAttendance } from '@/features/portal';
 
 export default function StudentAttendancePage() {
   return <StudentAttendance />;

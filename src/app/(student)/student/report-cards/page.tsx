@@ -1,4 +1,4 @@
-import { StudentReportCards } from '@/features/portal/components/student-report-cards';
+import { StudentReportCards } from '@/features/portal';
 
 export default function StudentReportCardsPage() {
   return <StudentReportCards />;

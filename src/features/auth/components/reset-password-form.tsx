@@ -2,22 +2,19 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  resetPasswordSchema,
-  type ResetPasswordValues,
-} from '../schemas/auth-schemas';
-import { api } from '@/lib/api/client';
-import { isApiErrorBody } from '@/lib/api/errors';
+import { ApiClientError } from '@/lib/api/errors';
 import { motion } from '@/lib/motion/classes';
+import { toastError } from '@/lib/toast';
+import { useResetPassword } from '../hooks/use-reset-password';
+import { resetPasswordSchema, type ResetPasswordValues } from '../schemas';
 
 function passwordStrength(password: string): number {
   let score = 0;
@@ -33,8 +30,7 @@ export function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const resetPassword = useResetPassword();
   const form = useForm<ResetPasswordValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { newPassword: '', confirmPassword: '' },
@@ -44,31 +40,22 @@ export function ResetPasswordForm() {
 
   async function onSubmit(values: ResetPasswordValues) {
     if (!token) {
-      setError('This reset link is missing a token. Request a new link.');
+      toastError('Reset link invalid', 'This reset link is missing a token. Request a new link.');
       return;
     }
-    setError(null);
-    setPending(true);
     try {
-      const { error: apiError, response } = await api.POST('/api/v1/auth/password/reset', {
-        body: { token, newPassword: values.newPassword },
-      });
-      if (!response.ok) {
-        const body: unknown = apiError;
-        if (isApiErrorBody(body)) {
-          setError(
-            body.code.includes('TOKEN') || body.code.includes('EXPIRED')
-              ? 'This reset link has expired. Request a new one.'
-              : body.message,
-          );
-        } else {
-          setError('Unable to reset the password. Please try again.');
-        }
-        return;
-      }
+      await resetPassword.mutateAsync({ token, newPassword: values.newPassword });
       router.replace('/login?reset=1');
-    } finally {
-      setPending(false);
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        const expired = err.mapped.code.includes('TOKEN') || err.mapped.code.includes('EXPIRED');
+        toastError(
+          expired ? 'Reset link expired' : 'Could not reset password',
+          expired ? 'This reset link has expired. Request a new one.' : err.mapped.message,
+        );
+      } else {
+        toastError('Could not reset password', 'Unable to reset the password. Please try again.');
+      }
     }
   }
 
@@ -79,14 +66,6 @@ export function ResetPasswordForm() {
         <CardDescription>Use at least 8 characters. Mix letters, numbers, and symbols.</CardDescription>
       </CardHeader>
       <CardContent>
-        {error ? (
-          <Alert variant="danger" className={`mb-4 ${motion.errorIn}`} aria-live="polite">
-            {error}{' '}
-            <Link href="/forgot-password" className="underline">
-              Request a new link
-            </Link>
-          </Alert>
-        ) : null}
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)} noValidate>
           <div className="space-y-2">
             <Label htmlFor="newPassword">New password</Label>
@@ -127,11 +106,17 @@ export function ResetPasswordForm() {
               <p className="text-xs text-danger">{form.formState.errors.confirmPassword.message}</p>
             ) : null}
           </div>
-          <Button type="submit" className="w-full" disabled={pending || !token}>
-            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" className="w-full" disabled={resetPassword.isPending || !token}>
+            {resetPassword.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Update password
           </Button>
         </form>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Link expired?{' '}
+          <Link href="/forgot-password" className="text-brand hover:underline">
+            Request a new link
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );

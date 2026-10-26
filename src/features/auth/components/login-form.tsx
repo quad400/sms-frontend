@@ -5,33 +5,49 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { Alert } from '@/components/ui/alert';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ApiClientError } from '@/lib/api/errors';
+import { resolvePostLoginPath } from '@/lib/auth/portal';
+import type { SessionUser } from '@/lib/auth/types';
+import { motion } from '@/lib/motion/classes';
+import { toastError } from '@/lib/toast';
+import { useLogin } from '../hooks/use-login';
+import { useVerify2fa } from '../hooks/use-verify-2fa';
 import {
   loginSchema,
   twoFactorSchema,
   type LoginValues,
   type TwoFactorValues,
-} from '../schemas/auth-schemas';
-import { isApiErrorBody } from '@/lib/api/errors';
-import { resolvePostLoginPath } from '@/lib/auth/portal';
-import type { SessionUser } from '@/lib/auth/types';
-import { motion } from '@/lib/motion/classes';
+} from '../schemas';
 
 type ChallengeState = { challengeToken: string };
+
+function loginErrorMessage(error: unknown): string {
+  if (!(error instanceof ApiClientError)) {
+    return 'Unable to sign in. Please try again.';
+  }
+  const { code, message } = error.mapped;
+  if (code === 'ACCOUNT_LOCKED' || code === 'USER_NOT_ACTIVE') {
+    return 'This account is locked. Contact the school.';
+  }
+  if (code === 'THROTTLED') {
+    return message || 'Too many attempts. Please wait and try again.';
+  }
+  return 'Invalid email/phone or password.';
+}
 
 export function LoginForm({ schoolName }: { schoolName: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get('next');
-  const [showPassword, setShowPassword] = useState(false);
   const [challenge, setChallenge] = useState<ChallengeState | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
+  const loginMutation = useLogin();
+  const verifyMutation = useVerify2fa();
+  const pending = loginMutation.isPending || verifyMutation.isPending;
 
   const loginForm = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -56,50 +72,15 @@ export function LoginForm({ schoolName }: { schoolName: string }) {
   }
 
   async function onLogin(values: LoginValues) {
-    setFormError(null);
-    setPending(true);
     try {
-      const response = await fetch('/api/session/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      });
-      const payload: unknown = await response.json();
-
-      if (!response.ok) {
-        if (isApiErrorBody(payload)) {
-          if (payload.code === 'ACCOUNT_LOCKED' || payload.code === 'USER_NOT_ACTIVE') {
-            setFormError('This account is locked. Contact the school.');
-          } else if (payload.code === 'THROTTLED' || response.status === 429) {
-            setFormError(payload.message || 'Too many attempts. Please wait and try again.');
-          } else {
-            setFormError('Invalid email/phone or password.');
-          }
-        } else {
-          setFormError('Unable to sign in. Please try again.');
-        }
+      const result = await loginMutation.mutateAsync(values);
+      if (result.kind === 'challenge') {
+        setChallenge({ challengeToken: result.challengeToken });
         return;
       }
-
-      if (
-        payload &&
-        typeof payload === 'object' &&
-        'challenge' in payload &&
-        payload.challenge &&
-        typeof payload.challenge === 'object' &&
-        'challengeToken' in payload.challenge
-      ) {
-        setChallenge({
-          challengeToken: String((payload.challenge as { challengeToken: string }).challengeToken),
-        });
-        return;
-      }
-
-      if (payload && typeof payload === 'object' && 'user' in payload) {
-        await completeLogin((payload as { user: SessionUser }).user);
-      }
-    } finally {
-      setPending(false);
+      await completeLogin(result.user);
+    } catch (error) {
+      toastError('Could not sign in', loginErrorMessage(error));
     }
   }
 
@@ -107,31 +88,18 @@ export function LoginForm({ schoolName }: { schoolName: string }) {
     if (!challenge) {
       return;
     }
-    setFormError(null);
-    setPending(true);
     try {
-      const response = await fetch('/api/session/verify-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: values.code,
-          challengeToken: challenge.challengeToken,
-        }),
+      const result = await verifyMutation.mutateAsync({
+        code: values.code,
+        challengeToken: challenge.challengeToken,
       });
-      const payload: unknown = await response.json();
-      if (!response.ok) {
-        if (isApiErrorBody(payload)) {
-          setFormError(payload.message || 'Invalid authentication code.');
-        } else {
-          setFormError('Unable to verify the code. Please try again.');
-        }
-        return;
+      await completeLogin(result.user);
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        toastError('Verification failed', error.mapped.message || 'Invalid authentication code.');
+      } else {
+        toastError('Verification failed', 'Unable to verify the code. Please try again.');
       }
-      if (payload && typeof payload === 'object' && 'user' in payload) {
-        await completeLogin((payload as { user: SessionUser }).user);
-      }
-    } finally {
-      setPending(false);
     }
   }
 
@@ -144,12 +112,6 @@ export function LoginForm({ schoolName }: { schoolName: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {formError ? (
-          <Alert variant="danger" className={`mb-4 ${motion.errorIn}`} aria-live="polite">
-            {formError}
-          </Alert>
-        ) : null}
-
         {!challenge ? (
           <form className="space-y-4" onSubmit={loginForm.handleSubmit(onLogin)} noValidate>
             <div className="space-y-2">
@@ -170,23 +132,12 @@ export function LoginForm({ schoolName }: { schoolName: string }) {
                   Forgot password
                 </Link>
               </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  className="pr-10"
-                  {...loginForm.register('password')}
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground"
-                  onClick={() => setShowPassword((value) => !value)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                {...loginForm.register('password')}
+              />
               {loginForm.formState.errors.password ? (
                 <p className="text-xs text-danger">{loginForm.formState.errors.password.message}</p>
               ) : null}
@@ -224,7 +175,6 @@ export function LoginForm({ schoolName }: { schoolName: string }) {
               className="w-full"
               onClick={() => {
                 setChallenge(null);
-                setFormError(null);
                 twoFactorForm.reset();
               }}
             >

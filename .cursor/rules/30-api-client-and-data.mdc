@@ -21,9 +21,18 @@ alwaysApply: false
 - Client UI reaches the network only through `features/*/hooks/*` (TanStack Query) that wrap `api/`.
 - Keep wrappers fully typed from `src/lib/api/schema.ts` — no untyped `fetch` or `any` responses.
 
+## Unwrap (required)
+
+- Feature `api/*` wrappers must return **unwrapped data** via `unwrap` from `@/lib/api/errors`.
+- Never return raw openapi-fetch `{ data?, error? }` from feature APIs.
+- Do not copy local `unwrap` / domain `*ApiError` classes — use shared `ApiClientError`.
+- Example: `export function fetchInvoices(): Promise<InvoiceDto> { return unwrap(api.GET(...)); }`
+
 ## Errors
 
 Shape: `{ statusCode, code, message, details, requestId }`.
+
+Typed client failures throw `ApiClientError` with `mapped: MappedError`. Hooks use `ApiClientError` as the query/mutation error type. UI checks `instanceof ApiClientError`.
 
 | Status / code | UI |
 |---|---|

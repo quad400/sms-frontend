@@ -1,4 +1,4 @@
-import { StudentAnnouncements } from '@/features/portal/components/student-announcements';
+import { StudentAnnouncements } from '@/features/portal';
 
 export default function StudentAnnouncementsPage() {
   return <StudentAnnouncements />;

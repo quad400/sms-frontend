@@ -1,4 +1,4 @@
-import { StudentTimetable } from '@/features/portal/components/student-timetable';
+import { StudentTimetable } from '@/features/portal';
 
 export default function StudentTimetablePage() {
   return <StudentTimetable />;

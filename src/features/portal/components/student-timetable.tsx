@@ -1,86 +1,198 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { usePortalTimetable } from '../hooks/use-portal';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { WifiOff } from 'lucide-react';
+import { AbsenceRequestDialog, AskTeacherDialog } from './timetable-request-dialogs';
+import { usePortalTimetable } from '../hooks/use-portal-timetable';
 import { QueryState } from './query-state';
-import { asArray, asRecord, num, str } from '@/lib/utils/record';
-import { cn } from '@/lib/utils/cn';
+import { asRecord, str } from '@/lib/utils/record';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { formatDateTime } from '../lib/format';
+import {
+  DAY_LONG,
+  dayCodeOf,
+  isCurrentSlot,
+  parseTimetable,
+  useNow,
+  type DayCode,
+  type TimetableSlot,
+} from '../lib/schedule';
+import { TimetableAbsencePanel } from './timetable/timetable-absence-panel';
+import { TimetableCalmState } from './timetable/timetable-calm-state';
+import { TimetableConsultationPanel } from './timetable/timetable-consultation-panel';
+import { TimetableDaily } from './timetable/timetable-daily';
+import { TimetableHeader, type TimetableView } from './timetable/timetable-header';
+import { TimetableLegend } from './timetable/timetable-legend';
+import { TimetablePeriodDetail } from './timetable/timetable-period-detail';
+import { TimetableWeekMatrix } from './timetable/timetable-week-matrix';
 
-const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri'] as const;
-const DAY_LABELS: Record<(typeof DAYS)[number], string> = {
-  mon: 'Mon',
-  tue: 'Tue',
-  wed: 'Wed',
-  thu: 'Thu',
-  fri: 'Fri',
-};
+export const TIMETABLE_CACHE_KEY = 'sms.student.timetable.cache';
 
-function todayCode(): (typeof DAYS)[number] {
-  const map = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
-  const code = map[new Date().getDay()];
-  if (code === 'sun' || code === 'sat' || !code) return 'mon';
-  return code;
+type CachedTimetable = { savedAt: string; data: unknown };
+
+function writeCache(data: unknown): void {
+  try {
+    const payload: CachedTimetable = { savedAt: new Date().toISOString(), data };
+    window.localStorage.setItem(TIMETABLE_CACHE_KEY, JSON.stringify(payload));
+  } catch {
+    // Storage may be full or unavailable (private mode) – caching is best effort.
+  }
+}
+
+function readCache(): CachedTimetable | null {
+  try {
+    const raw = window.localStorage.getItem(TIMETABLE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    const record = asRecord(parsed);
+    if (!record || !('data' in record)) return null;
+    return { savedAt: str(record.savedAt), data: record.data };
+  } catch {
+    return null;
+  }
+}
+
+function subscribeOnline(callback: () => void): () => void {
+  window.addEventListener('online', callback);
+  window.addEventListener('offline', callback);
+  return () => {
+    window.removeEventListener('online', callback);
+    window.removeEventListener('offline', callback);
+  };
+}
+
+function useOnline(): boolean {
+  return useSyncExternalStore(
+    subscribeOnline,
+    () => navigator.onLine,
+    () => true,
+  );
+}
+
+function isNetworkError(error: unknown): boolean {
+  if (error instanceof TypeError) return true;
+  return error instanceof Error && /failed to fetch|network|load failed/i.test(error.message);
 }
 
 export function StudentTimetable() {
   const query = usePortalTimetable();
-  const [day, setDay] = useState<(typeof DAYS)[number]>(todayCode);
+  const online = useOnline();
+  const now = useNow();
+  const [view, setView] = useState<TimetableView>('daily');
+  const [picked, setPicked] = useState<DayCode | null>(null);
+  const [selected, setSelected] = useState<TimetableSlot | null>(null);
+  const [requestDialog, setRequestDialog] = useState<'absence' | 'ask' | null>(null);
 
-  const slots = useMemo(() => {
-    const root = query.data;
-    const list = asArray(asRecord(root)?.slots ?? root);
-    return list
-      .map((row) => asRecord(row))
-      .filter((row): row is Record<string, unknown> => !!row)
-      .filter((row) => str(row.weekday).toLowerCase().startsWith(day));
-  }, [query.data, day]);
+  useEffect(() => {
+    if (query.isSuccess) writeCache(query.data);
+  }, [query.isSuccess, query.data]);
+
+  const needsFallback = !query.data && (!online || (!!query.error && isNetworkError(query.error)));
+  const cached = useMemo(() => (needsFallback ? readCache() : null), [needsFallback]);
+
+  const payload = query.data ?? cached?.data;
+  const slots = useMemo(() => parseTimetable(payload), [payload]);
+
+  const today = dayCodeOf(now);
+  const activeDay = picked ?? today;
+
+  const byDay = useMemo(() => {
+    const map: Record<DayCode, TimetableSlot[]> = { mon: [], tue: [], wed: [], thu: [], fri: [] };
+    for (const slot of slots) map[slot.day].push(slot);
+    return map;
+  }, [slots]);
+
+  const liveSlot = useMemo(
+    () => slots.find((slot) => isCurrentSlot(slot, now)) ?? null,
+    [slots, now],
+  );
+  const panelContext = selected ?? liveSlot;
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Timetable</h1>
-        <p className="text-sm text-muted-foreground">Your periods for the week.</p>
-      </div>
+    <div className="space-y-6">
+      <TimetableHeader
+        view={view}
+        onViewChange={setView}
+        activeDay={activeDay}
+        today={today}
+        onDayChange={setPicked}
+      />
 
-      <div className="flex gap-1 overflow-x-auto rounded-full bg-muted p-1">
-        {DAYS.map((code) => (
-          <button
-            key={code}
-            type="button"
-            onClick={() => setDay(code)}
-            className={cn(
-              'min-w-[3.25rem] flex-1 rounded-full px-3 py-2 text-sm font-medium transition-colors',
-              day === code ? 'bg-brand text-brand-foreground' : 'text-muted-foreground hover:bg-card',
-            )}
-          >
-            {DAY_LABELS[code]}
-          </button>
-        ))}
-      </div>
+      {cached ? (
+        <div
+          role="status"
+          className="flex items-start gap-3 rounded-2xl border border-border bg-muted px-4 py-3 text-sm"
+        >
+          <WifiOff className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <p className="text-muted-foreground">
+            You&rsquo;re offline. Showing the timetable saved
+            {cached.savedAt ? ` on ${formatDateTime(cached.savedAt)}` : ' on this device'}.
+          </p>
+        </div>
+      ) : null}
 
-      <QueryState isPending={query.isPending} error={query.error} isEmpty={slots.length === 0}>
-        <ul className="space-y-2">
-          {slots.map((slot, index) => {
-            const subject = str(slot.subjectName ?? slot.subjectId, 'Subject');
-            const room = str(slot.roomName ?? slot.roomId, '');
-            const start = str(slot.startTime ?? slot.timeSlotOrdinal, '');
-            const end = str(slot.endTime, '');
-            return (
-              <li
-                key={num(slot.id, index)}
-                className="rounded-2xl border border-border bg-card px-4 py-3 shadow-[var(--shadow-card)]"
-              >
-                <p className="font-medium">{subject}</p>
-                <p className="text-sm text-muted-foreground">
-                  {[start && end ? `${start}–${end}` : start, room && `Room ${room}`]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
+      <QueryState
+        isPending={query.isPending && !cached}
+        error={cached ? null : query.error}
+        onRetry={() => void query.refetch()}
+      >
+        <div className="space-y-6">
+          {view === 'daily' ? (
+            activeDay === null ? (
+              <TimetableCalmState
+                title="No lessons today"
+                body="It’s the weekend. Enjoy the rest — pick a day above to preview your week."
+              />
+            ) : (
+              <TimetableDaily
+                slots={byDay[activeDay]}
+                now={now}
+                emptyTitle={`No lessons on ${DAY_LONG[activeDay]}`}
+                emptyBody="Nothing is scheduled for this day."
+                onSelect={setSelected}
+              />
+            )
+          ) : (
+            <TimetableWeekMatrix
+              byDay={byDay}
+              slots={slots}
+              now={now}
+              today={today}
+              onSelect={setSelected}
+            />
+          )}
+
+          <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+            <TimetableAbsencePanel contextSlot={panelContext} />
+            <TimetableConsultationPanel contextSlot={panelContext} />
+          </div>
+
+          <TimetableLegend />
+        </div>
       </QueryState>
+
+      <Sheet open={selected !== null} onOpenChange={(open) => (open ? undefined : setSelected(null))}>
+        <SheetContent side="right">
+          {selected ? (
+            <TimetablePeriodDetail
+              slot={selected}
+              onRequestAbsence={() => setRequestDialog('absence')}
+              onAskTeacher={() => setRequestDialog('ask')}
+            />
+          ) : null}
+        </SheetContent>
+      </Sheet>
+
+      <AbsenceRequestDialog
+        slot={selected}
+        open={requestDialog === 'absence'}
+        onOpenChange={(open) => setRequestDialog(open ? 'absence' : null)}
+      />
+      <AskTeacherDialog
+        slot={selected}
+        open={requestDialog === 'ask'}
+        onOpenChange={(open) => setRequestDialog(open ? 'ask' : null)}
+      />
     </div>
   );
 }

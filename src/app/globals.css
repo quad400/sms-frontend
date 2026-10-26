@@ -8,11 +8,30 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-source-sans), "Source Sans 3", ui-sans-serif, sans-serif;
+    font-family: var(--font-plus-jakarta), var(--font-source-sans), "Plus Jakarta Sans", ui-sans-serif,
+      sans-serif;
+  }
+
+  .font-heading {
+    font-family: var(--font-space-grotesk), var(--font-plus-jakarta), ui-sans-serif, sans-serif;
   }
 
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  /* Keep overflow-x scrollable without showing a scrollbar track/thumb. */
+  .overflow-x-auto,
+  .overflow-x-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .overflow-x-auto::-webkit-scrollbar,
+  .overflow-x-scroll::-webkit-scrollbar {
+    display: none;
   }
 }
 

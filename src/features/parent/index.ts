@@ -1,0 +1,17 @@
+export { ParentHome } from './components/parent-home';
+export { ParentAttendance } from './components/parent-attendance';
+export { ParentResults } from './components/parent-results';
+export { ParentReportCards } from './components/parent-report-cards';
+export { ParentTimetable } from './components/parent-timetable';
+export { ParentFees } from './components/parent-fees';
+export { ParentPaymentReturn } from './components/parent-payment-return';
+export { ParentMessages } from './components/parent-messages';
+export { ParentAnnouncements } from './components/parent-announcements';
+export { ParentEvents } from './components/parent-events';
+export { ParentNotifications } from './components/parent-notifications';
+export { ParentAccount } from './components/parent-account';
+export { ParentWelcome, isParentWelcomeDone } from './components/parent-welcome';
+export { ChildGate } from './components/child-gate';
+export { ChildPage } from './components/child-page';
+export { ChildSwitcher } from './components/child-switcher';
+export { ActiveChildProvider, useActiveChild } from './hooks/use-active-child';

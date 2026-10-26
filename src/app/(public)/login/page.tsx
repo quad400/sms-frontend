@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { LoginForm } from '@/features/auth/components/login-form';
+import { LoginForm } from '@/features/auth';
 import { fetchPublicSchoolProfile } from '@/lib/school/public-profile';
 
 export default async function LoginPage() {

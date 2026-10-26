@@ -1249,6 +1249,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/staff/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the signed-in user’s own staff profile (404 when not staff) */
+        get: operations["StaffMeController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/me/allocations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List class and subject allocations of the signed-in staff member */
+        get: operations["StaffMeController_allocations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/me/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Staff dashboard: today’s timetable, open registers, assessments awaiting scores, lesson plans, announcements */
+        get: operations["StaffMeController_overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/staff": {
         parameters: {
             query?: never;
@@ -1723,709 +1774,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/document-templates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List document templates */
-        get: operations["DocumentTemplatesController_list"];
-        put?: never;
-        /** Create a document template */
-        post: operations["DocumentTemplatesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/document-templates/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a document template */
-        get: operations["DocumentTemplatesController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update a document template and create a new version */
-        patch: operations["DocumentTemplatesController_update"];
-        trace?: never;
-    };
-    "/api/v1/document-templates/{id}/versions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List document template versions */
-        get: operations["DocumentTemplatesController_versions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/document-templates/{id}/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Preview a document template with sample data */
-        post: operations["DocumentTemplatesController_preview"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/documents/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a rendered document and signed file URL */
-        get: operations["DocumentsController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health/live": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Liveness probe */
-        get: operations["HealthController_live"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/health/ready": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Readiness probe (Postgres, Redis, MinIO) */
-        get: operations["HealthController_ready"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Detailed per-module health indicators */
-        get: operations["AdminHealthController_getAdminHealth"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/backups": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List backups */
-        get: operations["BackupAdminController_list"];
-        put?: never;
-        /** Enqueue an on-demand backup */
-        post: operations["BackupAdminController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/backups/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Last success and staleness */
-        get: operations["BackupAdminController_status"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/backups/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one backup */
-        get: operations["BackupAdminController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/backup-policy": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get backup policy */
-        get: operations["BackupAdminController_getPolicy"];
-        /** Update backup policy */
-        put: operations["BackupAdminController_updatePolicy"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/system/version": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get installed version */
-        get: operations["SystemUpdateController_version"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/system/migrations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List applied migrations */
-        get: operations["SystemUpdateController_migrations"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/system/upgrade-preflight": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Upgrade preflight checks */
-        get: operations["SystemUpdateController_preflight"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/system/diagnostics-bundle": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Enqueue a redacted diagnostics bundle */
-        post: operations["SystemUpdateController_createDiagnostics"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/system/diagnostics-bundle/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get diagnostics bundle status and download URL */
-        get: operations["SystemUpdateController_getDiagnostics"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-gateways": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List payment gateway providers (no secrets) */
-        get: operations["PaymentsGatewayController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/payment-gateways/{provider}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Enable provider and set account label */
-        put: operations["PaymentsGatewayController_update"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/paystack": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Paystack webhook */
-        post: operations["PaymentsGatewayController_paystack"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/webhooks/flutterwave": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Flutterwave webhook */
-        post: operations["PaymentsGatewayController_flutterwave"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/import-templates/{entity}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get CSV template columns for an entity */
-        get: operations["ImportExportController_template"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/imports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Upload an import file (dry-run default true) */
-        post: operations["ImportExportController_createImport"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/imports/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get import job status */
-        get: operations["ImportExportController_getImport"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/imports/{id}/errors": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List import validation errors */
-        get: operations["ImportExportController_errors"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/imports/{id}/commit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Commit a validated import */
-        post: operations["ImportExportController_commit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/imports/{id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Cancel an import */
-        post: operations["ImportExportController_cancel"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/exports": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Enqueue an export */
-        post: operations["ImportExportController_createExport"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/exports/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get export status and download URL */
-        get: operations["ImportExportController_getExport"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/sync/batches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit an idempotent offline sync batch */
-        post: operations["OfflineSyncController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/sync/batches/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get own sync batch */
-        get: operations["OfflineSyncController_getBatch"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/sync/conflicts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List unresolved sync conflicts */
-        get: operations["OfflineSyncController_conflicts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/sync/conflicts/{id}/resolve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Resolve a sync conflict */
-        post: operations["OfflineSyncController_resolve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/attendance/registers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List registers (filters: classId, date, status). Teachers see allocated classes. */
-        get: operations["RegistersController_list"];
-        put?: never;
-        /** Open a register; 409 if one exists for the class, date and period */
-        post: operations["RegistersController_open"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/attendance/registers/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a register with its entries */
-        get: operations["RegistersController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/attendance/registers/{id}/entries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Bulk mark entries (emits attendance.absence.recorded for new absences) */
-        put: operations["RegistersController_mark"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/attendance/registers/{id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit and lock a register */
-        post: operations["RegistersController_submit"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/attendance/registers/{id}/reopen": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reopen a submitted register (audited) */
-        post: operations["RegistersController_reopen"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/attendance/summaries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Attendance aggregates by class for a date range */
-        get: operations["SummariesController_summaries"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/students/{id}/attendance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Attendance summary and history for a student */
-        get: operations["StudentsAttendanceController_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/staff-attendance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List staff attendance for a date (optional campusId) */
-        get: operations["StaffAttendanceController_list"];
-        /** Bulk mark staff attendance for a date (upsert per staff and date) */
-        put: operations["StaffAttendanceController_mark"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/curriculum-subjects": {
         parameters: {
             query?: never;
@@ -2686,6 +2034,823 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/registers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List registers (filters: classId, date, status). Teachers see allocated classes. */
+        get: operations["RegistersController_list"];
+        put?: never;
+        /** Open a register; 409 if one exists for the class, date and period */
+        post: operations["RegistersController_open"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/registers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a register with its entries */
+        get: operations["RegistersController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/registers/{id}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Bulk mark entries (emits attendance.absence.recorded for new absences) */
+        put: operations["RegistersController_mark"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/registers/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit and lock a register */
+        post: operations["RegistersController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/registers/{id}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reopen a submitted register (audited) */
+        post: operations["RegistersController_reopen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/summaries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Attendance aggregates by class for a date range */
+        get: operations["SummariesController_summaries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/students/{id}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Attendance summary and history for a student */
+        get: operations["StudentsAttendanceController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff-attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List staff attendance for a date (optional campusId) */
+        get: operations["StaffAttendanceController_list"];
+        /** Bulk mark staff attendance for a date (upsert per staff and date) */
+        put: operations["StaffAttendanceController_mark"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sync/batches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit an idempotent offline sync batch */
+        post: operations["OfflineSyncController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sync/batches/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get own sync batch */
+        get: operations["OfflineSyncController_getBatch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sync/conflicts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List unresolved sync conflicts */
+        get: operations["OfflineSyncController_conflicts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sync/conflicts/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve a sync conflict */
+        post: operations["OfflineSyncController_resolve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grading-scales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List grading scales (filters: levelId, isActive) */
+        get: operations["GradingScalesController_list"];
+        put?: never;
+        /** Create a grading scale with score ranges to grade and remark */
+        post: operations["GradingScalesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grading-scales/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a grading scale with its bands */
+        get: operations["GradingScalesController_get"];
+        /** Replace a grading scale; 409 if used by an approved result in the current session */
+        put: operations["GradingScalesController_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessment-schemes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List CA and exam schemes (filters: levelId, isActive) */
+        get: operations["SchemesController_list"];
+        put?: never;
+        /** Create a scheme; component weights must total 100 */
+        post: operations["SchemesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessment-schemes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace a scheme; component weights must total 100 */
+        put: operations["SchemesController_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List assessments (filters: classId, subjectId, termId). Teachers see allocated only. */
+        get: operations["AssessmentsController_list"];
+        put?: never;
+        /** Create a test or exam instance for a class, subject and term */
+        post: operations["AssessmentsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the title or date of a draft assessment */
+        patch: operations["AssessmentsController_update"];
+        trace?: never;
+    };
+    "/api/v1/assessments/{id}/scores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List scores. Teachers see allocated class and subject only. */
+        get: operations["AssessmentsController_scores"];
+        /** Bulk score entry with a clientRef per row; rejected once locked */
+        put: operations["AssessmentsController_enter"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit and lock scores; emits results.submitted */
+        post: operations["AssessmentsController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/scores/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit a locked score. Reason required; audited with before and after. */
+        patch: operations["ScoresController_edit"];
+        trace?: never;
+    };
+    "/api/v1/result-sheets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List result sheets (filters: classId, termId, status) */
+        get: operations["ResultSheetsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/result-sheets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Result sheet with totals, averages, grades and positions */
+        get: operations["ResultSheetsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/result-sheets/{id}/compute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recompute totals and class positions in the background (202) */
+        post: operations["ResultSheetsController_compute"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/result-sheets/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve the current workflow step; the final step emits results.approved */
+        post: operations["ResultSheetsController_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/result-sheets/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject at the current workflow step and return to draft */
+        post: operations["ResultSheetsController_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/result-sheets/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish an approved sheet, gated by fee clearance; blocked students are listed */
+        post: operations["ResultSheetsController_publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/report-cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List report cards (filters: studentId, classId, termId) */
+        get: operations["ReportCardsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/report-cards/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Report card metadata and signed PDF URL. Parents: published cards of linked children. */
+        get: operations["ReportCardsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/report-cards/{id}/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Re-render from approved data with the current or chosen template (202) */
+        post: operations["ReportCardsController_regenerate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/students/{id}/results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Published results history for a student */
+        get: operations["StudentsResultsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/approval-workflows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List approval workflows per level */
+        get: operations["ApprovalWorkflowsController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/approval-workflows/{level}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the approver steps for a level (:level is the level id) */
+        put: operations["ApprovalWorkflowsController_replace"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/document-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List document templates */
+        get: operations["DocumentTemplatesController_list"];
+        put?: never;
+        /** Create a document template */
+        post: operations["DocumentTemplatesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/document-templates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a document template */
+        get: operations["DocumentTemplatesController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a document template and create a new version */
+        patch: operations["DocumentTemplatesController_update"];
+        trace?: never;
+    };
+    "/api/v1/document-templates/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List document template versions */
+        get: operations["DocumentTemplatesController_versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/document-templates/{id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview a document template with sample data */
+        post: operations["DocumentTemplatesController_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a rendered document and signed file URL */
+        get: operations["DocumentsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/announcements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AnnouncementsController_list"];
+        put?: never;
+        post: operations["AnnouncementsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/announcements/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AnnouncementsController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["AnnouncementsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["AnnouncementsController_update"];
+        trace?: never;
+    };
+    "/api/v1/announcements/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish announcement and fan out notifications (202) */
+        post: operations["AnnouncementsController_publish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/messages/threads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MessagesController_list"];
+        put?: never;
+        /** Open teacher↔guardian thread for a student */
+        post: operations["MessagesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/messages/threads/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["MessagesController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/messages/threads/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MessagesController_send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EventsController_list"];
+        put?: never;
+        post: operations["EventsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["EventsController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["EventsController_update"];
+        trace?: never;
+    };
+    "/api/v1/reminders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["RemindersController_list"];
+        put?: never;
+        post: operations["RemindersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reminders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["RemindersController_update"];
         trace?: never;
     };
     "/api/v1/fee-items": {
@@ -3188,35 +3353,16 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/grading-scales": {
+    "/api/v1/payment-gateways": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List grading scales (filters: levelId, isActive) */
-        get: operations["GradingScalesController_list"];
+        /** List payment gateway providers (no secrets) */
+        get: operations["PaymentsGatewayController_list"];
         put?: never;
-        /** Create a grading scale with score ranges to grade and remark */
-        post: operations["GradingScalesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/grading-scales/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a grading scale with its bands */
-        get: operations["GradingScalesController_get"];
-        /** Replace a grading scale; 409 if used by an approved result in the current session */
-        put: operations["GradingScalesController_update"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3224,25 +3370,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/assessment-schemes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List CA and exam schemes (filters: levelId, isActive) */
-        get: operations["SchemesController_list"];
-        put?: never;
-        /** Create a scheme; component weights must total 100 */
-        post: operations["SchemesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assessment-schemes/{id}": {
+    "/api/v1/payment-gateways/{provider}": {
         parameters: {
             query?: never;
             header?: never;
@@ -3250,8 +3378,8 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Replace a scheme; component weights must total 100 */
-        put: operations["SchemesController_update"];
+        /** Enable provider and set account label */
+        put: operations["PaymentsGatewayController_update"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3259,25 +3387,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/assessments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List assessments (filters: classId, subjectId, termId). Teachers see allocated only. */
-        get: operations["AssessmentsController_list"];
-        put?: never;
-        /** Create a test or exam instance for a class, subject and term */
-        post: operations["AssessmentsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/assessments/{id}": {
+    "/api/v1/webhooks/paystack": {
         parameters: {
             query?: never;
             header?: never;
@@ -3286,33 +3396,15 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update the title or date of a draft assessment */
-        patch: operations["AssessmentsController_update"];
-        trace?: never;
-    };
-    "/api/v1/assessments/{id}/scores": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List scores. Teachers see allocated class and subject only. */
-        get: operations["AssessmentsController_scores"];
-        /** Bulk score entry with a clientRef per row; rejected once locked */
-        put: operations["AssessmentsController_enter"];
-        post?: never;
+        /** Paystack webhook */
+        post: operations["PaymentsGatewayController_paystack"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/assessments/{id}/submit": {
+    "/api/v1/webhooks/flutterwave": {
         parameters: {
             query?: never;
             header?: never;
@@ -3321,40 +3413,23 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Submit and lock scores; emits results.submitted */
-        post: operations["AssessmentsController_submit"];
+        /** Flutterwave webhook */
+        post: operations["PaymentsGatewayController_flutterwave"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/scores/{id}": {
+    "/api/v1/health/live": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Edit a locked score. Reason required; audited with before and after. */
-        patch: operations["ScoresController_edit"];
-        trace?: never;
-    };
-    "/api/v1/result-sheets": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List result sheets (filters: classId, termId, status) */
-        get: operations["ResultSheetsController_list"];
+        /** Liveness probe */
+        get: operations["HealthController_live"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3363,15 +3438,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/result-sheets/{id}": {
+    "/api/v1/health/ready": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Result sheet with totals, averages, grades and positions */
-        get: operations["ResultSheetsController_get"];
+        /** Readiness probe (Postgres, Redis, MinIO) */
+        get: operations["HealthController_ready"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3380,83 +3455,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/result-sheets/{id}/compute": {
+    "/api/v1/admin/health": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
-        /** Recompute totals and class positions in the background (202) */
-        post: operations["ResultSheetsController_compute"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/result-sheets/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve the current workflow step; the final step emits results.approved */
-        post: operations["ResultSheetsController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/result-sheets/{id}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reject at the current workflow step and return to draft */
-        post: operations["ResultSheetsController_reject"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/result-sheets/{id}/publish": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Publish an approved sheet, gated by fee clearance; blocked students are listed */
-        post: operations["ResultSheetsController_publish"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/report-cards": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List report cards (filters: studentId, classId, termId) */
-        get: operations["ReportCardsController_list"];
+        /** Detailed per-module health indicators */
+        get: operations["AdminHealthController_getAdminHealth"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3465,15 +3472,33 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/report-cards/{id}": {
+    "/api/v1/admin/backups": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Report card metadata and signed PDF URL. Parents: published cards of linked children. */
-        get: operations["ReportCardsController_get"];
+        /** List backups */
+        get: operations["BackupAdminController_list"];
+        put?: never;
+        /** Enqueue an on-demand backup */
+        post: operations["BackupAdminController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/backups/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Last success and staleness */
+        get: operations["BackupAdminController_status"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3482,7 +3507,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/report-cards/{id}/regenerate": {
+    "/api/v1/admin/backups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one backup */
+        get: operations["BackupAdminController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/backup-policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get backup policy */
+        get: operations["BackupAdminController_getPolicy"];
+        /** Update backup policy */
+        put: operations["BackupAdminController_updatePolicy"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get installed version */
+        get: operations["SystemUpdateController_version"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/migrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List applied migrations */
+        get: operations["SystemUpdateController_migrations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/upgrade-preflight": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Upgrade preflight checks */
+        get: operations["SystemUpdateController_preflight"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/system/diagnostics-bundle": {
         parameters: {
             query?: never;
             header?: never;
@@ -3491,23 +3602,23 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Re-render from approved data with the current or chosen template (202) */
-        post: operations["ReportCardsController_regenerate"];
+        /** Enqueue a redacted diagnostics bundle */
+        post: operations["SystemUpdateController_createDiagnostics"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/students/{id}/results": {
+    "/api/v1/system/diagnostics-bundle/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Published results history for a student */
-        get: operations["StudentsResultsController_get"];
+        /** Get diagnostics bundle status and download URL */
+        get: operations["SystemUpdateController_getDiagnostics"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3516,15 +3627,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/approval-workflows": {
+    "/api/v1/import-templates/{entity}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List approval workflows per level */
-        get: operations["ApprovalWorkflowsController_list"];
+        /** Get CSV template columns for an entity */
+        get: operations["ImportExportController_template"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3533,7 +3644,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/approval-workflows/{level}": {
+    "/api/v1/imports": {
         parameters: {
             query?: never;
             header?: never;
@@ -3541,8 +3652,110 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Replace the approver steps for a level (:level is the level id) */
-        put: operations["ApprovalWorkflowsController_replace"];
+        put?: never;
+        /** Upload an import file (dry-run default true) */
+        post: operations["ImportExportController_createImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get import job status */
+        get: operations["ImportExportController_getImport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{id}/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List import validation errors */
+        get: operations["ImportExportController_errors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{id}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Commit a validated import */
+        post: operations["ImportExportController_commit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel an import */
+        post: operations["ImportExportController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Enqueue an export */
+        post: operations["ImportExportController_createExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get export status and download URL */
+        get: operations["ImportExportController_getExport"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -3792,153 +4005,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/announcements": {
+    "/api/v1/library/books": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["AnnouncementsController_list"];
+        /** List catalogue books */
+        get: operations["BooksController_list"];
         put?: never;
-        post: operations["AnnouncementsController_create"];
+        /** Add a book (optionally with copies) */
+        post: operations["BooksController_create"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/announcements/{id}": {
+    "/api/v1/library/books/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["AnnouncementsController_get"];
-        put?: never;
-        post?: never;
-        delete: operations["AnnouncementsController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["AnnouncementsController_update"];
-        trace?: never;
-    };
-    "/api/v1/announcements/{id}/publish": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Publish announcement and fan out notifications (202) */
-        post: operations["AnnouncementsController_publish"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/messages/threads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MessagesController_list"];
-        put?: never;
-        /** Open teacher↔guardian thread for a student */
-        post: operations["MessagesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/messages/threads/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["MessagesController_get"];
+        /** Get a book with its copies */
+        get: operations["BooksController_get"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update book details */
+        patch: operations["BooksController_update"];
         trace?: never;
     };
-    "/api/v1/messages/threads/{id}/messages": {
+    "/api/v1/library/loans": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List loans (filter by student and status) */
+        get: operations["LoansController_list"];
         put?: never;
-        post: operations["MessagesController_send"];
+        /** Check a copy out to a student */
+        post: operations["LoansController_create"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["EventsController_list"];
-        put?: never;
-        post: operations["EventsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/events/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations["EventsController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["EventsController_update"];
-        trace?: never;
-    };
-    "/api/v1/reminders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["RemindersController_list"];
-        put?: never;
-        post: operations["RemindersController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/reminders/{id}": {
+    "/api/v1/library/loans/{id}/return": {
         parameters: {
             query?: never;
             header?: never;
@@ -3951,7 +4072,43 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["RemindersController_update"];
+        /** Mark a loan as returned */
+        patch: operations["LoansController_markReturned"];
+        trace?: never;
+    };
+    "/api/v1/library/holds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List holds */
+        get: operations["HoldsController_list"];
+        put?: never;
+        /** Place a hold for a student on a book */
+        post: operations["HoldsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/library/holds/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Cancel an open hold */
+        patch: operations["HoldsController_cancel"];
         trace?: never;
     };
     "/api/v1/portal/children": {
@@ -4178,6 +4335,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/portal/me/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload or replace the signed-in student’s profile photo */
+        post: operations["PortalMeController_postPhoto"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/portal/me/timetable": {
         parameters: {
             query?: never;
@@ -4268,6 +4442,122 @@ export interface paths {
         get: operations["PortalMeController_getLessonNotes"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/me/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalMeController_getLibrary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/me/medical": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Student-safe medical summary (redacted; every read is audited) */
+        get: operations["PortalMeController_getMedical"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/me/chat/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Scholar Lounge channels for the student's active class */
+        get: operations["PortalMeController_getChatChannels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/me/chat/channels/{channelId}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalMeController_getChatMessages"];
+        put?: never;
+        post: operations["PortalMeController_postChatMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/me/live-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PortalMeController_getLiveSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/me/absence-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Student raises an absence request (voucher) for a date */
+        post: operations["PortalMeController_postAbsenceRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/me/teacher-tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Student asks a teacher a question */
+        post: operations["PortalMeController_postTeacherTicket"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4500,6 +4790,17 @@ export interface components {
             code: string;
             challengeToken?: string;
         };
+        AuthMeResponseDto: {
+            id: number;
+            displayName: string;
+            email: string | null;
+            /** @enum {string} */
+            userType: "admin" | "staff" | "parent" | "student";
+            permissions: string[];
+            campusIds: number[];
+            /** @description Linked active staff record id; null when the user has no staff profile */
+            staffId: number | null;
+        };
         CreateRoleDto: {
             /** @example Registrar */
             name: string;
@@ -4618,6 +4919,134 @@ export interface components {
         UpdateHouseDto: {
             name?: string;
             colour?: string | null;
+        };
+        MyStaffResponseDto: {
+            staffId: number;
+            id: number;
+            staffNumber: string;
+            firstName: string;
+            lastName: string;
+            /** @description Gender code */
+            gender: string;
+            /** @description Staff status code */
+            status: string;
+            /** @description Job title code */
+            jobTitle: string;
+            phone: string | null;
+            email: string | null;
+            /** @description YYYY-MM-DD */
+            hireDate: string | null;
+            campusId: number;
+            userId: number | null;
+            /** @description ISO timestamp */
+            createdAt: string;
+            /** @description ISO timestamp */
+            updatedAt: string;
+        };
+        MyAllocationResponseDto: {
+            id: number;
+            staffId: number;
+            classId: number;
+            subjectId: number;
+            sessionId: number;
+        };
+        MyOverviewTimetablePeriodResponseDto: {
+            timeSlotId: number;
+            periodLabel: string;
+            periodOrdinal: number;
+            /** @description HH:mm */
+            startTime: string;
+            /** @description HH:mm */
+            endTime: string;
+            isBreak: boolean;
+            classId: number;
+            className: string | null;
+            subjectId: number;
+            subjectName: string | null;
+            roomId: number | null;
+            roomName: string | null;
+        };
+        MyOverviewOpenRegisterResponseDto: {
+            id: number;
+            classId: number;
+            className: string | null;
+            /** @description YYYY-MM-DD */
+            date: string;
+            /** @description Attendance period code */
+            period: string;
+            termId: number;
+            entryCount: number;
+        };
+        MyOverviewAssessmentResponseDto: {
+            id: number;
+            title: string;
+            classId: number;
+            className: string | null;
+            subjectId: number;
+            subjectName: string | null;
+            termId: number;
+            componentName: string;
+            /** @description YYYY-MM-DD */
+            assessmentDate: string | null;
+            /** @description Scores already recorded (including absences) */
+            scoresEntered: number;
+        };
+        MyOverviewLessonPlanResponseDto: {
+            id: number;
+            title: string;
+            /** @enum {string} */
+            status: "draft" | "submitted";
+            classId: number;
+            className: string | null;
+            subjectId: number;
+            subjectName: string | null;
+            termId: number;
+            weekNumber: number | null;
+            /** @description ISO timestamp */
+            updatedAt: string;
+        };
+        MyOverviewLessonPlansResponseDto: {
+            /** @description Drafts that still need to be submitted */
+            draftCount: number;
+            /** @description Submitted plans awaiting approval */
+            submittedCount: number;
+            items: components["schemas"]["MyOverviewLessonPlanResponseDto"][];
+        };
+        MyOverviewAnnouncementTargetResponseDto: {
+            campusId: number | null;
+            levelId: number | null;
+            classId: number | null;
+        };
+        MyOverviewAnnouncementResponseDto: {
+            id: number;
+            title: string;
+            body: string;
+            /** @description Audience type code */
+            audienceType: string;
+            /** @description Announcement status code (always published here) */
+            status: string;
+            /** @description ISO timestamp */
+            publishedAt: string | null;
+            targets: components["schemas"]["MyOverviewAnnouncementTargetResponseDto"][];
+            /** @description ISO timestamp */
+            createdAt: string;
+            /** @description ISO timestamp */
+            updatedAt: string;
+        };
+        MyOverviewResponseDto: {
+            staffId: number;
+            campusId: number;
+            /** @description School-local date the overview was computed for (YYYY-MM-DD) */
+            date: string;
+            /** @description Lower-case weekday code (monday..sunday) */
+            weekday: string;
+            /** @description IANA timezone used to resolve "today" */
+            timezone: string;
+            timetable: components["schemas"]["MyOverviewTimetablePeriodResponseDto"][];
+            openRegisters: components["schemas"]["MyOverviewOpenRegisterResponseDto"][];
+            assessmentsAwaitingScores: components["schemas"]["MyOverviewAssessmentResponseDto"][];
+            lessonPlans: components["schemas"]["MyOverviewLessonPlansResponseDto"];
+            announcements: components["schemas"]["MyOverviewAnnouncementResponseDto"][];
         };
         CreateStaffDto: {
             firstName: string;
@@ -4768,58 +5197,6 @@ export interface components {
             grantedAt?: string;
             withdrawnAt?: string;
         };
-        CreateDocumentTemplateDto: {
-            typeCode: string;
-            name: string;
-            html: string;
-            css?: string;
-            isActive?: boolean;
-        };
-        UpdateDocumentTemplateDto: {
-            name?: string;
-            isActive?: boolean;
-            html?: string;
-            css?: string;
-        };
-        PreviewDocumentTemplateDto: {
-            data: {
-                [key: string]: unknown;
-            };
-        };
-        UpdateBackupPolicyDto: Record<string, never>;
-        UpdateProviderDto: Record<string, never>;
-        CreateExportDto: Record<string, never>;
-        SubmitBatchDto: Record<string, never>;
-        ResolveConflictDto: Record<string, never>;
-        OpenRegisterDto: {
-            classId: number;
-            date: string;
-            periodCode?: string;
-            /** Format: uuid */
-            clientRef?: string;
-        };
-        MarkEntryDto: {
-            /** Format: uuid */
-            clientRef: string;
-            studentId: number;
-            markCode: string;
-            note?: string;
-        };
-        MarkEntriesDto: {
-            entries: components["schemas"]["MarkEntryDto"][];
-        };
-        ReopenRegisterDto: {
-            reason?: string;
-        };
-        StaffAttendanceItemDto: {
-            staffId: number;
-            markCode: string;
-            note?: string;
-        };
-        MarkStaffAttendanceDto: {
-            date: string;
-            records: components["schemas"]["StaffAttendanceItemDto"][];
-        };
         CurriculumSubjectItemDto: {
             subjectId: number;
             isCompulsory?: boolean;
@@ -4897,6 +5274,190 @@ export interface components {
         };
         ReplaceTimeSlotsDto: {
             timeSlots: components["schemas"]["TimeSlotItemDto"][];
+        };
+        OpenRegisterDto: {
+            classId: number;
+            date: string;
+            periodCode?: string;
+            /** Format: uuid */
+            clientRef?: string;
+        };
+        MarkEntryDto: {
+            /** Format: uuid */
+            clientRef: string;
+            studentId: number;
+            markCode: string;
+            note?: string;
+        };
+        MarkEntriesDto: {
+            entries: components["schemas"]["MarkEntryDto"][];
+        };
+        ReopenRegisterDto: {
+            reason?: string;
+        };
+        StaffAttendanceItemDto: {
+            staffId: number;
+            markCode: string;
+            note?: string;
+        };
+        MarkStaffAttendanceDto: {
+            date: string;
+            records: components["schemas"]["StaffAttendanceItemDto"][];
+        };
+        SubmitBatchDto: Record<string, never>;
+        ResolveConflictDto: Record<string, never>;
+        GradeBandDto: {
+            minScore: number;
+            maxScore: number;
+            grade: string;
+            remark?: string;
+            gradePoint?: number;
+        };
+        CreateGradingScaleDto: {
+            name: string;
+            levelId?: number;
+            campusId?: number;
+            isDefault?: boolean;
+            isActive?: boolean;
+            bands: components["schemas"]["GradeBandDto"][];
+        };
+        UpdateGradingScaleDto: {
+            name: string;
+            levelId?: number;
+            campusId?: number;
+            isDefault?: boolean;
+            isActive?: boolean;
+            bands: components["schemas"]["GradeBandDto"][];
+        };
+        SchemeComponentDto: {
+            name: string;
+            weight: number;
+            maxScore: number;
+            isExam?: boolean;
+        };
+        CreateSchemeDto: {
+            name: string;
+            levelId: number;
+            isActive?: boolean;
+            components: components["schemas"]["SchemeComponentDto"][];
+        };
+        UpdateSchemeDto: {
+            name: string;
+            isActive?: boolean;
+            components: components["schemas"]["SchemeComponentDto"][];
+        };
+        CreateAssessmentDto: {
+            componentId: number;
+            classId: number;
+            subjectId: number;
+            termId: number;
+            title: string;
+            assessmentDate?: string;
+        };
+        UpdateAssessmentDto: {
+            title?: string;
+            assessmentDate?: string;
+        };
+        ScoreEntryDto: {
+            /** Format: uuid */
+            clientRef: string;
+            studentId: number;
+            score?: number;
+            isAbsent?: boolean;
+        };
+        EnterScoresDto: {
+            scores: components["schemas"]["ScoreEntryDto"][];
+        };
+        EditLockedScoreDto: {
+            score?: number;
+            isAbsent?: boolean;
+            reason: string;
+        };
+        ApproveResultSheetDto: {
+            reason?: string;
+        };
+        RejectResultSheetDto: {
+            reason: string;
+        };
+        RegenerateReportCardDto: {
+            templateId?: number;
+        };
+        ReplaceApprovalWorkflowDto: {
+            approverRoleIds: number[];
+        };
+        CreateDocumentTemplateDto: {
+            typeCode: string;
+            name: string;
+            html: string;
+            css?: string;
+            isActive?: boolean;
+        };
+        UpdateDocumentTemplateDto: {
+            name?: string;
+            isActive?: boolean;
+            html?: string;
+            css?: string;
+        };
+        PreviewDocumentTemplateDto: {
+            data: {
+                [key: string]: unknown;
+            };
+        };
+        AnnouncementTargetDto: {
+            campusId?: number;
+            levelId?: number;
+            classId?: number;
+        };
+        CreateAnnouncementDto: {
+            title: string;
+            body: string;
+            /** @enum {string} */
+            audienceType: "school" | "campus" | "level" | "class" | "class-guardians";
+            targets?: components["schemas"]["AnnouncementTargetDto"][];
+        };
+        UpdateAnnouncementDto: {
+            title?: string;
+            body?: string;
+        };
+        CreateThreadDto: {
+            subject: string;
+            studentId: number;
+            guardianUserId: number;
+        };
+        SendMessageDto: {
+            /** Format: uuid */
+            clientRef: string;
+            body: string;
+        };
+        CreateEventDto: {
+            eventTypeCode: string;
+            campusId?: number;
+            title: string;
+            description?: string;
+            location?: string;
+            startsAt: string;
+            endsAt?: string;
+        };
+        UpdateEventDto: {
+            title?: string;
+            description?: string | null;
+            location?: string | null;
+            startsAt?: string;
+            endsAt?: string | null;
+        };
+        CreateReminderDto: {
+            title: string;
+            body?: string;
+            remindAt: string;
+            /** @enum {string} */
+            audienceType?: "school" | "campus" | "level" | "class" | "class-guardians";
+        };
+        UpdateReminderDto: {
+            title?: string;
+            body?: string | null;
+            remindAt?: string;
+            /** @enum {string} */
+            statusCode?: "scheduled" | "sent" | "cancelled";
         };
         CreateFeeItemDto: {
             name: string;
@@ -5024,85 +5585,9 @@ export interface components {
             termId?: number;
             minAmountMinor?: number;
         };
-        GradeBandDto: {
-            minScore: number;
-            maxScore: number;
-            grade: string;
-            remark?: string;
-            gradePoint?: number;
-        };
-        CreateGradingScaleDto: {
-            name: string;
-            levelId?: number;
-            campusId?: number;
-            isDefault?: boolean;
-            isActive?: boolean;
-            bands: components["schemas"]["GradeBandDto"][];
-        };
-        UpdateGradingScaleDto: {
-            name: string;
-            levelId?: number;
-            campusId?: number;
-            isDefault?: boolean;
-            isActive?: boolean;
-            bands: components["schemas"]["GradeBandDto"][];
-        };
-        SchemeComponentDto: {
-            name: string;
-            weight: number;
-            maxScore: number;
-            isExam?: boolean;
-        };
-        CreateSchemeDto: {
-            name: string;
-            levelId: number;
-            isActive?: boolean;
-            components: components["schemas"]["SchemeComponentDto"][];
-        };
-        UpdateSchemeDto: {
-            name: string;
-            isActive?: boolean;
-            components: components["schemas"]["SchemeComponentDto"][];
-        };
-        CreateAssessmentDto: {
-            componentId: number;
-            classId: number;
-            subjectId: number;
-            termId: number;
-            title: string;
-            assessmentDate?: string;
-        };
-        UpdateAssessmentDto: {
-            title?: string;
-            assessmentDate?: string;
-        };
-        ScoreEntryDto: {
-            /** Format: uuid */
-            clientRef: string;
-            studentId: number;
-            score?: number;
-            isAbsent?: boolean;
-        };
-        EnterScoresDto: {
-            scores: components["schemas"]["ScoreEntryDto"][];
-        };
-        EditLockedScoreDto: {
-            score?: number;
-            isAbsent?: boolean;
-            reason: string;
-        };
-        ApproveResultSheetDto: {
-            reason?: string;
-        };
-        RejectResultSheetDto: {
-            reason: string;
-        };
-        RegenerateReportCardDto: {
-            templateId?: number;
-        };
-        ReplaceApprovalWorkflowDto: {
-            approverRoleIds: number[];
-        };
+        UpdateProviderDto: Record<string, never>;
+        UpdateBackupPolicyDto: Record<string, never>;
+        CreateExportDto: Record<string, never>;
         ApplyGuardianDto: {
             relationshipCode: string;
             firstName: string;
@@ -5186,61 +5671,27 @@ export interface components {
         RecordEntranceTestResultsDto: {
             results: components["schemas"]["EntranceTestResultDto"][];
         };
-        AnnouncementTargetDto: {
-            campusId?: number;
-            levelId?: number;
-            classId?: number;
-        };
-        CreateAnnouncementDto: {
+        CreateBookDto: {
             title: string;
-            body: string;
-            /** @enum {string} */
-            audienceType: "school" | "campus" | "level" | "class" | "class-guardians";
-            targets?: components["schemas"]["AnnouncementTargetDto"][];
+            author: string;
+            isbn?: string;
+            campusId: number;
+            /** @description Physical copies to register with the book. */
+            accessionBarcodes?: string[];
         };
-        UpdateAnnouncementDto: {
+        UpdateBookDto: {
             title?: string;
-            body?: string;
+            author?: string;
+            isbn?: string;
         };
-        CreateThreadDto: {
-            subject: string;
+        CreateLoanDto: {
             studentId: number;
-            guardianUserId: number;
+            accessionBarcode: string;
+            dueDate: string;
         };
-        SendMessageDto: {
-            /** Format: uuid */
-            clientRef: string;
-            body: string;
-        };
-        CreateEventDto: {
-            eventTypeCode: string;
-            campusId?: number;
-            title: string;
-            description?: string;
-            location?: string;
-            startsAt: string;
-            endsAt?: string;
-        };
-        UpdateEventDto: {
-            title?: string;
-            description?: string | null;
-            location?: string | null;
-            startsAt?: string;
-            endsAt?: string | null;
-        };
-        CreateReminderDto: {
-            title: string;
-            body?: string;
-            remindAt: string;
-            /** @enum {string} */
-            audienceType?: "school" | "campus" | "level" | "class" | "class-guardians";
-        };
-        UpdateReminderDto: {
-            title?: string;
-            body?: string | null;
-            remindAt?: string;
-            /** @enum {string} */
-            statusCode?: "scheduled" | "sent" | "cancelled";
+        CreateHoldDto: {
+            studentId: number;
+            bookId: number;
         };
         PortalCheckoutDto: {
             providerKey: string;
@@ -5250,6 +5701,20 @@ export interface components {
             phone?: string;
             email?: string | null;
             address?: string | null;
+        };
+        PortalSendChatMessageDto: {
+            body: string;
+        };
+        CreatePortalAbsenceRequestDto: {
+            date: string;
+            reason: string;
+            note?: string;
+            periodLabels?: string[];
+        };
+        CreatePortalTeacherTicketDto: {
+            subjectId?: number;
+            subjectName?: string;
+            message: string;
         };
         EnqueueReportRunDto: {
             definitionKey: string;
@@ -6374,7 +6839,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["AuthMeResponseDto"];
                 };
             };
         };
@@ -7184,6 +7649,66 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    StaffMeController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyStaffResponseDto"];
+                };
+            };
+        };
+    };
+    StaffMeController_allocations: {
+        parameters: {
+            query?: {
+                /** @description Restrict to one academic session */
+                sessionId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyAllocationResponseDto"][];
+                };
+            };
+        };
+    };
+    StaffMeController_overview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyOverviewResponseDto"];
+                };
             };
         };
     };
@@ -8139,1041 +8664,6 @@ export interface operations {
             };
         };
     };
-    DocumentTemplatesController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentTemplatesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDocumentTemplateDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentTemplatesController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentTemplatesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDocumentTemplateDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentTemplatesController_versions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentTemplatesController_preview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PreviewDocumentTemplateDto"];
-            };
-        };
-        responses: {
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    HealthController_live: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    HealthController_ready: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The Health Check is successful */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example ok */
-                        status?: string;
-                        /**
-                         * @example {
-                         *       "database": {
-                         *         "status": "up"
-                         *       }
-                         *     }
-                         */
-                        info?: {
-                            [key: string]: {
-                                status: string;
-                            } & {
-                                [key: string]: unknown;
-                            };
-                        } | null;
-                        /** @example {} */
-                        error?: {
-                            [key: string]: {
-                                status: string;
-                            } & {
-                                [key: string]: unknown;
-                            };
-                        } | null;
-                        /**
-                         * @example {
-                         *       "database": {
-                         *         "status": "up"
-                         *       }
-                         *     }
-                         */
-                        details?: {
-                            [key: string]: {
-                                status: string;
-                            } & {
-                                [key: string]: unknown;
-                            };
-                        };
-                    };
-                };
-            };
-            /** @description The Health Check is not successful */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example error */
-                        status?: string;
-                        /**
-                         * @example {
-                         *       "database": {
-                         *         "status": "up"
-                         *       }
-                         *     }
-                         */
-                        info?: {
-                            [key: string]: {
-                                status: string;
-                            } & {
-                                [key: string]: unknown;
-                            };
-                        } | null;
-                        /**
-                         * @example {
-                         *       "redis": {
-                         *         "status": "down",
-                         *         "message": "Could not connect"
-                         *       }
-                         *     }
-                         */
-                        error?: {
-                            [key: string]: {
-                                status: string;
-                            } & {
-                                [key: string]: unknown;
-                            };
-                        } | null;
-                        /**
-                         * @example {
-                         *       "database": {
-                         *         "status": "up"
-                         *       },
-                         *       "redis": {
-                         *         "status": "down",
-                         *         "message": "Could not connect"
-                         *       }
-                         *     }
-                         */
-                        details?: {
-                            [key: string]: {
-                                status: string;
-                            } & {
-                                [key: string]: unknown;
-                            };
-                        };
-                    };
-                };
-            };
-        };
-    };
-    AdminHealthController_getAdminHealth: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupAdminController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupAdminController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupAdminController_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupAdminController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupAdminController_getPolicy: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupAdminController_updatePolicy: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateBackupPolicyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SystemUpdateController_version: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SystemUpdateController_migrations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SystemUpdateController_preflight: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SystemUpdateController_createDiagnostics: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SystemUpdateController_getDiagnostics: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsGatewayController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsGatewayController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                provider: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateProviderDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsGatewayController_paystack: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PaymentsGatewayController_flutterwave: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_template: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_createImport: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file?: string;
-                    entity?: string;
-                    dryRun?: boolean;
-                };
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_getImport: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_errors: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_commit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_cancel: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_createExport: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateExportDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ImportExportController_getExport: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OfflineSyncController_submit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SubmitBatchDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OfflineSyncController_getBatch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OfflineSyncController_conflicts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OfflineSyncController_resolve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ResolveConflictDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    RegistersController_list: {
-        parameters: {
-            query?: {
-                classId?: number;
-                date?: string;
-                status?: string;
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    RegistersController_open: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OpenRegisterDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    RegistersController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    RegistersController_mark: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MarkEntriesDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    RegistersController_submit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    RegistersController_reopen: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReopenRegisterDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    SummariesController_summaries: {
-        parameters: {
-            query: {
-                classId?: number;
-                from: string;
-                to: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    StudentsAttendanceController_get: {
-        parameters: {
-            query?: {
-                from?: string;
-                to?: string;
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    StaffAttendanceController_list: {
-        parameters: {
-            query: {
-                date: string;
-                campusId?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>[];
-                };
-            };
-        };
-    };
-    StaffAttendanceController_mark: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MarkStaffAttendanceDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>[];
-                };
-            };
-        };
-    };
     CurriculumController_list: {
         parameters: {
             query?: {
@@ -9670,6 +9160,1411 @@ export interface operations {
                 content: {
                     "application/json": Record<string, never>[];
                 };
+            };
+        };
+    };
+    RegistersController_list: {
+        parameters: {
+            query?: {
+                classId?: number;
+                date?: string;
+                status?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RegistersController_open: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenRegisterDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RegistersController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RegistersController_mark: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkEntriesDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RegistersController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    RegistersController_reopen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReopenRegisterDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    SummariesController_summaries: {
+        parameters: {
+            query: {
+                classId?: number;
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    StudentsAttendanceController_get: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    StaffAttendanceController_list: {
+        parameters: {
+            query: {
+                date: string;
+                campusId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>[];
+                };
+            };
+        };
+    };
+    StaffAttendanceController_mark: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkStaffAttendanceDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>[];
+                };
+            };
+        };
+    };
+    OfflineSyncController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitBatchDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OfflineSyncController_getBatch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OfflineSyncController_conflicts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OfflineSyncController_resolve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveConflictDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GradingScalesController_list: {
+        parameters: {
+            query?: {
+                levelId?: number;
+                isActive?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GradingScalesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGradingScaleDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    GradingScalesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    GradingScalesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGradingScaleDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    SchemesController_list: {
+        parameters: {
+            query?: {
+                levelId?: number;
+                isActive?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SchemesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSchemeDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    SchemesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSchemeDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AssessmentsController_list: {
+        parameters: {
+            query?: {
+                classId?: number;
+                subjectId?: number;
+                termId?: number;
+                status?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AssessmentsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssessmentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AssessmentsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssessmentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AssessmentsController_scores: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AssessmentsController_enter: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterScoresDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AssessmentsController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ScoresController_edit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditLockedScoreDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ResultSheetsController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                classId?: number;
+                termId?: number;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ResultSheetsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ResultSheetsController_compute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ResultSheetsController_approve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveResultSheetDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ResultSheetsController_reject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectResultSheetDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ResultSheetsController_publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ReportCardsController_list: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                studentId?: number;
+                classId?: number;
+                termId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReportCardsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    ReportCardsController_regenerate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegenerateReportCardDto"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    StudentsResultsController_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ApprovalWorkflowsController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ApprovalWorkflowsController_replace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                level: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplaceApprovalWorkflowDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    DocumentTemplatesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentTemplatesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDocumentTemplateDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentTemplatesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentTemplatesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDocumentTemplateDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentTemplatesController_versions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentTemplatesController_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewDocumentTemplateDto"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AnnouncementsController_list: {
+        parameters: {
+            query?: {
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>[];
+                };
+            };
+        };
+    };
+    AnnouncementsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAnnouncementDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AnnouncementsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AnnouncementsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AnnouncementsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAnnouncementDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    AnnouncementsController_publish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    MessagesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>[];
+                };
+            };
+        };
+    };
+    MessagesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateThreadDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    MessagesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    MessagesController_send: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendMessageDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EventsController_list: {
+        parameters: {
+            query?: {
+                campusId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EventsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEventDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EventsController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EventsController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEventDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RemindersController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RemindersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReminderDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RemindersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateReminderDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -10486,14 +11381,9 @@ export interface operations {
             };
         };
     };
-    GradingScalesController_list: {
+    PaymentsGatewayController_list: {
         parameters: {
-            query?: {
-                levelId?: number;
-                isActive?: boolean;
-                page?: number;
-                pageSize?: number;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -10508,7 +11398,303 @@ export interface operations {
             };
         };
     };
-    GradingScalesController_create: {
+    PaymentsGatewayController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateProviderDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PaymentsGatewayController_paystack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PaymentsGatewayController_flutterwave: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    HealthController_live: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    HealthController_ready: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The Health Check is successful */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example ok */
+                        status?: string;
+                        /**
+                         * @example {
+                         *       "database": {
+                         *         "status": "up"
+                         *       }
+                         *     }
+                         */
+                        info?: {
+                            [key: string]: {
+                                status: string;
+                            } & {
+                                [key: string]: unknown;
+                            };
+                        } | null;
+                        /** @example {} */
+                        error?: {
+                            [key: string]: {
+                                status: string;
+                            } & {
+                                [key: string]: unknown;
+                            };
+                        } | null;
+                        /**
+                         * @example {
+                         *       "database": {
+                         *         "status": "up"
+                         *       }
+                         *     }
+                         */
+                        details?: {
+                            [key: string]: {
+                                status: string;
+                            } & {
+                                [key: string]: unknown;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description The Health Check is not successful */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example error */
+                        status?: string;
+                        /**
+                         * @example {
+                         *       "database": {
+                         *         "status": "up"
+                         *       }
+                         *     }
+                         */
+                        info?: {
+                            [key: string]: {
+                                status: string;
+                            } & {
+                                [key: string]: unknown;
+                            };
+                        } | null;
+                        /**
+                         * @example {
+                         *       "redis": {
+                         *         "status": "down",
+                         *         "message": "Could not connect"
+                         *       }
+                         *     }
+                         */
+                        error?: {
+                            [key: string]: {
+                                status: string;
+                            } & {
+                                [key: string]: unknown;
+                            };
+                        } | null;
+                        /**
+                         * @example {
+                         *       "database": {
+                         *         "status": "up"
+                         *       },
+                         *       "redis": {
+                         *         "status": "down",
+                         *         "message": "Could not connect"
+                         *       }
+                         *     }
+                         */
+                        details?: {
+                            [key: string]: {
+                                status: string;
+                            } & {
+                                [key: string]: unknown;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    AdminHealthController_getAdminHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BackupAdminController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BackupAdminController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BackupAdminController_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BackupAdminController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BackupAdminController_getPolicy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BackupAdminController_updatePolicy: {
         parameters: {
             query?: never;
             header?: never;
@@ -10517,7 +11703,139 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateGradingScaleDto"];
+                "application/json": components["schemas"]["UpdateBackupPolicyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SystemUpdateController_version: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SystemUpdateController_migrations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SystemUpdateController_preflight: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SystemUpdateController_createDiagnostics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SystemUpdateController_getDiagnostics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ImportExportController_template: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ImportExportController_createImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file?: string;
+                    entity?: string;
+                    dryRun?: boolean;
+                };
             };
         };
         responses: {
@@ -10525,68 +11843,17 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
+                content?: never;
             };
         };
     };
-    GradingScalesController_get: {
+    ImportExportController_getImport: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 id: number;
             };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    GradingScalesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateGradingScaleDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    SchemesController_list: {
-        parameters: {
-            query?: {
-                levelId?: number;
-                isActive?: boolean;
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -10599,7 +11866,64 @@ export interface operations {
             };
         };
     };
-    SchemesController_create: {
+    ImportExportController_errors: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ImportExportController_commit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ImportExportController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ImportExportController_createExport: {
         parameters: {
             query?: never;
             header?: never;
@@ -10608,7 +11932,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateSchemeDto"];
+                "application/json": components["schemas"]["CreateExportDto"];
             };
         };
         responses: {
@@ -10616,115 +11940,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    SchemesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSchemeDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    AssessmentsController_list: {
-        parameters: {
-            query?: {
-                classId?: number;
-                subjectId?: number;
-                termId?: number;
-                status?: string;
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
                 content?: never;
             };
         };
     };
-    AssessmentsController_create: {
+    ImportExportController_getExport: {
         parameters: {
             query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAssessmentDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    AssessmentsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAssessmentDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    AssessmentsController_scores: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-            };
             header?: never;
             path: {
                 id: number;
@@ -10738,346 +11960,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    AssessmentsController_enter: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EnterScoresDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    AssessmentsController_submit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ScoresController_edit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EditLockedScoreDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ResultSheetsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                classId?: number;
-                termId?: number;
-                status?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ResultSheetsController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ResultSheetsController_compute: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ResultSheetsController_approve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApproveResultSheetDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ResultSheetsController_reject: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RejectResultSheetDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ResultSheetsController_publish: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ReportCardsController_list: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-                studentId?: number;
-                classId?: number;
-                termId?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ReportCardsController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    ReportCardsController_regenerate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegenerateReportCardDto"];
-            };
-        };
-        responses: {
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    StudentsResultsController_get: {
-        parameters: {
-            query?: {
-                page?: number;
-                pageSize?: number;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ApprovalWorkflowsController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ApprovalWorkflowsController_replace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                level: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReplaceApprovalWorkflowDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
             };
         };
     };
@@ -11497,10 +12379,13 @@ export interface operations {
             };
         };
     };
-    AnnouncementsController_list: {
+    BooksController_list: {
         parameters: {
             query?: {
-                status?: string;
+                q?: string;
+                campusId?: number;
+                page?: number;
+                pageSize?: number;
             };
             header?: never;
             path?: never;
@@ -11512,13 +12397,11 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": Record<string, never>[];
-                };
+                content?: never;
             };
         };
     };
-    AnnouncementsController_create: {
+    BooksController_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11527,7 +12410,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateAnnouncementDto"];
+                "application/json": components["schemas"]["CreateBookDto"];
             };
         };
         responses: {
@@ -11541,7 +12424,7 @@ export interface operations {
             };
         };
     };
-    AnnouncementsController_get: {
+    BooksController_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -11562,26 +12445,7 @@ export interface operations {
             };
         };
     };
-    AnnouncementsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnnouncementsController_update: {
+    BooksController_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -11592,7 +12456,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateAnnouncementDto"];
+                "application/json": components["schemas"]["UpdateBookDto"];
             };
         };
         responses: {
@@ -11606,115 +12470,14 @@ export interface operations {
             };
         };
     };
-    AnnouncementsController_publish: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    MessagesController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>[];
-                };
-            };
-        };
-    };
-    MessagesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateThreadDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    MessagesController_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    MessagesController_send: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SendMessageDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    EventsController_list: {
+    LoansController_list: {
         parameters: {
             query?: {
-                campusId?: string;
+                studentId?: number;
+                status?: "active" | "returned" | "overdue";
+                campusId?: number;
+                page?: number;
+                pageSize?: number;
             };
             header?: never;
             path?: never;
@@ -11730,7 +12493,7 @@ export interface operations {
             };
         };
     };
-    EventsController_create: {
+    LoansController_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11739,7 +12502,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateEventDto"];
+                "application/json": components["schemas"]["CreateLoanDto"];
             };
         };
         responses: {
@@ -11747,11 +12510,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };
-    EventsController_remove: {
+    LoansController_markReturned: {
         parameters: {
             query?: never;
             header?: never;
@@ -11762,40 +12527,25 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    EventsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateEventDto"];
-            };
-        };
-        responses: {
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };
-    RemindersController_list: {
+    HoldsController_list: {
         parameters: {
-            query?: never;
+            query?: {
+                studentId?: number;
+                bookId?: number;
+                status?: "pending" | "ready" | "fulfilled" | "cancelled";
+                page?: number;
+                pageSize?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -11810,7 +12560,7 @@ export interface operations {
             };
         };
     };
-    RemindersController_create: {
+    HoldsController_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11819,7 +12569,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateReminderDto"];
+                "application/json": components["schemas"]["CreateHoldDto"];
             };
         };
         responses: {
@@ -11827,11 +12577,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };
-    RemindersController_update: {
+    HoldsController_cancel: {
         parameters: {
             query?: never;
             header?: never;
@@ -11840,17 +12592,15 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateReminderDto"];
-            };
-        };
+        requestBody?: never;
         responses: {
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };
@@ -11894,7 +12644,10 @@ export interface operations {
     };
     PortalChildrenController_getAttendance: {
         parameters: {
-            query?: never;
+            query?: {
+                from?: string;
+                to?: string;
+            };
             header?: never;
             path: {
                 studentId: number;
@@ -11926,7 +12679,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>[];
+                };
             };
         };
     };
@@ -11945,7 +12700,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>[];
+                };
             };
         };
     };
@@ -12127,6 +12884,30 @@ export interface operations {
             };
         };
     };
+    PortalMeController_postPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     PortalMeController_getTimetable: {
         parameters: {
             query?: never;
@@ -12146,7 +12927,10 @@ export interface operations {
     };
     PortalMeController_getAttendance: {
         parameters: {
-            query?: never;
+            query?: {
+                from?: string;
+                to?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -12174,7 +12958,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>[];
+                };
             };
         };
     };
@@ -12191,7 +12977,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>[];
+                };
             };
         };
     };
@@ -12226,6 +13014,174 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    PortalMeController_getLibrary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    PortalMeController_getMedical: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    PortalMeController_getChatChannels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    PortalMeController_getChatMessages: {
+        parameters: {
+            query?: {
+                limit?: number;
+                /** @description Return messages older than this message id (cursor from `nextBeforeId`). */
+                beforeId?: number;
+            };
+            header?: never;
+            path: {
+                channelId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalMeController_postChatMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                channelId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortalSendChatMessageDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    PortalMeController_getLiveSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PortalMeController_postAbsenceRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePortalAbsenceRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    PortalMeController_postTeacherTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePortalTeacherTicketDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };

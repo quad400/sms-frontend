@@ -1,4 +1,4 @@
-import { StudentFees } from '@/features/portal/components/student-fees';
+import { StudentFees } from '@/features/portal';
 
 export default function StudentFeesPage() {
   return <StudentFees />;

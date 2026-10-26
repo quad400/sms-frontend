@@ -1,4 +1,4 @@
-import { StudentEvents } from '@/features/portal/components/student-events';
+import { StudentEvents } from '@/features/portal';
 
 export default function StudentEventsPage() {
   return <StudentEvents />;

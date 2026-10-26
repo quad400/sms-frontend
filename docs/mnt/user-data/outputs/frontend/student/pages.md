@@ -1,38 +1,77 @@
 # Student Side
 
-Shell: `StudentShell`. Phone-first, simple, friendly. Bottom tabs: **Home**, **Timetable**, **Results**, **More**. Students have read-only access to their own record. All data comes from the student's own portal endpoints (`/portal/me/*`, see backend gap 4). Until those exist, the same data is available through `/portal/children/:studentId/*` only if the backend allows a student to read their own id.
+Shell: `StudentShell`. Phone-first with desktop Courierdock sidebar. Bottom tabs: **Home**, **Timetable**, **Results**, **More**. Desktop IA matches the expanded stitch pack (Library, Medical, Community & Life), gated by feature flags.
 
-Tone: short sentences, no financial jargon. Fees are visible only if the school enables it (setting) and are informational, with no pay button.
+Tone: short sentences, no financial jargon. Fees are visible only if the school enables it (setting) and are informational, with no pay button. Withheld results never mention money.
+
+## Navigation
+
+| Group | Item | Route | Flag |
+|---|---|---|---|
+| Overview | Dashboard | `/student` | — |
+| Academics | Daily Timetable | `/student/timetable` | — |
+| Academics | Live Classes | `/student/lessons` | lesson notes always; Meet hub when `lms` |
+| Academics | Terminal Results | `/student/results` | — |
+| Student Records | Attendance Matrix | `/student/attendance` | — |
+| Student Records | Library Borrowing | `/student/library` | `library` |
+| Student Records | Medical & Clinic | `/student/medical` | `health-sickbay` |
+| Student Records | School Ledger | `/student/fees` | school setting |
+| Community & Life | Scholar Lounge | `/student/chatroom` | `student-chat` |
+| Community & Life | Campus Dispatches | `/student/announcements` | — |
+| Community & Life | School Events | `/student/events` | — |
+| System | Account & Settings | `/student/account` | — |
 
 ## T1. Home
 - **Route:** `/student` | **Permission:** `portal.profile.read`
-- **Layout:** greeting with the student's name and class. **Next lesson** card (subject, room, time). Today's timetable list. Attendance rate tile. Latest announcement. Upcoming events (3).
-- **Data:** `GET /portal/me`, `GET /portal/me/overview`, `GET /portal/announcements`, `GET /portal/events`.
+- **Stitch:** `student_portal_dashboard_overview_courierdock_style`, `student_portal_home_daily_overview`
+- **Layout:** greeting, next lesson, today’s timetable, attendance rate, latest announcement, upcoming events (3). Withheld banner when `resultsWithheld`.
+- **Data:** `GET /portal/me`, `GET /portal/me/overview`, `GET /portal/announcements`, `GET /portal/events`, timetable for next lesson.
 
 ## T2. Timetable
 - **Route:** `/student/timetable` | **Permission:** `portal.timetable.read`
-- **Layout:** day tabs with period list, current period highlighted. Works offline from cache. `GET /portal/me/timetable`.
+- **Stitch:** interactive weekly, desktop timetable, period detail, offline modes, full-week modal
+- **Layout:** Daily / Full Week, day tabs, period list with resolved names/times, current period highlight, period detail drawer, offline cache banner.
+- **Data:** `GET /portal/me/timetable` (enriched slots).
 
 ## T3. Attendance
 - **Route:** `/student/attendance` | **Permission:** `portal.attendance.read`
-- **Layout:** month calendar and summary counts, same component as R2 without the child switcher. `GET /portal/me/attendance`.
+- **Stitch:** `student_portal_streamlined_attendance_record`
+- **Layout:** month calendar + summary + list. `GET /portal/me/attendance?from=&to=`.
 
 ## T4. Results and report cards
-- **Route:** `/student/results`, `/student/report-cards` | **Permission:** `portal.result.read`, `portal.report-card.read`
-- **Layout:** term selector, subject cards (score, grade, position, remark), report card list with View PDF. A withheld state shows "Your results are not available yet. Please see the school office." with no financial detail.
-- **Data:** `GET /portal/me/results`, `GET /portal/me/report-cards`.
+- **Route:** `/student/results`, `/student/report-cards`
+- **Stitch:** terminal results, transcripts, dignified withheld
+- **Withheld:** “Your results are not available yet. Please see the school office.” — no financial detail.
+- **Data:** `GET /portal/me/results` (subjects + withheld), `GET /portal/me/report-cards`.
 
-## T5. Learning material (when available)
-- **Route:** `/student/lessons`. Lesson notes shared by teachers for the student's class, with downloads. Needs a student-facing endpoint for shared lesson notes (add `GET /portal/me/lesson-notes`). Hidden until the backend provides it. Phase 2 LMS assignments will slot in here without changing other pages.
+## T5. Live Classes / lesson notes
+- **Route:** `/student/lessons`
+- **Stitch:** `student_portal_live_classes_hub_google_meet_integration`
+- **Data:** `GET /portal/me/lesson-notes`; when `lms` flag: `GET /portal/me/live-sessions`.
 
 ## T6. Fees (optional)
-- **Route:** `/student/fees`, shown only when the school allows it. Read-only invoice and balance summary from `GET /portal/me/invoices`.
+- **Route:** `/student/fees` — read-only. `GET /portal/me/invoices`.
 
 ## T7. Announcements and events
-- **Route:** `/student/announcements`, `/student/events`. `GET /portal/announcements`, `GET /portal/events`.
+- **Routes:** `/student/announcements`, `/student/events`.
 
 ## T8. Account
-- **Route:** `/student/account`. Profile (read-only), change password, notification preferences, active sessions. Shared `features/account` component. Students cannot edit personal details, they see "Ask the school office to change this".
+- **Route:** `/student/account`. Profile read-only (“Ask the school office to change this”).
 
 ## T9. First login
-- **Route:** `/student/welcome`. Force a password change, short tour of the tabs, PWA install prompt.
+- **Route:** `/student/welcome`.
+
+## T10. Library (flag `library`)
+- **Route:** `/student/library`
+- **Stitch:** `student_portal_library_books_borrowing_catalogue`
+- **Data:** `GET /portal/me/library`
+
+## T11. Medical (flag `health-sickbay`)
+- **Route:** `/student/medical`
+- **Stitch:** `student_portal_medical_records_school_clinic_hub`
+- **Data:** `GET /portal/me/medical` (audited, student-safe)
+
+## T12. Scholar Lounge (flag `student-chat`)
+- **Route:** `/student/chatroom`
+- **Stitch:** `student_portal_grade_8_student_chatroom_study_lounge`
+- **Data:** `GET /portal/me/chat/channels`, `GET .../messages`

@@ -1,4 +1,4 @@
-import { StudentAccount } from '@/features/account/components/student-account';
+import { StudentAccount } from '@/features/account';
 
 export default function StudentAccountPage() {
   return <StudentAccount />;

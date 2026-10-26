@@ -5,7 +5,7 @@ This folder defines the whole web frontend: one subfolder per side of the produc
 | Folder | Who uses it | Route prefix | Spec |
 |---|---|---|---|
 | `public/` | Anyone not logged in: login, password reset, admissions application, offer acceptance | `/` | `public/pages.md` |
-| `admin/` | School management: principal, registrar, bursar, admissions officer, exams officer, school admin | `/admin` | `admin/01` to `admin/07` |
+| `admin/` | School management: principal, registrar, bursar, admissions officer, exams officer, school admin | `/admin` | [`admin/pages.md`](./mnt/user-data/outputs/frontend/admin/pages.md); expanded `01`–`07` |
 | `staff/` | Teachers, form teachers, approvers, any staff doing self-service | `/staff` | `staff/pages.md` |
 | `parent/` | Parents and guardians | `/parent` | `parent/pages.md` |
 | `student/` | Students | `/student` | `student/pages.md` |

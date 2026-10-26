@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import { usePortalEvents } from '../hooks/use-portal';
+import { usePortalEvents } from '../hooks/use-portal-events';
 import { QueryState } from './query-state';
 import { asArray, asRecord, num, str } from '@/lib/utils/record';
+import { PageHeader } from '@/components/patterns/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function StudentEvents() {
@@ -18,10 +19,7 @@ export function StudentEvents() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Events</h1>
-        <p className="text-sm text-muted-foreground">School events coming up.</p>
-      </div>
+      <PageHeader title="Events" description="School events coming up." />
 
       <QueryState isPending={query.isPending} error={query.error} isEmpty={rows.length === 0}>
         <div className="space-y-3">

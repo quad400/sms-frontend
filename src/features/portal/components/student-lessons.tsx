@@ -1,56 +1,154 @@
 'use client';
 
-import { useMemo } from 'react';
-import { usePortalLessonNotes } from '../hooks/use-portal';
+import { useMemo, useState } from 'react';
+import { usePortalLessonNotes } from '../hooks/use-portal-lesson-notes';
+import { usePortalLiveSessions } from '../hooks/use-portal-live-sessions';
 import { QueryState } from './query-state';
-import { asArray, asRecord, num, str } from '@/lib/utils/record';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useFeatureFlags } from '@/lib/config/use-feature-flags';
+import { STUDENT_MODULE_FLAGS } from '@/lib/config/feature-flags';
+import { listFrom } from '../lib/format';
+import { useNow } from '../lib/schedule';
+import { LessonsHeader, type LessonsFilter } from './lessons/lessons-header';
+import { LessonsHero } from './lessons/lessons-hero';
+import { LessonsNotesList } from './lessons/lessons-notes-list';
+import { LessonsNotesRail } from './lessons/lessons-notes-rail';
+import { LessonsSessionList } from './lessons/lessons-session-list';
+import {
+  isLive,
+  isSameLocalDay,
+  parseSessions,
+  weekBoundsMs,
+  type LiveSession,
+} from './lessons/parse-live-sessions';
+
+function filterSessions(
+  sessions: LiveSession[],
+  filter: LessonsFilter,
+  now: Date,
+): LiveSession[] {
+  if (filter === 'notes') return [];
+  const nowMs = now.getTime();
+  if (filter === 'today') {
+    return sessions.filter((s) => isSameLocalDay(s.startMs, nowMs));
+  }
+  if (filter === 'week') {
+    const { startMs, endMs } = weekBoundsMs(now);
+    return sessions.filter((s) => s.startMs >= startMs && s.startMs < endMs);
+  }
+  return sessions;
+}
 
 export function StudentLessons() {
-  const query = usePortalLessonNotes();
-  const notes = useMemo(
-    () =>
-      asArray(query.data)
-        .map((row) => asRecord(row))
-        .filter((row): row is Record<string, unknown> => !!row),
-    [query.data],
+  const flags = useFeatureFlags();
+  const lmsEnabled = flags.isEnabled(STUDENT_MODULE_FLAGS.lms);
+  const live = usePortalLiveSessions({ enabled: lmsEnabled });
+  const notesQuery = usePortalLessonNotes();
+  const now = useNow(15_000);
+  const nowMs = now.getTime();
+
+  const [filter, setFilter] = useState<LessonsFilter>('all');
+  const activeFilter: LessonsFilter = lmsEnabled ? filter : 'notes';
+
+  const sessions = useMemo(() => parseSessions(live.data), [live.data]);
+  const notes = useMemo(() => listFrom(notesQuery.data, 'items', 'notes'), [notesQuery.data]);
+
+  const featured = useMemo(() => {
+    const liveNow = sessions.find((s) => isLive(s, nowMs));
+    if (liveNow) return liveNow;
+    return sessions.find((s) => s.startMs > nowMs) ?? sessions[0] ?? null;
+  }, [sessions, nowMs]);
+
+  const todayCount = useMemo(
+    () => sessions.filter((s) => isSameLocalDay(s.startMs, nowMs)).length,
+    [sessions, nowMs],
+  );
+  const weekCount = useMemo(() => {
+    const { startMs, endMs } = weekBoundsMs(now);
+    return sessions.filter((s) => s.startMs >= startMs && s.startMs < endMs).length;
+  }, [sessions, now]);
+
+  const filtered = useMemo(
+    () => filterSessions(sessions, activeFilter, now),
+    [sessions, activeFilter, now],
   );
 
-  return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Lessons</h1>
-        <p className="text-sm text-muted-foreground">Notes shared by your teachers.</p>
-      </div>
+  const filterOptions = useMemo(() => {
+    if (!lmsEnabled) {
+      return [{ value: 'notes' as const, label: `Notes (${notes.length})` }];
+    }
+    return [
+      { value: 'all' as const, label: `All (${sessions.length})` },
+      { value: 'today' as const, label: `Today (${todayCount})` },
+      { value: 'week' as const, label: `This week (${weekCount})` },
+      { value: 'notes' as const, label: `Notes (${notes.length})` },
+    ];
+  }, [lmsEnabled, sessions.length, todayCount, weekCount, notes.length]);
 
-      <QueryState isPending={query.isPending} error={query.error} isEmpty={notes.length === 0}>
-        <div className="space-y-3">
-          {notes.map((note, index) => {
-            const attachments = asArray(note.attachments)
-              .map((a) => asRecord(a))
-              .filter((a): a is Record<string, unknown> => !!a);
-            return (
-              <Card key={num(note.id, index)}>
-                <CardHeader>
-                  <CardTitle className="text-base">{str(note.title, 'Lesson note')}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <p className="whitespace-pre-wrap text-muted-foreground">{str(note.body)}</p>
-                  {attachments.length > 0 ? (
-                    <ul className="space-y-1">
-                      {attachments.map((file) => (
-                        <li key={num(file.id)} className="text-brand">
-                          Attachment #{num(file.fileId)}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </QueryState>
+  const showNotes = activeFilter === 'notes';
+
+  return (
+    <div className="space-y-6 md:space-y-8">
+      <LessonsHeader
+        filter={activeFilter}
+        onFilterChange={setFilter}
+        options={filterOptions}
+        showFilters={lmsEnabled}
+      />
+
+      {lmsEnabled && !showNotes ? (
+        <QueryState
+          isPending={live.isPending}
+          error={live.error}
+          onRetry={() => void live.refetch()}
+        >
+          <div className="space-y-6">
+            <LessonsHero session={featured} nowMs={nowMs} />
+
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+              <LessonsSessionList
+                sessions={filtered}
+                nowMs={nowMs}
+                emptyTitle={
+                  activeFilter === 'today'
+                    ? 'No sessions today'
+                    : activeFilter === 'week'
+                      ? 'No sessions this week'
+                      : 'No live sessions scheduled'
+                }
+                emptyBody={
+                  activeFilter === 'all'
+                    ? 'When a teacher schedules a live class for your class, it will appear here.'
+                    : 'Try All sessions, or check back later.'
+                }
+              />
+              <div className="lg:sticky lg:top-6">
+                <QueryState
+                  isPending={notesQuery.isPending}
+                  error={notesQuery.error}
+                  onRetry={() => void notesQuery.refetch()}
+                >
+                  <LessonsNotesRail notes={notes} onViewAll={() => setFilter('notes')} />
+                </QueryState>
+              </div>
+            </div>
+          </div>
+        </QueryState>
+      ) : (
+        <section aria-labelledby="lesson-notes-heading" className="space-y-3">
+          <h2 id="lesson-notes-heading" className="font-heading text-lg font-semibold">
+            Lesson notes
+          </h2>
+          <QueryState
+            isPending={notesQuery.isPending}
+            error={notesQuery.error}
+            isEmpty={notes.length === 0}
+            onRetry={() => void notesQuery.refetch()}
+            empty={<LessonsNotesList notes={[]} />}
+          >
+            <LessonsNotesList notes={notes} />
+          </QueryState>
+        </section>
+      )}
     </div>
   );
 }

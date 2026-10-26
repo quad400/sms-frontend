@@ -23,5 +23,8 @@ test.describe('student shell', () => {
 
     await page.setViewportSize({ width: 1280, height: 800 });
     await expect(page.getByRole('navigation', { name: 'Primary' })).toBeHidden();
+    await expect(page.getByRole('navigation', { name: 'Student' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+    await expect(page.getByRole('searchbox', { name: /search subjects/i })).toBeVisible();
   });
 });

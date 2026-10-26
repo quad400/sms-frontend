@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
-import { QueryProvider } from '@/components/providers/query-provider';
+import { AppShell, type AppShellRole } from '@/components/shells/app-shell';
 import { PortalShell } from '@/components/shells/portal-shell';
-import { StudentShell } from '@/components/shells/student-shell';
 import { SessionProvider } from '@/lib/auth/permissions';
 import { fetchSessionUser } from '@/lib/auth/session';
 import { portalHomeForUserType } from '@/lib/auth/portal';
 import type { AuthUserType } from '@/lib/auth/types';
+import { fetchPublicSchoolProfile } from '@/lib/school/public-profile';
+
+const APP_SHELL_ROLES: AppShellRole[] = ['student', 'staff', 'parent', 'admin'];
 
 export async function AuthenticatedPortalLayout({
   title,
@@ -27,16 +29,31 @@ export async function AuthenticatedPortalLayout({
     redirect(portalHomeForUserType(user.userType));
   }
 
-  const shell =
-    expectedUserType === 'student' ? (
-      <StudentShell>{children}</StudentShell>
-    ) : (
-      <PortalShell title={title}>{children}</PortalShell>
+  const role =
+    expectedUserType && APP_SHELL_ROLES.includes(expectedUserType as AppShellRole)
+      ? (expectedUserType as AppShellRole)
+      : null;
+
+  if (role) {
+    const school = await fetchPublicSchoolProfile();
+    return (
+      <SessionProvider user={user}>
+        <AppShell
+          role={role}
+          chrome={{
+            schoolName: school.name,
+            timezone: school.timezone,
+          }}
+        >
+          {children}
+        </AppShell>
+      </SessionProvider>
     );
+  }
 
   return (
     <SessionProvider user={user}>
-      <QueryProvider>{shell}</QueryProvider>
+      <PortalShell title={title}>{children}</PortalShell>
     </SessionProvider>
   );
 }

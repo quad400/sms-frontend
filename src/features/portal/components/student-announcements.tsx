@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import { usePortalAnnouncements } from '../hooks/use-portal';
+import { usePortalAnnouncements } from '../hooks/use-portal-announcements';
 import { QueryState } from './query-state';
 import { asArray, asRecord, num, str } from '@/lib/utils/record';
+import { PageHeader } from '@/components/patterns/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function StudentAnnouncements() {
@@ -18,10 +19,7 @@ export function StudentAnnouncements() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Announcements</h1>
-        <p className="text-sm text-muted-foreground">News from your school.</p>
-      </div>
+      <PageHeader title="Announcements" description="News from your school." />
 
       <QueryState isPending={query.isPending} error={query.error} isEmpty={rows.length === 0}>
         <div className="space-y-3">

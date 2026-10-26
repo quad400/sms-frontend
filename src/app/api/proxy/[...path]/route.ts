@@ -53,6 +53,10 @@ async function proxy(request: NextRequest, context: RouteContext): Promise<Respo
   if (contentType) {
     headers.set('Content-Type', contentType);
   }
+  const idempotencyKey = request.headers.get('idempotency-key');
+  if (idempotencyKey) {
+    headers.set('Idempotency-Key', idempotencyKey);
+  }
   if (accessToken) {
     headers.set('Authorization', `Bearer ${accessToken}`);
   }

@@ -16,7 +16,13 @@ src/
     api/session/  api/proxy/[...path]/
     layout.tsx
   middleware.ts
-  features/<name>/{api,components,hooks,schemas,types}/
+  features/<name>/
+    api/           # one file per operation + keys.ts
+    hooks/         # one file per hook
+    components/
+    schemas.ts     # Zod forms
+    types.ts       # view models / DTO aliases beyond OpenAPI
+    index.ts       # public barrel for app imports
   components/{ui,patterns,shells}/
   lib/{api,auth,money,utils,motion}/
   styles/
@@ -34,15 +40,23 @@ Admin route folders mirror `docs/01`–`07`. Feature folders mirror backend modu
 
 If two sides need the same widget, move it to `components/patterns` or a shared feature (e.g. `features/account`).
 
+App pages import from the feature barrel (`@/features/portal`), not deep component paths. Feature `api/` stays internal (hooks import relatively).
+
 ## Feature shape
 
 ```
 features/fees/
-  api/           # openapi-fetch wrappers / query keys
-  components/    # feature-only UI (no direct API calls)
-  hooks/         # useInvoices, useRecordPayment → api/
-  schemas/       # Zod forms
-  types/         # view models if needed beyond OpenAPI
+  api/
+    keys.ts
+    get-invoices.ts      # one operation per file
+    create-payment.ts
+  hooks/
+    use-invoices.ts      # one hook per file
+    use-create-payment.ts
+  components/
+  schemas.ts
+  types.ts
+  index.ts
 ```
 
 See `15-architecture-layers.mdc` for anti-patterns (API-in-component, client pages, fat components).
