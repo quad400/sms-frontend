@@ -34,7 +34,7 @@ export function ShellSyncChip({
       disabled={status === 'syncing' || !onSync}
       title={label}
       className={cn(
-        'inline-flex h-9 items-center gap-1.5 rounded-full px-3 font-mono text-[11px] font-semibold tracking-wide shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] transition-colors',
+        'inline-flex h-9 items-center gap-1.5 rounded-full px-3 font-mono text-xs font-semibold tracking-wide shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] transition-colors',
         status === 'offline' || status === 'attention'
           ? 'bg-danger/10 text-danger'
           : pendingCount > 0 || status === 'syncing'

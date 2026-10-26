@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { AlertCircle } from 'lucide-react';
 import { AttentionList, type AttentionItem } from '@/components/patterns/attention-list';
 import { MetricList, type MetricRow } from '@/components/patterns/metric-list';
 import { MoneyText } from '@/components/patterns/money';
@@ -10,6 +11,7 @@ import { SectionCard } from '@/components/patterns/section-card';
 import { SparkBars, type SparkPoint } from '@/components/patterns/spark-bars';
 import { StatCard } from '@/components/patterns/stat-card';
 import { StatCardGrid } from '@/components/patterns/stat-card-grid';
+import { Button } from '@/components/ui/button';
 import { useSession } from '@/lib/auth/permissions';
 import { asRecord, str } from '@/lib/utils/record';
 import { useAdminDashboardLive, useAdminDashboards } from '../hooks/use-dashboards';
@@ -125,7 +127,7 @@ export function AdminDashboard() {
     {
       id: 'collected',
       label: 'Fees collected (term)',
-      value: <MoneyText minor={collectedMinor} className="font-heading text-2xl font-semibold" />,
+      value: <MoneyText minor={collectedMinor} className="text-2xl font-semibold" />,
       href: '/admin/fees/payments',
       show: can('fees.payment.list'),
       updated: feesUpdated,
@@ -133,7 +135,7 @@ export function AdminDashboard() {
     {
       id: 'outstanding',
       label: 'Outstanding balance',
-      value: <MoneyText minor={outstandingMinor} className="font-heading text-2xl font-semibold" />,
+      value: <MoneyText minor={outstandingMinor} className="text-2xl font-semibold" />,
       href: '/admin/fees/debtors',
       show: can('fees.account.read'),
       updated: feesUpdated,
@@ -196,7 +198,20 @@ export function AdminDashboard() {
   const scopeLabel =
     campusId != null ? `Campus filter applied` : 'All campuses in your scope';
 
-  const loading = snapshots.isPending;
+  const loading = snapshots.isPending || live.isPending;
+  const hasDataError =
+    snapshots.overview.isError ||
+    snapshots.attendance.isError ||
+    snapshots.fees.isError ||
+    snapshots.enrolment.isError ||
+    live.isError;
+  const retryDashboard = () => {
+    void snapshots.overview.refetch();
+    void snapshots.attendance.refetch();
+    void snapshots.fees.refetch();
+    void snapshots.enrolment.refetch();
+    live.refetch();
+  };
 
   return (
     <div className="space-y-6">
@@ -204,6 +219,24 @@ export function AdminDashboard() {
         title="Dashboard"
         description={`Operational snapshot for administrators. ${scopeLabel}.`}
       />
+
+      {hasDataError ? (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center gap-3 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-sm text-foreground"
+        >
+          <AlertCircle className="size-5 shrink-0 text-warning" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Some dashboard data could not be loaded.</p>
+            <p className="mt-1 text-muted-foreground">
+              The figures shown may be incomplete. Try again to refresh the available data.
+            </p>
+          </div>
+          <Button type="button" variant="outline" onClick={retryDashboard}>
+            Try again
+          </Button>
+        </div>
+      ) : null}
 
       <StatCardGrid skeletonCount={loading ? Math.max(kpis.length, 4) : 0}>
         {kpis.map((k) => (
@@ -218,8 +251,8 @@ export function AdminDashboard() {
         ))}
       </StatCardGrid>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="space-y-4 lg:col-span-6">
           {can('attendance.register.list') ? (
             <SectionCard
               title="Attendance trend"
@@ -239,7 +272,7 @@ export function AdminDashboard() {
           ) : null}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 lg:col-span-6">
           <SectionCard title="Needs attention" description="Items that usually block the day">
             <AttentionList items={attention} />
           </SectionCard>
@@ -262,11 +295,12 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-12">
         {showAnnouncements ? (
           <SectionCard
             title="Latest announcements"
             action={{ label: 'Manage', href: '/admin/announcements' }}
+            className="lg:col-span-6"
           >
             {announcementsLive.length > 0 ? (
               <ul className="space-y-2 text-sm">
@@ -297,25 +331,25 @@ export function AdminDashboard() {
         ) : null}
 
         {(can('fees.payment.list') || can('fees.account.read')) && (
-          <SectionCard title="Fees snapshot" description={feesUpdated ?? undefined}>
+          <SectionCard title="Fees snapshot" description={feesUpdated ?? undefined} className="lg:col-span-6">
             <dl className="grid gap-3 sm:grid-cols-2">
               {can('fees.payment.list') ? (
                 <div className="rounded-lg border border-border/80 bg-muted/30 p-3">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <dt className="text-xs font-semibold text-muted-foreground">
                     Collected
                   </dt>
                   <dd className="mt-1">
-                    <MoneyText minor={collectedMinor} className="text-lg font-semibold" />
+                    <MoneyText minor={collectedMinor} className="text-lg font-semibold tabular-nums" />
                   </dd>
                 </div>
               ) : null}
               {can('fees.account.read') ? (
                 <div className="rounded-lg border border-border/80 bg-muted/30 p-3">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <dt className="text-xs font-semibold text-muted-foreground">
                     Outstanding
                   </dt>
                   <dd className="mt-1">
-                    <MoneyText minor={outstandingMinor} className="text-lg font-semibold" />
+                    <MoneyText minor={outstandingMinor} className="text-lg font-semibold tabular-nums" />
                   </dd>
                 </div>
               ) : null}

@@ -36,16 +36,16 @@ export function DataTable<T extends { id: string | number }>({
   const pad = density === 'compact' ? 'px-3 py-2' : 'px-4 py-3';
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card">
+    <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
       <table className="w-full min-w-[640px] border-collapse text-left text-sm">
         <thead>
-          <tr className="border-b border-border bg-muted/40">
+          <tr className="sticky top-0 border-b border-border bg-muted">
             {columns.map((col) => (
               <th
                 key={col.id}
                 className={cn(
                   pad,
-                  'text-xs font-semibold uppercase tracking-wide text-muted-foreground',
+                  'text-xs font-semibold tracking-normal text-muted-foreground',
                   col.className,
                 )}
               >

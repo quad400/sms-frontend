@@ -25,7 +25,7 @@ export function StatCard({
     return (
       <div
         className={cn(
-          'h-[6.5rem] animate-pulse rounded-xl border border-border bg-muted/60',
+          'col-span-12 h-[6.5rem] animate-pulse rounded-2xl border border-border bg-muted/60 md:col-span-6 lg:col-span-3',
           className,
         )}
         aria-hidden
@@ -35,8 +35,8 @@ export function StatCard({
 
   const body = (
     <>
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-      <div className="mt-2 font-heading text-2xl font-semibold tracking-tight text-foreground">
+      <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+      <div className="mt-2 font-mono text-2xl font-semibold tracking-tight tabular-nums text-foreground">
         {value}
       </div>
       {hint ? <div className="mt-1 text-xs text-muted-foreground">{hint}</div> : null}
@@ -45,7 +45,7 @@ export function StatCard({
   );
 
   const shell =
-    'rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)] transition';
+    'col-span-12 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] transition md:col-span-6 lg:col-span-3';
 
   if (href) {
     return (

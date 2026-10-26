@@ -67,7 +67,7 @@ export function ShellSidebar({
             <p className="truncate font-heading text-base font-semibold tracking-tight text-foreground">
               {schoolName}
             </p>
-            <p className="truncate font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <p className="truncate font-mono text-xs font-semibold text-muted-foreground">
               {portalLabel}
             </p>
           </div>
@@ -77,14 +77,14 @@ export function ShellSidebar({
       <nav
         aria-label={portalLabel}
         className={cn(
-          'mt-4 flex h-screen flex-1 flex-col gap-5 overflow-y-auto pb-4',
+          'mt-4 flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pb-4',
           showLabels ? 'px-3' : 'px-2',
         )}
       >
         {groups.map((group) => (
           <div key={group.label} className="flex flex-col gap-1">
             {showLabels ? (
-              <p className="px-3 pb-1 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="px-3 pb-1 text-xs font-semibold text-muted-foreground">
                 {group.label}
               </p>
             ) : (
@@ -102,7 +102,7 @@ export function ShellSidebar({
                   aria-current={active ? 'page' : undefined}
                   onClick={() => onNavigate?.()}
                   className={cn(
-                    'flex items-center rounded-lg text-sm font-semibold transition-colors',
+                    'flex min-h-11 items-center rounded-lg text-sm font-semibold transition-colors',
                     showLabels ? 'gap-3 px-3 py-2.5' : 'justify-center px-1 py-2.5',
                     active
                       ? 'bg-academic text-academic-foreground shadow-[0_1px_3px_0_rgba(15,30,54,0.04)]'

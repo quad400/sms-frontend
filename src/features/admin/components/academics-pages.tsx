@@ -140,7 +140,7 @@ export function AllocationsPage() {
         <QueryState isPending={allocations.isPending || subjects.isPending} error={allocations.error}>
           <table className="w-full min-w-[480px] border-collapse text-sm">
             <thead>
-              <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+              <tr className="border-b text-left text-xs text-muted-foreground">
                 <th className="px-2 py-2">Subject</th>
                 <th className="px-2 py-2">Teacher</th>
               </tr>
@@ -419,7 +419,7 @@ export function TimetableBuilderPage({ timetableId }: { timetableId: number }) {
                 <tr key={ts.id} className={ts.isBreak ? 'bg-muted/30' : undefined}>
                   <td className="border border-border px-2 py-1">
                     {ts.name}
-                    <div className="text-[10px] text-muted-foreground">
+                    <div className="text-xs text-muted-foreground">
                       {ts.startTime}–{ts.endTime}
                     </div>
                   </td>

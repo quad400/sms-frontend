@@ -16,7 +16,7 @@ export function StatCardGrid({
 }) {
   return (
     <div
-      className={cn('grid gap-3 sm:grid-cols-2 xl:grid-cols-4', className)}
+      className={cn('grid grid-cols-12 gap-4', className)}
       aria-busy={skeletonCount > 0 || undefined}
     >
       {skeletonCount > 0

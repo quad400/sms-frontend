@@ -1,9 +1,8 @@
 :root {
-  --brand: #428258;
+  --brand: #0d8267;
   --brand-foreground: #ffffff;
-  --accent-soft: color-mix(in oklab, var(--brand) 14%, white);
-  --accent-soft-foreground: #428258;
-  /* Academic Companion — student chrome */
+  --accent-soft: #e6f4f0;
+  --accent-soft-foreground: #0d8267;
   --primary: #0f1e36;
   --primary-foreground: #ffffff;
   --academic: #0d8267;
@@ -16,24 +15,29 @@
   --popover-foreground: #0f172a;
   --muted: #f1f5f9;
   --muted-foreground: #475569;
-  --border: #ecf0f4;
-  --ring: color-mix(in oklab, var(--academic) 55%, #0f172a);
-  --danger: #ef4444;
+  --text-tertiary: #64748b;
+  --border: #e2e8f0;
+  --border-emphasized: #cbd5e1;
+  --ring: #0d8267;
+  --danger: #be123c;
   --success: #0d8267;
+  --warning: #d97706;
+  --info: #3b82f6;
   --sidebar: #ffffff;
   --sidebar-foreground: #0f172a;
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-focal: 24px;
   --shadow-card: 0 1px 3px 0 rgb(15 30 54 / 0.04), 0 1px 2px -1px rgb(15 30 54 / 0.02);
-  --shadow-popover: 0 8px 30px -12px rgb(0 0 0 / 0.12);
+  --shadow-popover: 0 20px 25px -5px rgb(15 30 54 / 0.15), 0 8px 10px -6px rgb(15 30 54 / 0.1);
 }
 
 .dark {
-  --brand: #5a9a6e;
-  --brand-foreground: #ffffff;
-  --accent-soft: color-mix(in oklab, var(--brand) 22%, #0c0a09);
-  --accent-soft-foreground: #86efac;
+  --brand: #2dd4bf;
+  --brand-foreground: #0b1120;
+  --accent-soft: #0b2822;
+  --accent-soft-foreground: #2dd4bf;
   --primary: #e2e8f0;
   --primary-foreground: #0b1120;
   --academic: #2dd4bf;
@@ -46,9 +50,15 @@
   --popover-foreground: #f8fafc;
   --muted: #1e2c48;
   --muted-foreground: #94a3b8;
+  --text-tertiary: #94a3b8;
   --border: #1e293b;
-  --ring: color-mix(in oklab, var(--academic) 55%, #f8fafc);
-  --sidebar: #111c30;
+  --border-emphasized: #334155;
+  --ring: #2dd4bf;
+  --danger: #fb7185;
+  --success: #2dd4bf;
+  --warning: #fbbf24;
+  --info: #60a5fa;
+  --sidebar: #0f1e36;
   --sidebar-foreground: #f8fafc;
   --shadow-card: 0 4px 24px -8px rgb(0 0 0 / 0.45);
   --shadow-popover: 0 8px 30px -12px rgb(0 0 0 / 0.55);
@@ -71,15 +81,23 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-text-tertiary: var(--text-tertiary);
   --color-border: var(--border);
+  --color-border-emphasized: var(--border-emphasized);
   --color-ring: var(--ring);
   --color-danger: var(--danger);
   --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 16px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-focal: 24px;
   --font-sans: var(--font-plus-jakarta), var(--font-source-sans), ui-sans-serif, sans-serif;
   --font-heading: var(--font-space-grotesk), var(--font-plus-jakarta), ui-sans-serif, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;

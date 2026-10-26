@@ -85,5 +85,20 @@ export function useAdminDashboardLive(
       (can('fees.debtor.list') && debtors.isPending) ||
       (can('admissions.application.list') && applications.isPending) ||
       (can('communication.announcement.list') && announcements.isPending),
+    isError:
+      (can('students.student.list') && students.isError) ||
+      (can('staff.staff.list') && staff.isError) ||
+      (can('staff.leave.list') && leavePending.isError) ||
+      (can('fees.debtor.list') && debtors.isError) ||
+      (can('admissions.application.list') && applications.isError) ||
+      (can('communication.announcement.list') && announcements.isError),
+    refetch: () => {
+      if (enabled && can('students.student.list')) void students.refetch();
+      if (enabled && can('staff.staff.list')) void staff.refetch();
+      if (enabled && can('staff.leave.list')) void leavePending.refetch();
+      if (enabled && can('fees.debtor.list')) void debtors.refetch();
+      if (enabled && can('admissions.application.list')) void applications.refetch();
+      if (enabled && can('communication.announcement.list')) void announcements.refetch();
+    },
   };
 }

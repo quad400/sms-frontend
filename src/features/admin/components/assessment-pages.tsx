@@ -608,7 +608,7 @@ export function ScoreSheetPage({ assessmentId }: { assessmentId: number }) {
       <QueryState isPending={scoresQ.isPending} error={scoresQ.error} onRetry={() => void scoresQ.refetch()}>
         <table className="w-full min-w-[480px] border-collapse text-sm">
           <thead>
-            <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+            <tr className="border-b text-left text-xs text-muted-foreground">
               <th className="px-2 py-2">Student</th>
               <th className="px-2 py-2">Score</th>
               <th className="px-2 py-2">Absent</th>
@@ -792,7 +792,7 @@ export function ResultSheetDetailPage({ sheetId }: { sheetId: number }) {
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
-              <tr className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
+              <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
                 <th className="px-3 py-2">Student</th>
                 <th className="px-3 py-2">Total</th>
                 <th className="px-3 py-2">Average</th>

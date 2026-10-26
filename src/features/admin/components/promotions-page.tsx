@@ -181,7 +181,7 @@ export function PromotionsWizard({ promotionId }: { promotionId?: number }) {
           <div className="overflow-x-auto rounded-xl border border-border">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
-                <tr className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
+                <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
                   <th className="px-3 py-2">Student</th>
                   <th className="px-3 py-2">Outcome</th>
                   <th className="px-3 py-2">Destination class</th>

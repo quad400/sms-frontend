@@ -77,7 +77,7 @@ export function ShellTopBar({
             aria-label={sidebarCollapsed ? 'Expand side panel' : 'Collapse side panel'}
             aria-pressed={sidebarCollapsed}
             onClick={onToggleSidebar}
-            className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-sm text-foreground shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-academic md:flex"
+            className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-md text-foreground shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-academic md:flex"
           >
             <PanelLeft className="size-4" />
           </button>
@@ -109,7 +109,7 @@ export function ShellTopBar({
         {academicPeriodLabel ? (
           <div className="hidden h-10 items-center gap-2 rounded-full bg-muted/70 px-4 shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] lg:flex">
             <GraduationCap className="h-[18px] w-[18px] text-academic" aria-hidden />
-            <span className="font-mono text-[11px] font-semibold tracking-wide text-foreground">
+            <span className="font-mono text-xs font-semibold text-foreground">
               {academicPeriodLabel}
             </span>
           </div>
@@ -119,7 +119,7 @@ export function ShellTopBar({
           className="hidden h-10 items-center gap-2 rounded-full bg-muted/70 px-4 shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] sm:flex"
           title={timezoneLabel}
         >
-          <span className="font-mono text-[11px] font-semibold tracking-wide text-muted-foreground">
+          <span className="font-mono text-xs font-semibold text-muted-foreground">
             {timezoneLabel}
           </span>
         </div>
@@ -139,7 +139,7 @@ export function ShellTopBar({
             >
               <Bell className="h-5 w-5" />
               {badge ? (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-academic px-1 font-mono text-[10px] font-bold text-academic-foreground">
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-academic px-1 font-mono text-xs font-bold text-academic-foreground">
                   {badge}
                 </span>
               ) : null}
@@ -154,7 +154,7 @@ export function ShellTopBar({
             >
               <Bell className="h-5 w-5" />
               {badge ? (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-academic px-1 font-mono text-[10px] font-bold text-academic-foreground">
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-academic px-1 font-mono text-xs font-bold text-academic-foreground">
                   {badge}
                 </span>
               ) : null}
@@ -169,7 +169,7 @@ export function ShellTopBar({
             <button
               type="button"
               aria-label="Account menu"
-              className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-academic md:h-9 md:w-9"
+              className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-academic"
             >
               <Avatar className="h-full w-full">
                 <AvatarFallback className="bg-primary text-xs text-primary-foreground">

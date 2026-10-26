@@ -98,7 +98,7 @@ export function AppSidebar({
 function SidebarGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+      <p className="px-3 pb-1 text-xs font-semibold text-muted-foreground">
         {label}
       </p>
       {children}
@@ -149,7 +149,7 @@ function SidebarNavEntry({ item }: { item: SidebarNavItem }) {
                 >
                   <span>{child.label}</span>
                   {child.badge ? (
-                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent-soft-foreground">
+                    <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-soft-foreground">
                       {child.badge}
                     </span>
                   ) : null}

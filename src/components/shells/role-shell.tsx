@@ -31,6 +31,7 @@ export type RoleShellConfig = {
   accountHref: string;
   portalLabel: string;
   storageKey: string;
+  contentWidth?: 'admin';
   navGroups: ShellNavGroup[];
   moreExtra?: ShellNavItem[];
   /** Max primary tabs on the phone bar (plus More). */
@@ -69,12 +70,19 @@ export function RoleShell({
   );
   const flat = useMemo(() => flattenShellNav(groups), [groups]);
   const tabs = useMemo(() => flat.filter((item) => item.tab), [flat]);
-  const moreFromRail = useMemo(() => flat.filter((item) => !item.tab), [flat]);
   const moreExtra = useMemo(
     () => filterShellNavItems(config.moreExtra ?? [], can, isModuleEnabled),
     [can, config.moreExtra, isModuleEnabled],
   );
-  const moreItems = useMemo(() => [...moreFromRail, ...moreExtra], [moreFromRail, moreExtra]);
+  const moreGroups = useMemo(() => {
+    const groupsWithoutTabs = groups
+      .map((group) => ({ ...group, items: group.items.filter((item) => !item.tab) }))
+      .filter((group) => group.items.length > 0);
+    return moreExtra.length > 0
+      ? [...groupsWithoutTabs, { label: 'More', items: moreExtra }]
+      : groupsWithoutTabs;
+  }, [groups, moreExtra]);
+  const contentWidthClass = config.contentWidth === 'admin' ? 'max-w-[1280px]' : '';
 
   const schoolName = chrome?.schoolName?.trim() || 'School';
   const timezone = chrome?.timezone?.trim() || 'UTC';
@@ -139,7 +147,8 @@ export function RoleShell({
 
         <main
           className={cn(
-            'mx-auto w-full flex-1 p-4 md:p-6 md:px-4 md:pb-8',
+            'mx-auto w-full flex-1 p-4 md:p-6',
+            contentWidthClass,
             isMobile ? 'pb-24' : 'pb-8',
             motion.shellMain,
           )}
@@ -153,7 +162,7 @@ export function RoleShell({
         <ShellMobileNav
           homeHref={config.homeHref}
           tabs={tabs}
-          moreItems={moreItems}
+          moreGroups={moreGroups}
           maxTabs={config.maxTabs ?? 3}
         />
       ) : null}

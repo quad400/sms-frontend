@@ -20,7 +20,7 @@ export function CampusSwitcher() {
     <label className="flex items-center gap-2 text-xs text-muted-foreground">
       <span className="hidden lg:inline">Campus</span>
       <select
-        className="h-9 max-w-[10rem] rounded-md border border-border bg-background px-2 text-sm text-foreground"
+        className="min-h-11 max-w-[8.5rem] rounded-md border border-border bg-background px-2 text-sm text-foreground sm:max-w-[10rem]"
         value={campusId ?? ''}
         onChange={(e) => {
           const v = e.target.value;
@@ -44,7 +44,7 @@ export function DensityToggle() {
   return (
     <button
       type="button"
-      className="hidden h-9 items-center rounded-md border border-border px-2 text-xs text-muted-foreground hover:bg-muted md:inline-flex"
+      className="hidden h-11 items-center rounded-md border border-border px-2 text-sm text-muted-foreground hover:bg-muted md:inline-flex"
       onClick={() => setDensity(density === 'compact' ? 'comfortable' : 'compact')}
       aria-label="Toggle table density"
     >

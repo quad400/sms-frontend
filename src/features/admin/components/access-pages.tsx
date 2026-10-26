@@ -409,7 +409,7 @@ export function RolesListPage() {
             {r.name}
           </Link>
           {r.isSystem ? (
-            <span className="ml-2 inline-flex items-center rounded-md border border-border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="ml-2 inline-flex items-center rounded-md border border-border px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               System
             </span>
           ) : null}
@@ -593,7 +593,7 @@ function PermissionMatrix({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[36rem] border-collapse text-sm">
         <thead>
-          <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+          <tr className="border-b border-border text-left text-xs text-muted-foreground">
             <th className="px-2 py-2 font-medium">Resource</th>
             {MATRIX_ACTIONS.map((a) => (
               <th key={a} className="px-2 py-2 text-center font-medium">

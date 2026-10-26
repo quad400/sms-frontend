@@ -132,7 +132,9 @@ export function ApplicationsPage() {
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
             {boardColumns.map((col) => (
               <div key={col} className="rounded-xl border border-border bg-muted/20 p-2">
-                <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{col}</h3>
+                <h3 className="mb-2 text-xs font-semibold text-muted-foreground">
+                  {col.replace(/[_-]+/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())}
+                </h3>
                 <ul className="space-y-2">
                   {rows
                     .filter((a) => a.status === col || a.decision === col || a.offerStatus === col)

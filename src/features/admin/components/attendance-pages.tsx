@@ -191,7 +191,7 @@ export function RegisterDetailPage({ registerId }: { registerId: number }) {
       <QueryState isPending={reg.isPending} error={reg.error} onRetry={() => void reg.refetch()}>
         <table className="w-full min-w-[480px] border-collapse text-sm">
           <thead>
-            <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+            <tr className="border-b text-left text-xs text-muted-foreground">
               <th className="px-2 py-2">Student</th>
               <th className="px-2 py-2">Mark</th>
               <th className="px-2 py-2">Note</th>
@@ -355,7 +355,7 @@ export function StaffAttendancePage() {
       >
         <table className="w-full min-w-[400px] border-collapse text-sm">
           <thead>
-            <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+            <tr className="border-b text-left text-xs text-muted-foreground">
               <th className="px-2 py-2">Staff</th>
               <th className="px-2 py-2">Mark</th>
             </tr>
