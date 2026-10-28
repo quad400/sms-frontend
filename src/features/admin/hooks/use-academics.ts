@@ -110,10 +110,11 @@ export function useTimetables(params: { page: number; classId?: string }) {
   });
 }
 
-export function useTimetable(id: number) {
+export function useTimetable(id: number, enabled = true) {
   return useQuery<Timetable, ApiClientError>({
     queryKey: adminKeys.timetable(id),
     queryFn: () => getTimetable(id),
+    enabled: enabled && Number.isFinite(id) && id > 0,
   });
 }
 

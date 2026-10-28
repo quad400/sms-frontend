@@ -1,7 +1,7 @@
 'use client';
 
-import { TimetablesListPage } from '@/features/admin/components/academics-pages';
+import { TimetablesList } from '@/features/admin/components/timetables';
 
 export default function Page() {
-  return <TimetablesListPage />;
+  return <TimetablesList />;
 }

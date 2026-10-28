@@ -1,7 +1,7 @@
 'use client';
 
-import { CampusesPage } from '@/features/admin/components/structure';
+import { SchoolStructurePage } from '@/features/admin/components/structure/school-structure-page';
 
 export default function Page() {
-  return <CampusesPage />;
+  return <SchoolStructurePage />;
 }

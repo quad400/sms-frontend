@@ -1,7 +1,7 @@
 'use client';
 
-import { SubjectsPage } from '@/features/admin/components/structure';
+import { SubjectsList } from '@/features/admin/components/subjects';
 
 export default function Page() {
-  return <SubjectsPage />;
+  return <SubjectsList />;
 }

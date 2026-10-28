@@ -5,8 +5,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
 const inputClassName = cn(
-  'flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
-  // Kill Chrome/Safari autofill yellow — paint card bg + foreground over the UA fill.
+  'flex h-10 w-full rounded-sm border bg-input border-border bg-card px-3 py-2 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
   '[&:-webkit-autofill]:[-webkit-text-fill-color:var(--foreground)]',
   '[&:-webkit-autofill]:[box-shadow:inset_0_0_0_1000px_var(--card)]',
   '[&:-webkit-autofill]:[transition:background-color_99999s_ease-out_0s]',

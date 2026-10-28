@@ -1,7 +1,7 @@
 'use client';
 
-import { LessonPlansPage } from '@/features/admin/components/academics-pages';
+import { LessonPlansList } from '@/features/admin/components/lesson-plans';
 
 export default function Page() {
-  return <LessonPlansPage />;
+  return <LessonPlansList />;
 }

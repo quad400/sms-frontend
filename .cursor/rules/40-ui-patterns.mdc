@@ -1,56 +1,58 @@
 ---
-description: Shells, shared patterns, forms, design tokens, motion and a11y bar.
-globs: src/**/*.{ts,tsx,css}
-alwaysApply: false
+description: Frontend UI patterns — clean, reusable, fast
+globs: src/**
+alwaysApply: true
 ---
 
-# UI Patterns
+# Frontend: clean, reusable, fast
 
-## Prefer existing patterns
+## Layers (do not skip)
 
-`DataTable`, `FilterBar`, `EntityHeader`, `StatusBadge`, `MoneyText`, `MoneyInput`, `ConfirmDialog`, `ReasonDialog`, `AsyncJobBanner`, `FileUploader`, `PermissionGate`, `ClassPicker`, `ChildSwitcher`, `EmptyState`, `SignedFileLink`.
+```
+app/**/page.tsx  →  features/*/components  →  features/*/hooks  →  features/*/api
+                 →  components/patterns | components/ui | lib/*
+```
 
-- Record tabs = separate routes (`/admin/students/12/fees`) for deep links and lazy load.
-- Destructive / cancel / reject / reopen / edit-after-lock → `ReasonDialog` or `ConfirmDialog` as the page spec says.
-- Lists past 200 rows on one page → virtualise.
-- Components do **one job**; data enters via props or feature hooks — never call the API client from UI (see `15-architecture-layers.mdc`).
+- Pages are thin: compose a feature component; no fetch or form logic in the route file.
+- Hooks own React Query; `api/` owns HTTP. Components never call the proxy directly.
+- Prefer server components; add `'use client'` only for interactivity or browser APIs.
 
-## Forms
+## Clean
 
-React Hook Form + Zod. Derive schemas from OpenAPI types where possible. Show backend `details` as field errors. Generate `clientRef` / Idempotency-Key when the form opens, not on each click.
+- One job per component. Split if it mixes list + form + dialog + unrelated fetch.
+- Colocate feature UI under `features/<domain>/components/`; share only true cross-domain UI.
+- Name by role: `StudentsList`, `useStudents`, `adminKeys.students()` — not `Helper`, `utils2`.
+- Handle loading / empty / error explicitly (`QueryState`, empty CTA, mapped errors). No silent catch.
 
-## Design tokens
+## Reusable
 
-- Calm, high contrast, school-friendly — not a SaaS purple glow theme.
-- Neutral base (warm slate/stone) + **one brand colour** from school profile via CSS variables: `--brand`, `--brand-foreground`, surfaces, borders, muted. Dark mode uses the same tokens.
-- Typography: **Source Sans 3** (humanist sans) for UI; `font-variant-numeric: tabular-nums` for money and scores. No decorative display fonts in admin tables.
-- Atmosphere on **public auth only**: soft layered gradient / subtle pattern behind the centered auth card (brand at low opacity). App shells stay clean and dense — no decorative hero chrome inside `/admin`, `/staff`, etc.
-- **Avoid:** purple-on-white / purple-indigo gradients, cream + terracotta serif kits, broadsheet newspaper layouts, neon glows, emoji ornamentation, pill-stat clusters.
+- Reach for `components/patterns/*` before inventing (DataTable, PageHeader, MoneyText, StatusBadge, PermissionGate, IconActionButton).
+- **Row / table actions are icon-only** (`IconActionButton` / `IconActionLink`) with `aria-label` + `title` — never text like “View” / “Edit” / “Archive” in dense tables.
+- `components/ui/*` = primitives only. Domain wording and school logic stay in features or patterns.
+- Extract a hook when the same query/mutation appears twice; share query keys via `api/keys`.
+- Forms: one schema (Zod), field errors from `mapError`, disable submit while pending, reuse idempotency key per intent.
 
-## Motion (presence, not noise)
+```tsx
+// ❌ BAD — page fetches + renders everything
+'use client';
+export default function Page() { /* useQuery + 200 lines UI */ }
 
-Shared utilities in `lib/motion` / CSS. Use these beats:
+// ✅ GOOD — thin page, feature owns UI + hook
+import { ClassesPage } from '@/features/admin/components/structure';
+export default function Page() { return <ClassesPage />; }
+```
 
-| Motion | Use |
-|---|---|
-| Page enter | Auth card / shell main: fade + 8–12px rise, ~200–280ms, ease-out |
-| Step swap | Login ↔ 2FA: crossfade; preserve focus |
-| Feedback | Button pending spinner; toast slide; field error fade-in |
-| Shell | Sidebar width transition; mobile tab bar mount |
+## Speed
 
-- Prefer CSS / Tailwind `transition-*` for auth. Respect `prefers-reduced-motion: reduce` (instant or opacity-only).
-- No infinite decorative loops, parallax, or staggered cascades on admin table rows.
-- Skeletons pulse gently; avoid layout shift.
+- Keep client JS lean: no heavy libs in parent/student home; lazy-load rare dialogs/charts.
+- List state (page, sort, filters) in the URL; do not refetch on every keystroke — debounce search.
+- Invalidate only the affected query keys after mutations; avoid blanket `invalidateQueries()`.
+- Tables: virtualise large pages; images/files via signed URLs on demand (never cache signed URLs).
+- Respect `prefers-reduced-motion`. Prefer CSS over JS animation for simple transitions.
 
-## Auth page composition
+## Never
 
-- One composition: brand (logo + school name) as the strongest signal, one form, one primary CTA, forgot-password link — no KPI strips or promo cards.
-- Centered card with soft shadow/border; full-bleed atmospheric background on public routes only.
-
-## Accessibility and performance
-
-- WCAG 2.2 AA: keyboard, focus rings, `aria-live` for errors, not colour-alone status.
-- Parent/student home JS budget under 150 KB. LCP under 2.5 s on mid-range Android (throttled).
-- Server components for first paint; skeletons; every list paginated.
-- Vocabulary: Session, Term, Class, Arm, Enrolment, Guardian, CA.
-- PDFs: signed URL in iframe/new tab — frontend never renders report cards.
+- Duplicate pattern components inside a feature.
+- Float math for money — use minor units + `MoneyText` / `MoneyInput`.
+- Check role names in UI — use `can('…')` / `PermissionGate`.
+- Add stubs or fake API responses; call real OpenAPI operations only.

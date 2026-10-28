@@ -1,4 +1,4 @@
-import { proxyDelete, proxyGet, proxyPatch, proxyPost } from '@/lib/api/proxy-fetch';
+import { proxyDelete, proxyGet, proxyPatch, proxyPost, proxyPut } from '@/lib/api/proxy-fetch';
 import { PAGE_SIZE } from '../lib/paginate';
 import type { Paginated, StudentRow } from '../types';
 
@@ -71,4 +71,22 @@ export function updateEnrolment(enrolmentId: number, body: Record<string, unknow
 
 export function createTransfer(studentId: number, body: Record<string, unknown>) {
   return proxyPost(`/api/v1/students/${studentId}/transfers`, body);
+}
+
+export type StudentMedicalInfo = {
+  allergies?: string | null;
+  conditions?: string | null;
+  medications?: string | null;
+  emergencyNotes?: string | null;
+};
+
+export function getStudentMedicalInfo(studentId: number): Promise<StudentMedicalInfo> {
+  return proxyGet(`/api/v1/students/${studentId}/medical-info`);
+}
+
+export function putStudentMedicalInfo(
+  studentId: number,
+  body: StudentMedicalInfo,
+): Promise<StudentMedicalInfo> {
+  return proxyPut(`/api/v1/students/${studentId}/medical-info`, body);
 }

@@ -5,14 +5,19 @@ import type { ApiClientError } from '@/lib/api/errors';
 import { adminKeys } from '../api/keys';
 import {
   archiveStudent,
+  createEnrolment,
   createStudent,
   createTransfer,
   getStudent,
+  getStudentMedicalInfo,
+  linkStudentGuardian,
   listStudentEnrolments,
   listStudentGuardians,
   listStudents,
+  putStudentMedicalInfo,
   updateStudent,
   type ListStudentsParams,
+  type StudentMedicalInfo,
 } from '../api/students';
 import type { Paginated, StudentRow } from '../types';
 
@@ -48,6 +53,14 @@ export function useStudentEnrolments(studentId: number, enabled = true) {
   });
 }
 
+export function useStudentMedical(studentId: number, enabled = true) {
+  return useQuery<StudentMedicalInfo, ApiClientError>({
+    queryKey: adminKeys.studentMedical(studentId),
+    queryFn: () => getStudentMedicalInfo(studentId),
+    enabled: enabled && studentId > 0,
+  });
+}
+
 /** Creates a student, or updates one when `studentId` is provided. */
 export function useSaveStudent(studentId?: number) {
   const qc = useQueryClient();
@@ -78,5 +91,37 @@ export function useCreateTransfer(studentId: number) {
   return useMutation<unknown, ApiClientError, TransferInput>({
     mutationFn: (body) => createTransfer(studentId, body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) }),
+  });
+}
+
+export function useLinkStudentGuardian(studentId: number) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiClientError, Record<string, unknown>>({
+    mutationFn: (body) => linkStudentGuardian(studentId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.studentGuardians(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) });
+    },
+  });
+}
+
+export function useCreateEnrolment(studentId: number) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiClientError, Record<string, unknown>>({
+    mutationFn: (body) => createEnrolment(studentId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.studentEnrolments(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) });
+    },
+  });
+}
+
+export function useSaveStudentMedical(studentId: number) {
+  const qc = useQueryClient();
+  return useMutation<StudentMedicalInfo, ApiClientError, StudentMedicalInfo>({
+    mutationFn: (body) => putStudentMedicalInfo(studentId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.studentMedical(studentId) });
+    },
   });
 }

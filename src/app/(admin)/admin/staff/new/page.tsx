@@ -1,7 +1,12 @@
 'use client';
 
-import { StaffForm } from '@/features/admin/components/staff-pages';
+import { Suspense } from 'react';
+import { StaffOnboardingWizard } from '@/features/admin/components/staff/onboarding';
 
-export default function Page() {
-  return <StaffForm />;
+export default function NewStaffPage() {
+  return (
+    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+      <StaffOnboardingWizard />
+    </Suspense>
+  );
 }

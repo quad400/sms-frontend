@@ -1,7 +1,12 @@
 'use client';
 
-import { StudentForm } from '@/features/admin/components/student-form';
+import { Suspense } from 'react';
+import { AdmissionWizard } from '@/features/admin/components/students/admission/admission-wizard';
 
 export default function NewStudentPage() {
-  return <StudentForm />;
+  return (
+    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+      <AdmissionWizard />
+    </Suspense>
+  );
 }

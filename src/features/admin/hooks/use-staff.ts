@@ -9,6 +9,7 @@ import {
   getStaffAllocations,
   getStaffMember,
   listStaff,
+  putStaffAllocations,
   updateStaffMember,
 } from '../api/staff';
 import type { Paginated, StaffRow } from '../types';
@@ -59,5 +60,20 @@ export function useArchiveStaff() {
   return useMutation<void, ApiClientError, number>({
     mutationFn: archiveStaffMember,
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.all }),
+  });
+}
+
+export function usePutStaffAllocations(staffId: number) {
+  const qc = useQueryClient();
+  return useMutation<
+    unknown,
+    ApiClientError,
+    { sessionId: number; allocations: Array<{ classId: number; subjectId: number }> }
+  >({
+    mutationFn: (body) => putStaffAllocations(staffId, body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.staffAllocations(staffId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.staffMember(staffId) });
+    },
   });
 }

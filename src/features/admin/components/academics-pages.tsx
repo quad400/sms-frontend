@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { ConfirmDialog } from '@/components/patterns/confirm-dialog';
 import { DataTable, type DataTableColumn } from '@/components/patterns/data-table';
 import { PageHeader } from '@/components/patterns/page-header';
@@ -18,20 +17,15 @@ import {
 import { ApiClientError } from '@/lib/api/errors';
 import { PermissionGate } from '@/lib/auth/permissions';
 import { toastError, toastSuccess } from '@/lib/toast';
-import type { LessonPlan, Timetable, TimetableSlot } from '../api/academics';
+import type { TimetableSlot } from '../api/academics';
 import {
   useAllocations,
-  useApproveLessonPlan,
-  useCreateTimetable,
-  useLessonPlan,
-  useLessonPlans,
   usePublishTimetable,
   useRooms,
   useSaveAllocations,
   useSaveTimetableSlots,
   useTimeSlots,
   useTimetable,
-  useTimetables,
 } from '../hooks/use-academics';
 import { useStaffList } from '../hooks/use-staff';
 import {
@@ -200,97 +194,7 @@ export function AllocationsPage() {
   );
 }
 
-export function TimetablesListPage() {
-  const { campusQuery, density } = useAdminCampus();
-  const search = useSearchParams();
-  const classFilter = search.get('classId') ?? '';
-  const [page, setPage] = useState(1);
-  const list = useTimetables({ page, classId: classFilter || undefined });
-  const classes = useClasses({ campusId: campusQuery });
-  const terms = useTerms();
-  const [classId, setClassId] = useState(classFilter);
-  const [termId, setTermId] = useState('');
-  const create = useCreateTimetable();
-  function createNew() {
-    create.mutate(
-      { classId: Number(classId), termId: Number(termId) },
-      {
-        onSuccess: (t) => {
-          toastSuccess('Timetable created');
-          window.location.href = `/admin/timetables/${t.id}`;
-        },
-        onError: (e) => toastError('Could not create', e.message),
-      },
-    );
-  }
-
-  const columns: DataTableColumn<Timetable>[] = [
-    {
-      id: 'class',
-      header: 'Class',
-      cell: (r) => (
-        <Link className="text-primary hover:underline" href={`/admin/timetables/${r.id}`}>
-          Class {r.classId}
-        </Link>
-      ),
-    },
-    { id: 'term', header: 'Term', cell: (r) => r.termId },
-    { id: 'status', header: 'Status', cell: (r) => <StatusBadge status={r.status} /> },
-    { id: 'published', header: 'Published', cell: (r) => r.publishedAt ?? '—' },
-  ];
-
-  return (
-    <div className="space-y-5">
-      <PageHeader
-        title="Timetables"
-        actions={
-          <PermissionGate permission="academics.timetable.create">
-            <div className="flex flex-wrap gap-2">
-              <select
-                className="h-10 rounded-md border border-border bg-background px-2 text-sm"
-                value={classId}
-                onChange={(e) => setClassId(e.target.value)}
-              >
-                <option value="">Class…</option>
-                {(classes.data ?? []).map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-              <select
-                className="h-10 rounded-md border border-border bg-background px-2 text-sm"
-                value={termId}
-                onChange={(e) => setTermId(e.target.value)}
-              >
-                <option value="">Term…</option>
-                {(terms.data ?? []).map((t) => (
-                  <option key={t.id} value={t.id}>{t.periodName ?? t.name ?? t.id}</option>
-                ))}
-              </select>
-              <Button
-                type="button"
-                disabled={!classId || !termId || create.isPending}
-                onClick={createNew}
-              >
-                New
-              </Button>
-            </div>
-          </PermissionGate>
-        }
-      />
-      <QueryState isPending={list.isPending} error={list.error} onRetry={() => void list.refetch()}>
-        <DataTable columns={columns} rows={list.data?.data ?? []} density={density} />
-        <div className="flex justify-end gap-2 pt-2">
-          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            Previous
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => setPage((p) => p + 1)}>
-            Next
-          </Button>
-        </div>
-      </QueryState>
-    </div>
-  );
-}
+export { TimetablesListPage } from './timetables';
 
 export function TimetableBuilderPage({ timetableId }: { timetableId: number }) {
   const { campusQuery } = useAdminCampus();
@@ -506,76 +410,4 @@ export function TimetableBuilderPage({ timetableId }: { timetableId: number }) {
   );
 }
 
-export function LessonPlansPage() {
-  const [status, setStatus] = useState('submitted');
-  const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<number | null>(null);
-  const { density } = useAdminCampus();
-  const list = useLessonPlans({ status: status || undefined, page });
-  const detail = useLessonPlan(selected);
-  const approve = useApproveLessonPlan();
-  function approvePlan(id: number) {
-    approve.mutate(id, {
-      onSuccess: () => {
-        toastSuccess('Approved');
-        setSelected(null);
-      },
-      onError: (e) => toastError('Could not approve', e.message),
-    });
-  }
-
-  const columns: DataTableColumn<LessonPlan>[] = [
-    { id: 'title', header: 'Title', cell: (r) => r.title },
-    { id: 'class', header: 'Class', cell: (r) => r.className ?? r.classId },
-    { id: 'subject', header: 'Subject', cell: (r) => r.subjectName ?? r.subjectId },
-    { id: 'week', header: 'Week', cell: (r) => r.weekNumber ?? '—' },
-    { id: 'status', header: 'Status', cell: (r) => <StatusBadge status={r.status} /> },
-  ];
-
-  return (
-    <div className="space-y-5">
-      <PageHeader title="Lesson plans" />
-      <SegmentedControl
-        aria-label="Lesson plan status"
-        value={status}
-        onValueChange={(v) => { setStatus(v); setPage(1); }}
-        options={[
-          { value: 'submitted', label: 'Submitted' },
-          { value: 'approved', label: 'Approved' },
-          { value: 'draft', label: 'Draft' },
-        ]}
-      />
-      <QueryState isPending={list.isPending} error={list.error} onRetry={() => void list.refetch()}>
-        <DataTable
-          columns={columns}
-          rows={list.data?.data ?? []}
-          density={density}
-          onRowClick={(r) => setSelected(r.id)}
-        />
-      </QueryState>
-      <Sheet open={selected != null} onOpenChange={(o) => !o && setSelected(null)}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          <SheetHeader>
-            <SheetTitle>{detail.data?.title ?? 'Lesson plan'}</SheetTitle>
-          </SheetHeader>
-          <QueryState isPending={detail.isPending} error={detail.error}>
-            <div className="mt-4 space-y-3 text-sm">
-              <StatusBadge status={detail.data?.status ?? ''} />
-              <p className="whitespace-pre-wrap">{detail.data?.content}</p>
-              {detail.data?.objectives ? (
-                <p className="text-muted-foreground">{detail.data.objectives}</p>
-              ) : null}
-              <PermissionGate permission="academics.lesson-plan.approve">
-                {detail.data?.status === 'submitted' ? (
-                  <Button type="button" disabled={approve.isPending} onClick={() => approvePlan(selected!)}>
-                    Approve
-                  </Button>
-                ) : null}
-              </PermissionGate>
-            </div>
-          </QueryState>
-        </SheetContent>
-      </Sheet>
-    </div>
-  );
-}
+export { LessonPlansPage } from './lesson-plans';

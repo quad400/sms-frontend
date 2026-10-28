@@ -11,13 +11,17 @@ export type StudentRow = {
   lastName: string;
   gender?: string;
   genderCode?: string;
+  dateOfBirth?: string | null;
   status?: string;
   statusCode?: string;
   campusId?: number;
   classId?: number | null;
   className?: string | null;
+  houseId?: number | null;
+  houseName?: string | null;
   photoFileId?: number | null;
   primaryGuardianPhone?: string | null;
+  primaryGuardianName?: string | null;
   balanceMinor?: number | null;
 };
 

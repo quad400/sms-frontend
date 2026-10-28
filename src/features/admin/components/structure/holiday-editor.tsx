@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PermissionGate } from '@/lib/auth/permissions';
@@ -34,14 +35,22 @@ export function HolidayEditor({
   };
 
   return (
-    <div className="mt-3 space-y-2 border-t border-border/60 pt-2">
+    <div className="mt-3 space-y-2 border-t border-border/60 pt-3">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        Holidays
+      </p>
+      {rows.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground">No holidays listed.</p>
+      ) : null}
       {rows.map((h, i) => (
-        <div key={i} className="grid grid-cols-2 gap-1">
+        <div key={i} className="grid grid-cols-2 gap-1.5">
           <Input
             className="h-8 text-xs"
             value={h.name}
             onChange={(e) =>
-              setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)))
+              setRows((prev) =>
+                prev.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
+              )
             }
             placeholder="Name"
           />
@@ -50,18 +59,21 @@ export function HolidayEditor({
             type="date"
             value={h.date}
             onChange={(e) =>
-              setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, date: e.target.value } : r)))
+              setRows((prev) =>
+                prev.map((r, idx) => (idx === i ? { ...r, date: e.target.value } : r)),
+              )
             }
           />
         </div>
       ))}
-      <div className="flex gap-1">
+      <div className="flex flex-wrap gap-1.5">
         <Button
           type="button"
           size="sm"
           variant="ghost"
           onClick={() => setRows((prev) => [...prev, { name: '', date: '' }])}
         >
+          <Plus className="size-3.5" />
           Add holiday
         </Button>
         <PermissionGate permission="school-structure.term.update">
@@ -72,7 +84,7 @@ export function HolidayEditor({
             disabled={save.isPending}
             onClick={() => save.mutate()}
           >
-            Save holidays
+            {save.isPending ? 'Saving…' : 'Save holidays'}
           </Button>
         </PermissionGate>
       </div>

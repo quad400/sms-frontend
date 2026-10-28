@@ -26,6 +26,7 @@ import {
   listTerms,
   putCurriculumSubjects,
   updateCampus,
+  updateClass,
   updateHouse,
   updateSubject,
   updateTerm,
@@ -175,6 +176,24 @@ export function useCreateClass(invalidateKey: string) {
   return useMutation<SchoolClass, ApiClientError, Record<string, unknown>>({
     mutationFn: createClass,
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.classes(invalidateKey) }),
+  });
+}
+
+export function useUpdateClass(invalidateKey?: string) {
+  const qc = useQueryClient();
+  return useMutation<
+    SchoolClass,
+    ApiClientError,
+    { id: number; body: Record<string, unknown> }
+  >({
+    mutationFn: ({ id, body }) => updateClass(id, body),
+    onSuccess: (row) => {
+      if (invalidateKey) {
+        void qc.invalidateQueries({ queryKey: adminKeys.classes(invalidateKey) });
+      }
+      void qc.invalidateQueries({ queryKey: [...adminKeys.all, 'classes'] });
+      void qc.invalidateQueries({ queryKey: adminKeys.class(row.id) });
+    },
   });
 }
 

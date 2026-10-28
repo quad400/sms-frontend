@@ -13,11 +13,7 @@ import {
   School,
   Settings,
   Shield,
-  UserRound,
   Users,
-  ArrowLeftRight,
-  Palmtree,
-  TrendingUp,
 } from 'lucide-react';
 import {
   isActiveShellPath,
@@ -64,34 +60,10 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         tab: true,
       },
       {
-        href: '/admin/guardians',
-        label: 'Guardians',
-        icon: UserRound,
-        permission: 'students.guardian.list',
-      },
-      {
         href: '/admin/staff',
         label: 'Staff',
         icon: Users,
         permission: 'staff.staff.list',
-      },
-      {
-        href: '/admin/leave',
-        label: 'Leave',
-        icon: Palmtree,
-        permission: 'staff.leave.list',
-      },
-      {
-        href: '/admin/promotions/new',
-        label: 'Promotions',
-        icon: TrendingUp,
-        anyPermission: ['students.promotion.preview', 'students.promotion.execute'],
-      },
-      {
-        href: '/admin/transfers',
-        label: 'Transfers',
-        icon: ArrowLeftRight,
-        permission: 'students.student.list',
       },
     ],
   },
@@ -100,15 +72,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     items: [
       {
         href: '/admin/campuses',
-        label: 'Campuses',
+        label: 'Structure',
         icon: Building2,
-        permission: 'school-structure.campus.list',
-      },
-      {
-        href: '/admin/sessions',
-        label: 'Sessions & terms',
-        icon: CalendarDays,
-        permission: 'school-structure.session.list',
+        anyPermission: [
+          'school-structure.campus.list',
+          'school-structure.session.list',
+        ],
       },
       {
         href: '/admin/classes',

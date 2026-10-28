@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils/cn';
 
 export function PageHeader({
   title,
+  titleAddon,
   description,
   eyebrow,
   actions,
@@ -10,6 +11,8 @@ export function PageHeader({
   className,
 }: {
   title: string;
+  /** Chip or status next to the title (e.g. Live). */
+  titleAddon?: ReactNode;
   description?: string;
   eyebrow?: ReactNode;
   /** Right-side controls aligned with the title on larger screens. */
@@ -28,9 +31,12 @@ export function PageHeader({
       >
         <div className="min-w-0 space-y-1">
           {eyebrow ? <div className="mb-1">{eyebrow}</div> : null}
-          <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-[30px]">
-            {title}
-          </h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="font-heading text-2xl font-semibold tracking-tight md:text-[30px]">
+              {title}
+            </h1>
+            {titleAddon}
+          </div>
           {description ? (
             <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>
           ) : null}

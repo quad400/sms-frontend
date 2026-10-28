@@ -1,7 +1,12 @@
 'use client';
 
-import { ClassesPage } from '@/features/admin/components/structure';
+import { Suspense } from 'react';
+import { ClassesList } from '@/features/admin/components/classes';
 
 export default function Page() {
-  return <ClassesPage />;
+  return (
+    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+      <ClassesList />
+    </Suspense>
+  );
 }

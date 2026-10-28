@@ -1,7 +1,13 @@
 'use client';
 
-import { SessionsPage } from '@/features/admin/components/structure';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
+/** Sessions live under Structure → Sessions & terms. */
 export default function Page() {
-  return <SessionsPage />;
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/admin/campuses?tab=sessions');
+  }, [router]);
+  return <p className="text-sm text-muted-foreground">Redirecting…</p>;
 }

@@ -11,6 +11,7 @@ export const adminKeys = {
   student: (id: number) => [...adminKeys.all, 'student', id] as const,
   studentGuardians: (id: number) => [...adminKeys.all, 'student-guardians', id] as const,
   studentEnrolments: (id: number) => [...adminKeys.all, 'student-enrolments', id] as const,
+  studentMedical: (id: number) => [...adminKeys.all, 'student-medical', id] as const,
   guardians: (params: Params) => [...adminKeys.all, 'guardians', params] as const,
   guardian: (id: number) => [...adminKeys.all, 'guardian', id] as const,
   staffList: (params: Params) => [...adminKeys.all, 'staff-list', params] as const,
