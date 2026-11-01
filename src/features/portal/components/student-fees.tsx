@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo } from 'react';
 import { usePortalInvoices } from '../hooks/use-portal-invoices';
 import { QueryState } from './query-state';
@@ -44,7 +45,11 @@ export function StudentFees() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             {balanceRows.length === 0 ? (
-              <p className="text-muted-foreground">No balance details.</p>
+              <EmptyState
+                title="No balance details"
+                description=""
+                className="border-0 bg-transparent py-4"
+              />
             ) : (
               balanceRows.map((row, index) => (
                 <div key={index} className="flex justify-between">

@@ -1,0 +1,58 @@
+---
+description: Prefer existing UI primitives and state patterns over native HTML
+globs: src/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# Prefer existing UI before native HTML
+
+Before writing a native control or one-off empty/loading/error block, check `components/ui` and `components/patterns` first.
+
+## Controls (never invent)
+
+| Need | Use |
+|---|---|
+| Select / dropdown | `@/components/ui/select` or `@/components/ui/dropdown-menu` |
+| Date | `@/components/ui/date-picker` (or `calendar` + `popover`) |
+| Dialog / sheet | `@/components/ui/dialog`, `@/components/ui/sheet` |
+| Checkbox / input / textarea / button | matching `@/components/ui/*` |
+| Segmented tabs | `@/components/ui/segmented-control` |
+
+```tsx
+// ❌ BAD
+<select value={v} onChange={…}><option>…</option></select>
+<input type="date" value={v} onChange={…} />
+
+// ✅ GOOD
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+```
+
+## Async UI (never invent)
+
+| State | Use |
+|---|---|
+| Loading | `Loader` / `Skeleton` — `@/components/patterns/loader`, `@/components/ui/skeleton` |
+| Error | `ErrorState` — `@/components/patterns/error-state` |
+| Empty | `EmptyState` — `@/components/patterns/empty-state` |
+| Combined | `QueryState` — wraps Loader + ErrorState + EmptyState |
+
+```tsx
+// ❌ BAD
+if (isPending) return <div className="animate-pulse">…</div>;
+if (error) return <p>Failed</p>;
+if (!rows.length) return <p>No data</p>;
+
+// ✅ GOOD
+<QueryState isPending={…} error={…} isEmpty={!rows.length} onRetry={…} loaderVariant="table">
+  …
+</QueryState>
+```
+
+## Also check first
+
+- Tables / pagination → `DataTable`, `TablePagination`
+- Page chrome → `PageHeader`, `StatusBadge`, `IconActionButton`
+- Confirm / reason → `ConfirmDialog`, `ReasonDialog`
+
+Only build a custom control when no existing primitive covers the interaction.

@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo, useState } from 'react';
 import { Download, Plus, RefreshCw, Search, Settings2 } from 'lucide-react';
 import { DataTable, type DataTableColumn } from '@/components/patterns/data-table';
@@ -285,9 +286,7 @@ export function UsersPage() {
                 selectedId != null && '[&_tbody_tr]:cursor-pointer',
               )}
               empty={
-                <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-                  No users match these filters.
-                </p>
+                <EmptyState title="No users" description="No users match these filters." />
               }
             />
             <TablePagination

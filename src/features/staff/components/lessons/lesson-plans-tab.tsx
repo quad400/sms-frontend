@@ -9,7 +9,7 @@ import { useStaffLookups } from '../../hooks/use-staff-lookups';
 import { formatDate } from '../../lib/format';
 import { QueryState } from '../../lib/shared';
 import type { LessonPlan } from '../../types';
-import { EmptyPanel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { StatusBadge } from '../shared/status-badge';
 import { LessonPlanSheet } from './lesson-plan-sheet';
 
@@ -48,7 +48,7 @@ export function LessonPlansTab() {
         onRetry={() => void plans.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={BookOpenCheck}
             title="No lesson plans yet"
             description="Plan a lesson, save it as a draft and submit it for approval when it’s ready."

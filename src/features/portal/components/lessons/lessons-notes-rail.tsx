@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { FileText, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { str } from '@/lib/utils/record';
@@ -37,9 +38,7 @@ export function LessonsNotesRail({
       </div>
 
       {preview.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
-          No lesson notes yet.
-        </p>
+        <EmptyState title="No lesson notes yet" description="" className="py-6" />
       ) : (
         <ul className="divide-y divide-border">
           {preview.map((note, index) => {

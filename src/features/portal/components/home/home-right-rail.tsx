@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import Link from 'next/link';
 import { ArrowRight, CalendarClock, Clock3 } from 'lucide-react';
 import { formatDate } from '../../lib/format';
@@ -48,10 +49,11 @@ export function HomeRightRail({
 
         <div className="p-4 md:p-5">
           {deadlines.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border bg-muted/30 px-3 py-6 text-center">
-              <p className="text-sm font-medium text-foreground">No deadlines yet</p>
-              <p className="mt-1 text-xs text-muted-foreground">Events will show up here when scheduled.</p>
-            </div>
+            <EmptyState
+              title="No deadlines yet"
+              description="Events will show up here when scheduled."
+              className="bg-muted/30 py-6"
+            />
           ) : (
             <ul className="divide-y divide-border/70 overflow-hidden rounded-xl border border-border">
               {deadlines.map((item, index) => {

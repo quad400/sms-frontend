@@ -1,18 +1,24 @@
+import {
+  formatDisplayDate,
+  formatDisplayDateTime,
+  parseAppDate,
+} from '@/lib/format/date';
 import type { ParentChild } from '../types';
 
 export function childName(child: Pick<ParentChild, 'firstName' | 'middleName' | 'lastName'>): string {
   return [child.firstName, child.middleName, child.lastName].filter(Boolean).join(' ');
 }
 
+/** Platform default: `3rd Jan, 2026`. Custom Intl options kept for compact calendar cells. */
 export function formatDate(
   value: string | null | undefined,
-  options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' },
+  options?: Intl.DateTimeFormatOptions,
 ): string {
-  if (!value) return '';
-  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
-  const date = new Date(dateOnly ? `${value}T00:00:00` : value);
-  if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString('en-GB', options);
+  if (options) {
+    const date = parseAppDate(value);
+    return date ? date.toLocaleDateString('en-GB', options) : '';
+  }
+  return formatDisplayDate(value);
 }
 
 export function formatLongDate(value: string | null | undefined): string {
@@ -20,12 +26,7 @@ export function formatLongDate(value: string | null | undefined): string {
 }
 
 export function formatDateTime(value: string | null | undefined): string {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '';
-  const day = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-  const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  return `${day}, ${time}`;
+  return formatDisplayDateTime(value);
 }
 
 export function formatTime(value: string | null | undefined): string {

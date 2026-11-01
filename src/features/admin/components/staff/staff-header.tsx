@@ -19,15 +19,15 @@ export function StaffHeader({
   return (
     <PageHeader
       title="Staff Directory"
-      titleAddon={
-        <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-sky-800">
-          · {session} ·
-        </span>
-      }
+      // titleAddon={
+      //   <span className="rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-sky-800">
+      //     · {session} ·
+      //   </span>
+      // }
       description="Personnel roster, duty status, and teaching load across campuses."
       actions={
         <div className="flex flex-wrap items-center gap-2">
-          <PermissionGate permission="reporting.dashboard.read">
+          {/* <PermissionGate permission="reporting.dashboard.read">
             <Button variant="outline" size="sm" asChild>
               <Link href="/admin/reports">
                 <Download className="size-4" />
@@ -41,7 +41,7 @@ export function StaffHeader({
                 Import
               </Button>
             ) : null}
-          </PermissionGate>
+          </PermissionGate> */}
           <PermissionGate permission="staff.staff.create">
             <Button asChild size="sm" className="bg-teal-700 hover:bg-teal-800">
               <Link href="/admin/staff/new">

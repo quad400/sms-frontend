@@ -3,6 +3,7 @@
 import { useId, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { PageHeader } from '@/components/patterns/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -219,7 +220,13 @@ function SessionsPanel() {
         error={sessions.error}
         onRetry={() => void sessions.refetch()}
         isEmpty={rows.length === 0}
-        empty={<p className="text-sm text-muted-foreground">No other sessions listed.</p>}
+        empty={
+          <EmptyState
+            title="No other sessions"
+            description="No other sessions are listed for this account."
+            className="border-0 bg-transparent py-6"
+          />
+        }
       >
         <ul className="space-y-2">
           {rows.map((row) => (

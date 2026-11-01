@@ -1,26 +1,20 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   CalendarDays,
   CheckCircle2,
+  Pencil,
+  Plus,
   Sparkles,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/patterns/confirm-dialog';
 import { StatusBadge } from '@/components/patterns/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { SummaryCard } from '@/components/patterns/summary-card';
 import { PermissionGate } from '@/lib/auth/permissions';
 import { toastError, toastSuccess } from '@/lib/toast';
 import { cn } from '@/lib/utils/cn';
@@ -28,7 +22,6 @@ import {
   useActivateSession,
   useActivateTerm,
   useCloseTerm,
-  useCreateSession,
   useSession,
   useSessions,
   useTerms,
@@ -37,13 +30,7 @@ import { useAdminCampus } from '../../lib/campus';
 import { QueryState } from '../../lib/shared';
 import { HolidayEditor } from './holiday-editor';
 
-export function SessionsPanel({
-  createRequested,
-  onCreateHandled,
-}: {
-  createRequested?: boolean;
-  onCreateHandled?: () => void;
-} = {}) {
+export function SessionsPanel() {
   const { campusQuery } = useAdminCampus();
   const sessions = useSessions(campusQuery);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -51,25 +38,14 @@ export function SessionsPanel({
   const detail = useSession(selected);
   const terms = useTerms(selected != null ? String(selected) : undefined, selected != null);
   const [closeId, setCloseId] = useState<number | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
 
   const activateMutation = useActivateSession();
   const activateTermMutation = useActivateTerm(selected);
   const closeMutation = useCloseTerm(selected);
-  const createMutation = useCreateSession();
 
   const termRows = terms.data?.length ? terms.data : detail.data?.terms ?? [];
   const sessionList = sessions.data ?? [];
   const activeSession = sessionList.find((s) => s.isActive) ?? null;
-
-  useEffect(() => {
-    if (!createRequested) return;
-    setCreateOpen(true);
-    onCreateHandled?.();
-  }, [createRequested, onCreateHandled]);
 
   const summary = useMemo(() => {
     const holidayCount = termRows.reduce(
@@ -110,34 +86,15 @@ export function SessionsPanel({
         onError: (e) => toastError('Could not close term', e.message),
       }),
   };
-  const create = {
-    isPending: createMutation.isPending,
-    mutate: () =>
-      createMutation.mutate(
-        { campusId: Number(campusQuery), name, startDate, endDate },
-        {
-          onSuccess: (row) => {
-            toastSuccess('Session created');
-            setCreateOpen(false);
-            setName('');
-            setStartDate('');
-            setEndDate('');
-            setSelectedId(row.id);
-          },
-          onError: (e) => toastError('Could not create', e.message),
-        },
-      ),
-  };
 
   if (!campusQuery) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-card px-6 py-10 text-center shadow-[var(--shadow-card)]">
-        <CalendarDays className="mx-auto size-8 text-muted-foreground" />
-        <p className="mt-3 font-heading text-base font-semibold">Select a campus</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Sessions are scoped to the campus in the shell switcher.
-        </p>
-      </div>
+      <EmptyState
+        icon={CalendarDays}
+        title="Select a campus"
+        description="Sessions are scoped to the campus in the shell switcher."
+        className="bg-card shadow-[var(--shadow-card)]"
+      />
     );
   }
 
@@ -189,18 +146,39 @@ export function SessionsPanel({
 
       <div className="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]">
         <aside className="rounded-xl border border-border bg-card p-2 shadow-[var(--shadow-card)] lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-          <p className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Academic sessions
-          </p>
+          <div className="mb-1 flex items-center justify-between gap-2 px-2 py-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Academic sessions
+            </p>
+            <PermissionGate permission="school-structure.session.create">
+              <Button asChild variant="ghost" size="icon" className="size-7">
+                <Link href="/admin/sessions/new" aria-label="Add session">
+                  <Plus className="size-3.5" />
+                </Link>
+              </Button>
+            </PermissionGate>
+          </div>
           <QueryState
             isPending={sessions.isPending}
             error={sessions.error}
             onRetry={() => void sessions.refetch()}
           >
             {sessionList.length === 0 ? (
-              <p className="px-2 py-8 text-center text-xs text-muted-foreground">
-                No sessions yet.
-              </p>
+              <EmptyState
+                title="No sessions yet"
+                description=""
+                className="border-0 bg-transparent py-8"
+                action={
+                  <PermissionGate permission="school-structure.session.create">
+                    <Button asChild size="sm" className="bg-teal-700 hover:bg-teal-800">
+                      <Link href="/admin/sessions/new">
+                        <Plus className="size-3.5" />
+                        Add session
+                      </Link>
+                    </Button>
+                  </PermissionGate>
+                }
+              />
             ) : (
               <ul className="space-y-1">
                 {sessionList.map((s) => {
@@ -278,25 +256,37 @@ export function SessionsPanel({
                         </p>
                       ) : null}
                     </div>
-                    <PermissionGate permission="school-structure.session.activate">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={activateMutation.isPending}
-                        onClick={() => activate.mutate(selected)}
-                      >
-                        Activate session
-                      </Button>
-                    </PermissionGate>
+                    <div className="flex flex-wrap gap-2">
+                      <PermissionGate permission="school-structure.session.update">
+                        <Button asChild size="sm" variant="outline">
+                          <Link href={`/admin/sessions/${selected}/edit`}>
+                            <Pencil className="size-3.5" />
+                            Edit
+                          </Link>
+                        </Button>
+                      </PermissionGate>
+                      <PermissionGate permission="school-structure.session.activate">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={activateMutation.isPending}
+                          onClick={() => activate.mutate(selected)}
+                        >
+                          Activate session
+                        </Button>
+                      </PermissionGate>
+                    </div>
                   </div>
                 </div>
               </header>
 
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {termRows.length === 0 ? (
-                  <p className="col-span-full rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-                    No terms on this session yet.
-                  </p>
+                  <EmptyState
+                    title="No terms yet"
+                    description="No terms on this session yet."
+                    className="col-span-full"
+                  />
                 ) : (
                   termRows.map((t) => (
                     <article
@@ -360,13 +350,12 @@ export function SessionsPanel({
               </div>
             </QueryState>
           ) : (
-            <div className="rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
-              <CalendarDays className="mx-auto size-8 text-muted-foreground" />
-              <p className="mt-3 font-heading text-sm font-semibold">Select a session</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Choose a session from the list to manage terms and holidays.
-              </p>
-            </div>
+            <EmptyState
+              icon={CalendarDays}
+              title="Select a session"
+              description="Choose a session from the list to manage terms and holidays."
+              className="bg-card/50"
+            />
           )}
         </div>
       </div>
@@ -381,81 +370,6 @@ export function SessionsPanel({
         isPending={close.isPending}
         onConfirm={() => closeId && close.mutate(closeId)}
       />
-
-      <Sheet
-        open={createOpen}
-        onOpenChange={(o) => {
-          setCreateOpen(o);
-          if (!o) {
-            setName('');
-            setStartDate('');
-            setEndDate('');
-          }
-        }}
-      >
-        <SheetContent>
-          <form
-            className="flex h-full flex-col"
-            onSubmit={(e) => {
-              e.preventDefault();
-              create.mutate();
-            }}
-          >
-            <SheetHeader className="text-left">
-              <SheetTitle>New session</SheetTitle>
-              <SheetDescription>
-                Create an academic year for the current campus. Terms are managed after creation.
-              </SheetDescription>
-            </SheetHeader>
-
-            <div className="mt-6 space-y-4 rounded-xl border border-border bg-muted/30 p-4">
-              <div className="grid gap-1.5">
-                <Label required htmlFor="session-name">
-                  Name
-                </Label>
-                <Input
-                  id="session-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. 2026/2027"
-                  autoComplete="off"
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label required>Start date</Label>
-                <DatePicker
-                  value={startDate}
-                  onChange={setStartDate}
-                  placeholder="Select start"
-                  aria-label="Session start"
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label required>End date</Label>
-                <DatePicker
-                  value={endDate}
-                  onChange={setEndDate}
-                  placeholder="Select end"
-                  aria-label="Session end"
-                />
-              </div>
-            </div>
-
-            <SheetFooter className="mt-auto flex-row gap-2 pt-6 sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!name || !startDate || !endDate || create.isPending}
-                className="bg-teal-700 hover:bg-teal-800"
-              >
-                {create.isPending ? 'Creating…' : 'Create session'}
-              </Button>
-            </SheetFooter>
-          </form>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
@@ -465,47 +379,3 @@ export function SessionsPage() {
   return <SessionsPanel />;
 }
 
-function SummaryCard({
-  label,
-  value,
-  icon,
-  iconClass,
-  valueClass,
-  children,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  iconClass: string;
-  valueClass?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {label}
-        </p>
-        <span
-          className={cn(
-            'flex size-9 shrink-0 items-center justify-center rounded-xl',
-            iconClass,
-          )}
-        >
-          {icon}
-        </span>
-      </div>
-      <p
-        className={cn(
-          'mt-2 font-heading font-semibold tracking-tight tabular-nums',
-          valueClass ?? 'text-2xl',
-          value.length > 18 ? 'truncate text-base' : null,
-        )}
-        title={value}
-      >
-        {value}
-      </p>
-      {children ? <div className="mt-2">{children}</div> : null}
-    </div>
-  );
-}

@@ -1,7 +1,5 @@
-'use client';
-
-import { AttendanceReportsPage } from '@/features/admin/components/attendance-pages';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <AttendanceReportsPage />;
+  redirect('/admin/attendance?tab=classes');
 }

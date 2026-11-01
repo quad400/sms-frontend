@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo } from 'react';
 import {
   DAY_LONG,
@@ -95,9 +96,7 @@ export function TimetableWeekMatrix({
               ) : null}
             </div>
             {byDay[code].length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
-                No lessons.
-              </p>
+              <EmptyState title="No lessons" description="" className="py-3" />
             ) : (
               <TimetableDaily
                 slots={byDay[code]}

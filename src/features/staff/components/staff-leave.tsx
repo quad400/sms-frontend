@@ -12,7 +12,7 @@ import { QueryState } from '../lib/shared';
 import type { LeaveRequest } from '../types';
 import { LeaveRequestSheet } from './leave/leave-request-sheet';
 import { ConfirmDialog } from './shared/confirm-dialog';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { StatusBadge } from './shared/status-badge';
 
 export function StaffLeave() {
@@ -55,7 +55,7 @@ export function StaffLeave() {
         }}
         isEmpty={rows.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={CalendarOff}
             title="No leave requests"
             description="Requests you send will be listed here with their status."

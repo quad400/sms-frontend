@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/patterns/empty-state';
 import { PageHeader } from '@/components/patterns/page-header';
 
 export function ComingSoon({
@@ -15,9 +16,11 @@ export function ComingSoon({
         title={title}
         description={description ?? `This area ships in ${wave}. Navigation is live so permissions can be verified.`}
       />
-      <p className="rounded-xl border border-dashed border-border bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
-        Coming in {wave}
-      </p>
+      <EmptyState
+        title={`Coming in ${wave}`}
+        description={description ?? `This area ships in ${wave}.`}
+        className="bg-muted/30"
+      />
     </div>
   );
 }

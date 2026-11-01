@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { Megaphone } from 'lucide-react';
 import { PageHeader } from '@/components/patterns/page-header';
 import { useAnnouncements } from '../hooks/use-portal-feed';
@@ -20,11 +21,11 @@ export function ParentAnnouncements() {
         onRetry={() => void announcements.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
-            <Megaphone className="mx-auto size-8 text-muted-foreground" aria-hidden />
-            <p className="mt-3 text-sm font-medium">No announcements</p>
-            <p className="mt-1 text-sm text-muted-foreground">New notices will appear here.</p>
-          </div>
+          <EmptyState
+            icon={Megaphone}
+            title="No announcements"
+            description="New notices will appear here."
+          />
         }
       >
         <ul className="grid gap-2">

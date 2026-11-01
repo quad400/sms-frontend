@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils/cn';
 import { useInbox, useMarkAllInboxRead, useMarkInboxRead } from '../hooks/use-notifications';
 import { formatDateTime } from '../lib/format';
 import { QueryState } from '../lib/shared';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 export function StaffNotifications() {
   const [page, setPage] = useState(1);
@@ -52,7 +52,7 @@ export function StaffNotifications() {
         onRetry={() => void inbox.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={Bell}
             title="You’re all caught up"
             description="New notifications will show up here."

@@ -1,9 +1,18 @@
 'use client';
 
-import { use } from 'react';
-import { StaffForm } from '@/features/admin/components/staff-pages';
+import { Loader } from '@/components/patterns/loader';
+import { Suspense, use } from 'react';
+import { StaffOnboardingWizard } from '@/features/admin/components/staff/onboarding';
 
-export default function Page({ params }: { params: Promise<{ id: string }> }) {
+export default function EditStaffPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = use(params);
-  return <StaffForm staffId={Number(id)} />;
+  return (
+    <Suspense fallback={<Loader />}>
+      <StaffOnboardingWizard mode="edit" initialStaffId={Number(id)} />
+    </Suspense>
+  );
 }

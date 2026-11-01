@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo, useRef, useState } from 'react';
 import { ChevronDown, Download, Receipt } from 'lucide-react';
 import { PageHeader } from '@/components/patterns/page-header';
@@ -133,9 +134,7 @@ export function ParentFees({
         {tab === 'invoices' ? (
           <ul className="grid gap-2">
             {invoices.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
-                No invoices yet.
-              </p>
+              <EmptyState title="No invoices yet" description="" />
             ) : (
               invoices.map((invoice) => {
                 const open = expanded === invoice.id;
@@ -220,9 +219,10 @@ export function ParentFees({
             onRetry={() => void receiptsQuery.refetch()}
             isEmpty={receipts.length === 0}
             empty={
-              <p className="rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
-                No receipts yet. Paid invoices will show here.
-              </p>
+              <EmptyState
+                title="No receipts yet"
+                description="Paid invoices will show here."
+              />
             }
           >
             <ul className="grid gap-2">

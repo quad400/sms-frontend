@@ -179,7 +179,7 @@ function ParentChromeInner({
         }),
       }}
       config={resolvedConfig}
-      topBarLeading={<ChildSwitcher />}
+      // topBarLeading={<ChildSwitcher />}
     >
       {children}
     </RoleShell>
@@ -223,12 +223,12 @@ function AdminChromeInner({
           notificationCount: chrome.notificationCount,
         }}
         config={config}
-        topBarLeading={
-          <div className="flex items-center gap-2">
-            <CampusSwitcher />
-            <DensityToggle />
-          </div>
-        }
+        // topBarLeading={
+        //   // <div className="flex items-center gap-2">
+        //   //   <CampusSwitcher />
+        //   //   <DensityToggle />
+        //   // </div>
+        // }
       >
         {children}
       </RoleShell>
@@ -255,8 +255,9 @@ function AdminChromeExtras({
 }
 
 /**
- * Single portal chrome for student, staff, parent, and admin. Pass `role` — nav, tabs, and
- * role-specific extras come from shared config.
+ * Single portal chrome for student, staff, parent, and admin.
+ * All roles share ShellTopBar via RoleShell; pass role extras as topBar leading slots
+ * (campus switcher, child switcher, sync chip) — do not add per-role top bar forks.
  */
 export function AppShell({
   role,

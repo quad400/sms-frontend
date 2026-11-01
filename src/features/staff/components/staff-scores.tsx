@@ -10,7 +10,8 @@ import { useTeachingClasses } from '../hooks/use-teaching-classes';
 import { QueryState } from '../lib/shared';
 import { AssessmentTable } from './shared/assessment-table';
 import { SelectField } from './shared/fields';
-import { EmptyPanel, Panel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Panel } from './shared/panel';
 
 const COUNT_LIMIT = 40;
 
@@ -109,7 +110,7 @@ export function StaffScores() {
         onRetry={() => void assessments.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={GraduationCap}
             title="No assessments found"
             description="Tests and exams for your classes and subjects will appear here once they’re set up."

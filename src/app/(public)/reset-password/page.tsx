@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
+import { Loader } from '@/components/patterns/loader';
 import { ResetPasswordForm } from '@/features/auth';
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="w-full max-w-md rounded-xl border border-border bg-card p-6" />}>
+    <Suspense fallback={<Loader className="w-full max-w-md" rows={2} />}>
       <ResetPasswordForm />
     </Suspense>
   );

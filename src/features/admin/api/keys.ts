@@ -8,6 +8,8 @@ export const adminKeys = {
   sessions: () => [...adminKeys.all, 'sessions'] as const,
   dashboards: (campusId?: string) => [...adminKeys.all, 'dashboards', campusId ?? ''] as const,
   students: (params: Params) => [...adminKeys.all, 'students', params] as const,
+  studentsSummary: (campusId?: string) =>
+    [...adminKeys.all, 'students-summary', campusId ?? ''] as const,
   student: (id: number) => [...adminKeys.all, 'student', id] as const,
   studentGuardians: (id: number) => [...adminKeys.all, 'student-guardians', id] as const,
   studentEnrolments: (id: number) => [...adminKeys.all, 'student-enrolments', id] as const,
@@ -15,6 +17,8 @@ export const adminKeys = {
   guardians: (params: Params) => [...adminKeys.all, 'guardians', params] as const,
   guardian: (id: number) => [...adminKeys.all, 'guardian', id] as const,
   staffList: (params: Params) => [...adminKeys.all, 'staff-list', params] as const,
+  staffSummary: (campusId?: string) =>
+    [...adminKeys.all, 'staff-summary', campusId ?? ''] as const,
   staffMember: (id: number) => [...adminKeys.all, 'staff-member', id] as const,
   staffAllocations: (id: number) => [...adminKeys.all, 'staff-allocations', id] as const,
   leaveTypes: () => [...adminKeys.all, 'leave-types'] as const,
@@ -30,6 +34,7 @@ export const adminKeys = {
   terms: (sessionId?: string) => [...adminKeys.all, 'terms', sessionId ?? ''] as const,
   subjects: () => [...adminKeys.all, 'subjects'] as const,
   levels: () => [...adminKeys.all, 'levels'] as const,
+  levelStages: () => [...adminKeys.all, 'level-stages'] as const,
   curriculum: (levelId?: string) => [...adminKeys.all, 'curriculum', levelId ?? ''] as const,
   houses: (campusId?: string) => [...adminKeys.all, 'houses', campusId ?? ''] as const,
   allocations: (params: Params) => [...adminKeys.all, 'allocations', params] as const,
@@ -39,9 +44,17 @@ export const adminKeys = {
   timetable: (id: number) => [...adminKeys.all, 'timetable', id] as const,
   lessonPlans: (params: Params) => [...adminKeys.all, 'lesson-plans', params] as const,
   lessonPlan: (id: number) => [...adminKeys.all, 'lesson-plan', id] as const,
+  lessonPlanPacingDigest: (params: Params) =>
+    [...adminKeys.all, 'lesson-plan-pacing-digest', params] as const,
+  lessonNotes: (params: Params) => [...adminKeys.all, 'lesson-notes', params] as const,
+  fileDownloadUrl: (fileId: number) => [...adminKeys.all, 'file-download-url', fileId] as const,
   registers: (params: Params) => [...adminKeys.all, 'registers', params] as const,
   register: (id: number) => [...adminKeys.all, 'register', id] as const,
   attendanceSummaries: (params: Params) => [...adminKeys.all, 'attendance-summaries', params] as const,
+  studentAttendanceSummaries: (params: Params) =>
+    [...adminKeys.all, 'student-attendance-summaries', params] as const,
+  staffAttendanceSummaries: (params: Params) =>
+    [...adminKeys.all, 'staff-attendance-summaries', params] as const,
   staffAttendance: (date: string, campusId?: string) =>
     [...adminKeys.all, 'staff-attendance', date, campusId ?? ''] as const,
   gradingScales: () => [...adminKeys.all, 'grading-scales'] as const,

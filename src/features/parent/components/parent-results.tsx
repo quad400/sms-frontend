@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/patterns/page-header';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -50,9 +51,7 @@ export function ParentResults({
         onRetry={() => void results.refetch()}
         isEmpty={terms.length === 0}
         empty={
-          <p className="rounded-2xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-            No published results yet.
-          </p>
+          <EmptyState title="No results yet" description="No published results yet." />
         }
       >
         {options.length > 1 ? (

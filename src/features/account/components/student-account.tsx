@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Camera } from 'lucide-react';
 import { formatAcademicPeriodLabel } from '@/components/shells/shell-nav';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Loader } from '@/components/patterns/loader';
 import { PageHeader } from '@/components/patterns/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -326,9 +328,13 @@ export function StudentAccount() {
       {tab === 'sessions' ? (
         <Panel title="Active sessions" description="Devices signed in with your account.">
           {sessions.isPending ? (
-            <p className="text-sm text-muted-foreground">Loading sessions…</p>
+            <Loader variant="inline" label="Loading sessions" />
           ) : sessionRows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No other sessions listed.</p>
+            <EmptyState
+              title="No other sessions"
+              description="No other sessions are listed for this account."
+              className="border-0 bg-transparent py-6"
+            />
           ) : (
             <ul className="space-y-2">
               {sessionRows.map((row, index) => (

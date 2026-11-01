@@ -1,6 +1,8 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { CalendarDays, School } from 'lucide-react';
 import { SectionCard } from '@/components/patterns/section-card';
@@ -9,13 +11,13 @@ import { Label } from '@/components/ui/label';
 import { PermissionGate } from '@/lib/auth/permissions';
 import { fullName } from '../../types';
 import { useStaffList } from '../../hooks/use-staff';
-import { useClasses, useLevels, useSessions } from '../../hooks/use-structure';
+import { useClasses, useLevels, useSessions, useSubjects } from '../../hooks/use-structure';
 import { useAdminCampus } from '../../lib/campus';
 import { ClassDetailPanel } from './class-detail-panel';
 import { ClassesHeader } from './classes-header';
 import { ClassesSummary } from './classes-summary';
 import { ClassesTable } from './classes-table';
-import { ClassCreateSheets } from './create-sheets';
+import { cn } from '@/lib/utils/cn';
 
 const PAGE_SIZE = 8;
 
@@ -23,11 +25,19 @@ const selectClass =
   'h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground ' +
   'outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50';
 
-/**
- * Class Management — UI shell first.
- * KPI / capacity / homeroom use presentational mock enrichment until APIs land.
- * Table + roster + form-tutor assign load real class / student / staff data.
- */
+function newClassHref(opts: {
+  sessionId?: string;
+  levelId?: string;
+  step?: 'year-group' | 'arm';
+}) {
+  const params = new URLSearchParams();
+  if (opts.sessionId) params.set('sessionId', opts.sessionId);
+  if (opts.levelId) params.set('levelId', opts.levelId);
+  if (opts.step) params.set('step', opts.step);
+  const qs = params.toString();
+  return qs ? `/admin/classes/new?${qs}` : '/admin/classes/new';
+}
+
 export function ClassesList() {
   const router = useRouter();
   const pathname = usePathname();
@@ -58,6 +68,7 @@ export function ClassesList() {
     { campusId: effectiveCampusId, status: 'active', page: 1 },
     !!effectiveCampusId,
   );
+  const subjects = useSubjects();
 
   const classIdParam = searchParams.get('classId');
   const selectedId =
@@ -69,9 +80,6 @@ export function ClassesList() {
   const [q, setQ] = useState('');
   const [levelId, setLevelId] = useState('');
   const [page, setPage] = useState(1);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [yearGroupOpen, setYearGroupOpen] = useState(false);
-  const [preselectLevelId, setPreselectLevelId] = useState<string | undefined>();
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -116,11 +124,6 @@ export function ClassesList() {
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, pageSafe]);
 
-  const assignedFormMasters = useMemo(
-    () => (classes.data ?? []).filter((c) => c.formTeacherStaffId != null).length,
-    [classes.data],
-  );
-
   const selectedClass = useMemo(
     () => (classes.data ?? []).find((c) => c.id === selectedId) ?? null,
     [classes.data, selectedId],
@@ -134,20 +137,24 @@ export function ClassesList() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
-  const openCreate = (lid?: number) => {
-    setPreselectLevelId(lid != null ? String(lid) : undefined);
-    setCreateOpen(true);
-  };
-
   const needsScope = !activeSession || !effectiveCampusId;
   const hasYearGroups = (levels.data?.length ?? 0) > 0;
+
+  const createHref = newClassHref({
+    sessionId: activeSession || undefined,
+    step: 'arm',
+  });
+  const yearGroupHref = newClassHref({
+    sessionId: activeSession || undefined,
+    step: 'year-group',
+  });
 
   return (
     <div className="space-y-5">
       <ClassesHeader
         sessionName={activeSessionMeta?.name}
-        onCreateArm={() => openCreate()}
-        onAddYearGroup={() => setYearGroupOpen(true)}
+        createHref={needsScope ? undefined : createHref}
+        yearGroupHref={needsScope ? undefined : yearGroupHref}
       />
 
       <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3 shadow-[var(--shadow-card)] sm:flex-row sm:items-end sm:justify-between">
@@ -190,51 +197,45 @@ export function ClassesList() {
       ) : (
         <>
           <ClassesSummary
-            armCount={(classes.data ?? []).length}
-            assignedFormMasters={assignedFormMasters}
+            classes={classes.data ?? []}
+            isPending={classes.isPending}
           />
 
           {!hasYearGroups && !levels.isPending ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <School className="size-6" aria-hidden />
-              </span>
-              <div className="space-y-1">
-                <h2 className="font-heading text-lg font-semibold tracking-tight">
-                  No year groups yet
-                </h2>
-                <p className="max-w-sm text-sm text-muted-foreground">
-                  Add a year group, then create class arms for this session.
-                </p>
-              </div>
-              <PermissionGate permission="school-structure.level.create">
-                <Button type="button" onClick={() => setYearGroupOpen(true)}>
-                  Add year group
-                </Button>
-              </PermissionGate>
-            </div>
+            <EmptyState
+              icon={School}
+              title="No year groups yet"
+              description="Add a year group, then create class arms for this session."
+              action={
+                <PermissionGate permission="school-structure.level.create">
+                  <Button asChild>
+                    <Link href={yearGroupHref}>Add year group</Link>
+                  </Button>
+                </PermissionGate>
+              }
+            />
           ) : !classes.isPending && (classes.data?.length ?? 0) === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <School className="size-6" aria-hidden />
-              </span>
-              <div className="space-y-1">
-                <h2 className="font-heading text-lg font-semibold tracking-tight">
-                  No classes yet
-                </h2>
-                <p className="max-w-sm text-sm text-muted-foreground">
-                  Pick a year group and an arm (A, B, C) for{' '}
-                  {activeSessionMeta?.name ?? 'this session'}.
-                </p>
-              </div>
-              <PermissionGate permission="school-structure.class.create">
-                <Button type="button" onClick={() => openCreate()}>
-                  Create Class Arm
-                </Button>
-              </PermissionGate>
-            </div>
+            <EmptyState
+              icon={School}
+              title="No classes yet"
+              description={`Pick a year group and an arm (A, B, C) for ${activeSessionMeta?.name ?? 'this session'}.`}
+              action={
+                <PermissionGate permission="school-structure.class.create">
+                  <Button asChild>
+                    <Link href={createHref}>Create Class Arm</Link>
+                  </Button>
+                </PermissionGate>
+              }
+            />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem]">
+            <div
+              className={cn(
+                'grid gap-4',
+                selectedClass
+                  ? 'lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem]'
+                  : 'grid-cols-1',
+              )}
+            >
               <ClassesTable
                 rows={pageRows}
                 allRows={classes.data ?? []}
@@ -255,7 +256,9 @@ export function ClassesList() {
                   setPage(1);
                 }}
                 selectedId={selectedId}
-                onSelect={setSelectedClassId}
+                onSelect={(id) =>
+                  setSelectedClassId(selectedId === id ? null : id)
+                }
                 page={pageSafe}
                 pages={pages}
                 total={total}
@@ -267,43 +270,16 @@ export function ClassesList() {
                 <ClassDetailPanel
                   schoolClass={selectedClass}
                   staff={staff.data?.data ?? []}
+                  subjects={subjects.data ?? []}
                   invalidateKey={classesKey}
+                  onClose={() => setSelectedClassId(null)}
                 />
-              ) : (
-                <aside className="hidden rounded-xl border border-dashed border-border bg-card/50 p-6 text-center lg:block lg:sticky lg:top-4">
-                  <EyeHint />
-                  <p className="mt-3 font-heading text-sm font-semibold">Inspect a class arm</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Select a row to review roster, form tutor, and quick actions.
-                  </p>
-                </aside>
-              )}
+              ) : null}
             </div>
           )}
         </>
       )}
-
-      <ClassCreateSheets
-        createOpen={createOpen}
-        onCreateOpenChange={setCreateOpen}
-        yearGroupOpen={yearGroupOpen}
-        onYearGroupOpenChange={setYearGroupOpen}
-        levels={levels.data ?? []}
-        campusId={effectiveCampusId}
-        sessionId={activeSession}
-        sessionName={activeSessionMeta?.name}
-        invalidateKey={classesKey}
-        preselectLevelId={preselectLevelId}
-      />
     </div>
-  );
-}
-
-function EyeHint() {
-  return (
-    <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-      <School className="size-5" />
-    </span>
   );
 }
 

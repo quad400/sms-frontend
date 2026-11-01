@@ -10,7 +10,7 @@ import { formatDate, plural } from '../../lib/format';
 import { QueryState } from '../../lib/shared';
 import type { LessonNote } from '../../types';
 import { ConfirmDialog } from '../shared/confirm-dialog';
-import { EmptyPanel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { LessonNoteSheet } from './lesson-note-sheet';
 
 export function LessonNotesTab() {
@@ -52,7 +52,7 @@ export function LessonNotesTab() {
         onRetry={() => void notes.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={NotebookPen}
             title="No lesson notes yet"
             description="Notes you publish for a class and subject are shared with its students."

@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { PageHeader } from '@/components/patterns/page-header';
 import { usePortalMedical } from '../hooks/use-portal-medical';
 import { QueryState } from './query-state';
@@ -46,7 +47,11 @@ export function StudentMedical() {
         <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] md:p-6">
           <h2 className="font-heading text-lg font-semibold">Clinic visit history</h2>
           {visits.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">No clinic visits on record.</p>
+            <EmptyState
+              title="No clinic visits"
+              description="No clinic visits on record."
+              className="mt-3 border-0 bg-transparent py-4"
+            />
           ) : (
             <ul className="mt-4 space-y-3">
               {visits.map((row, index) => {
@@ -74,7 +79,11 @@ export function StudentMedical() {
           <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] md:p-6">
             <h2 className="font-heading text-lg font-semibold">Immunizations</h2>
             {immunizations.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">No immunization records yet.</p>
+              <EmptyState
+                title="No immunizations"
+                description="No immunization records yet."
+                className="mt-3 border-0 bg-transparent py-4"
+              />
             ) : (
               <ul className="mt-3 space-y-2">
                 {immunizations.map((row, index) => {

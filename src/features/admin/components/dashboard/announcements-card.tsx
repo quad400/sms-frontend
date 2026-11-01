@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { Megaphone, Shield } from 'lucide-react';
 import { SectionCard } from '@/components/patterns/section-card';
 import { asRecord, str } from '@/lib/utils/record';
@@ -56,7 +57,11 @@ export function AnnouncementsCard({
       actionClassName={actionClass}
     >
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No announcements yet.</p>
+        <EmptyState
+          title="No announcements yet"
+          description=""
+          className="border-0 bg-transparent py-4"
+        />
       ) : (
         <ul className="space-y-2">
           {rows.map((a) => (

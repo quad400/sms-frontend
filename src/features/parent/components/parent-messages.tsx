@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, MessageSquare, Send } from 'lucide-react';
 import { PageHeader } from '@/components/patterns/page-header';
@@ -37,13 +38,11 @@ export function ParentMessages() {
         onRetry={() => void threads.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
-            <MessageSquare className="mx-auto size-8 text-muted-foreground" aria-hidden />
-            <p className="mt-3 text-sm font-medium">No conversations yet</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              When you or a teacher start a thread, it will appear here.
-            </p>
-          </div>
+          <EmptyState
+            icon={MessageSquare}
+            title="No conversations yet"
+            description="When you or a teacher start a thread, it will appear here."
+          />
         }
       >
         <div className="grid gap-4 md:grid-cols-[18rem_1fr]">
@@ -76,9 +75,11 @@ export function ParentMessages() {
 
           <div className={cn(selectedId === null ? 'hidden md:block' : undefined)}>
             {selectedId === null ? (
-              <div className="rounded-2xl border border-dashed border-border px-4 py-16 text-center text-sm text-muted-foreground">
-                Select a conversation to read messages.
-              </div>
+              <EmptyState
+                icon={MessageSquare}
+                title="Select a conversation"
+                description="Select a conversation to read messages."
+              />
             ) : (
               <ThreadPane
                 threadId={selectedId}

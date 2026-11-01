@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, CircleCheck, CircleX, Clock, ShieldCheck } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -195,9 +196,11 @@ export function StudentAttendance() {
         <section aria-label="Marks this month" className="space-y-2">
           <h2 className="font-heading text-lg font-semibold">This month</h2>
           {entries.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">
-              No attendance marks for {monthLabel}.
-            </p>
+            <EmptyState
+              title="No marks this month"
+              description={`No attendance marks for ${monthLabel}.`}
+              className="bg-card"
+            />
           ) : (
             <ul className="space-y-2">
               {entries.map((entry, index) => {

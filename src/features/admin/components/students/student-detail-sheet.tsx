@@ -20,8 +20,12 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { Fact } from '@/components/patterns/fact';
+import { MetaChip } from '@/components/patterns/meta-chip';
+import { QuickLink } from '@/components/patterns/quick-link';
 import { StatusBadge } from '@/components/patterns/status-badge';
 import { PermissionGate } from '@/lib/auth/permissions';
+import { formatDisplayDateOrDash } from '@/lib/format/date';
 import { cn } from '@/lib/utils/cn';
 import { asRecord, str } from '@/lib/utils/record';
 import { StudentAccountPanel } from '../fees-pages';
@@ -115,9 +119,6 @@ export function StudentDetailSheet({
                         {s.className ? (
                           <MetaChip>{s.className}</MetaChip>
                         ) : null}
-                        {s.houseName ? (
-                          <MetaChip className="bg-teal-50 text-teal-800">{s.houseName}</MetaChip>
-                        ) : null}
                         {age != null ? <MetaChip>{age} yrs</MetaChip> : null}
                       </div>
                     </div>
@@ -172,7 +173,6 @@ export function StudentDetailSheet({
                         <Fact label="Gender" value={gender} />
                         <Fact label="Date of birth" value={formatDate(s.dateOfBirth)} />
                         <Fact label="Class" value={s.className} />
-                        <Fact label="House" value={s.houseName} />
                         <Fact
                           label="Primary contact"
                           value={s.primaryGuardianName}
@@ -240,24 +240,6 @@ export function StudentDetailSheet({
   );
 }
 
-function MetaChip({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn(
-        'rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground',
-        className,
-      )}
-    >
-      {children}
-    </span>
-  );
-}
 
 function Panel({
   title,
@@ -286,53 +268,7 @@ function Panel({
   );
 }
 
-function Fact({
-  label,
-  value,
-  hint,
-  className,
-}: {
-  label: string;
-  value?: string | null;
-  hint?: string | null;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <dt className="text-[11px] font-medium text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 text-sm font-medium text-foreground">{value || '—'}</dd>
-      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
-  );
-}
 
-function QuickLink({
-  href,
-  icon: Icon,
-  label,
-  hint,
-}: {
-  href: string;
-  icon: typeof CalendarDays;
-  label: string;
-  hint: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex items-center gap-3 rounded-xl border border-border bg-card p-3 shadow-[var(--shadow-card)] transition hover:border-teal-200 hover:bg-teal-50/40"
-    >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground transition group-hover:bg-teal-100 group-hover:text-teal-800">
-        <Icon className="size-4" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-foreground">{label}</span>
-        <span className="block text-xs text-muted-foreground">{hint}</span>
-      </span>
-      <ChevronRight className="size-4 text-muted-foreground transition group-hover:text-teal-700" />
-    </Link>
-  );
-}
 
 function GuardianList({
   data,
@@ -418,12 +354,5 @@ function EnrolmentPreview({ data }: { data: unknown }) {
 }
 
 function formatDate(iso?: string | null): string {
-  if (!iso) return '—';
-  const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return iso;
-  return new Date(t).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  return formatDisplayDateOrDash(iso);
 }

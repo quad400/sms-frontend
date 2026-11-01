@@ -2,12 +2,30 @@ import { proxyDelete, proxyGet, proxyPatch, proxyPost, proxyPut } from '@/lib/ap
 import { PAGE_SIZE } from '../lib/paginate';
 import type { Paginated, StaffRow } from '../types';
 
+export type StaffSummary = {
+  total: number;
+  teaching: number;
+  nonTeaching: number;
+  active: number;
+  onDuty: number;
+  presentPct: number | null;
+  leaveApproved: number;
+  studentStaffRatio: string;
+  studentStaffRatioValue: number | null;
+  ratioNote: string;
+  functionalUnits: number;
+  campuses: number;
+  byJobTitle: Record<string, number>;
+  byStatus: Record<string, number>;
+};
+
 export function listStaff(params: {
   page?: number;
   q?: string;
   campusId?: string;
   status?: string;
   jobTitle?: string;
+  category?: string;
 }): Promise<Paginated<StaffRow>> {
   return proxyGet('/api/v1/staff', {
     page: String(params.page ?? 1),
@@ -16,6 +34,13 @@ export function listStaff(params: {
     campusId: params.campusId,
     status: params.status,
     jobTitle: params.jobTitle,
+    category: params.category,
+  });
+}
+
+export function getStaffSummary(campusId?: string): Promise<StaffSummary> {
+  return proxyGet('/api/v1/staff/summary', {
+    campusId,
   });
 }
 

@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Lock } from 'lucide-react';
+import { Loader } from '@/components/patterns/loader';
 import { PageHeader } from '@/components/patterns/page-header';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/lib/auth/permissions';
@@ -25,18 +26,44 @@ import {
   type AdmissionStep,
 } from './types';
 
-export function AdmissionWizard() {
+export function AdmissionWizard({
+  mode = 'create',
+  initialStudentId,
+}: {
+  mode?: 'create' | 'edit';
+  initialStudentId?: number;
+} = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { can } = useSession();
+  const isEdit = mode === 'edit';
 
   const studentIdParam = searchParams.get('studentId');
-  const studentId =
+  const studentIdFromQuery =
     studentIdParam && Number.isFinite(Number(studentIdParam))
       ? Number(studentIdParam)
       : null;
+  const studentId = initialStudentId ?? studentIdFromQuery;
   const step = parseAdmissionStep(searchParams.get('step'));
+
+  useEffect(() => {
+    if (!isEdit || initialStudentId == null) return;
+    const needsId = studentIdFromQuery !== initialStudentId;
+    const needsStep = !searchParams.get('step');
+    if (!needsId && !needsStep) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('studentId', String(initialStudentId));
+    if (needsStep) params.set('step', 'details');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [
+    isEdit,
+    initialStudentId,
+    studentIdFromQuery,
+    searchParams,
+    pathname,
+    router,
+  ]);
 
   const studentQuery = useStudent(studentId, studentId != null);
   const student = studentQuery.data ?? null;
@@ -82,6 +109,9 @@ export function AdmissionWizard() {
   }, [step, studentId]);
 
   const stepLocked = (s: AdmissionStep): boolean => {
+    if (s === 'details' && isEdit) {
+      return !can('students.student.update');
+    }
     const perm = ADMISSION_STEP_META[s].permission;
     if (!perm) return false;
     return !can(perm);
@@ -92,19 +122,28 @@ export function AdmissionWizard() {
     effectiveStep !== 'done' &&
     stepLocked(effectiveStep);
 
+  const backHref =
+    isEdit && studentId != null
+      ? `/admin/students/${studentId}`
+      : '/admin/students';
+
   return (
     <div className="mx-auto space-y-5">
       <div className="space-y-3">
         <Link
-          href="/admin/students"
+          href={backHref}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:underline"
         >
           <ArrowLeft className="size-3.5" />
-          Back to directory
+          {isEdit ? 'Back to profile' : 'Back to directory'}
         </Link>
         <PageHeader
-          title="Admit student"
-          description="Create the student record, then add guardian, class enrolment, and medical details."
+          title={isEdit ? 'Edit student' : 'Admit student'}
+          description={
+            isEdit
+              ? 'Update personal details, then review guardian, enrolment, and medical information.'
+              : 'Create the student record, then add guardian, class enrolment, and medical details.'
+          }
           titleAddon={
             student?.studentNumber ? (
               <span className="rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-teal-800">
@@ -203,6 +242,7 @@ export function AdmissionWizard() {
           {effectiveStep === 'guardian' && studentId != null ? (
             <GuardianStep
               studentId={studentId}
+              mode={mode}
               onContinue={goNext}
               onSkip={goNext}
             />
@@ -212,6 +252,7 @@ export function AdmissionWizard() {
             <EnrolmentStep
               studentId={studentId}
               campusId={student?.campusId}
+              mode={mode}
               onContinue={goNext}
               onSkip={goNext}
             />
@@ -226,11 +267,15 @@ export function AdmissionWizard() {
           ) : null}
 
           {effectiveStep === 'done' && student ? (
-            <DoneStep student={student} onAdmitAnother={onAdmitAnother} />
+            <DoneStep
+              student={student}
+              mode={mode}
+              onAdmitAnother={onAdmitAnother}
+            />
           ) : null}
 
           {effectiveStep === 'done' && studentId != null && !student ? (
-            <p className="text-sm text-muted-foreground">Loading student…</p>
+            <Loader variant="inline" label="Loading student" />
           ) : null}
         </QueryState>
       )}

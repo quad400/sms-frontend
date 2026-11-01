@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   Building2,
   MapPin,
@@ -13,37 +15,14 @@ import { StatusBadge } from '@/components/patterns/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { SummaryCard } from '@/components/patterns/summary-card';
 import { PermissionGate } from '@/lib/auth/permissions';
-import { toastError, toastSuccess } from '@/lib/toast';
-import { cn } from '@/lib/utils/cn';
-import type { Campus } from '../../api/structure';
-import { useCampuses, useSaveCampus } from '../../hooks/use-structure';
+import { useCampuses } from '../../hooks/use-structure';
 import { QueryState } from '../../lib/shared';
 
-export function CampusesPanel({
-  createRequested,
-  onCreateHandled,
-}: {
-  createRequested?: boolean;
-  onCreateHandled?: () => void;
-} = {}) {
+export function CampusesPanel() {
   const campuses = useCampuses();
-  const [open, setOpen] = useState(false);
-  const [edit, setEdit] = useState<Campus | null>(null);
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
   const [q, setQ] = useState('');
-
-  const saveCampus = useSaveCampus();
 
   const rows = useMemo(() => {
     const list = campuses.data ?? [];
@@ -62,43 +41,6 @@ export function CampusesPanel({
     const withAddress = list.filter((c) => c.city || c.state || c.addressLine).length;
     return { total: list.length, active, students, withAddress };
   }, [campuses.data]);
-
-  const openCreate = () => {
-    setEdit(null);
-    setCode('');
-    setName('');
-    setOpen(true);
-  };
-
-  useEffect(() => {
-    if (!createRequested) return;
-    setEdit(null);
-    setCode('');
-    setName('');
-    setOpen(true);
-    onCreateHandled?.();
-  }, [createRequested, onCreateHandled]);
-
-  const openEdit = (c: Campus) => {
-    setEdit(c);
-    setName(c.name);
-    setCode(c.code ?? '');
-    setOpen(true);
-  };
-
-  const save = () => {
-    saveCampus.mutate(
-      { editId: edit?.id, code, name },
-      {
-        onSuccess: () => {
-          toastSuccess(edit ? 'Campus updated' : 'Campus created');
-          setOpen(false);
-          setEdit(null);
-        },
-        onError: (e) => toastError('Could not save campus', e.message),
-      },
-    );
-  };
 
   return (
     <div className="space-y-5">
@@ -166,33 +108,27 @@ export function CampusesPanel({
         onRetry={() => void campuses.refetch()}
       >
         {rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
-            <span className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-              <Building2 className="size-6" />
-            </span>
-            <div className="space-y-1">
-              <h2 className="font-heading text-lg font-semibold tracking-tight">
-                {q ? 'No campuses match' : 'No campuses yet'}
-              </h2>
-              <p className="max-w-sm text-sm text-muted-foreground">
-                {q
-                  ? 'Try a different search.'
-                  : 'Add your first campus to scope sessions, classes, and staff.'}
-              </p>
-            </div>
-            {!q ? (
-              <PermissionGate permission="school-structure.campus.create">
-                <Button
-                  type="button"
-                  className="bg-teal-700 hover:bg-teal-800"
-                  onClick={openCreate}
-                >
-                  <Plus className="size-4" />
-                  Add campus
-                </Button>
-              </PermissionGate>
-            ) : null}
-          </div>
+          <EmptyState
+            icon={Building2}
+            title={q ? 'No campuses match' : 'No campuses yet'}
+            description={
+              q
+                ? 'Try a different search.'
+                : 'Add your first campus to scope sessions, classes, and staff.'
+            }
+            action={
+              !q ? (
+                <PermissionGate permission="school-structure.campus.create">
+                  <Button asChild className="bg-teal-700 hover:bg-teal-800">
+                    <Link href="/admin/campuses/new">
+                      <Plus className="size-4" />
+                      Add campus
+                    </Link>
+                  </Button>
+                </PermissionGate>
+              ) : undefined
+            }
+          />
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {rows.map((c) => {
@@ -235,14 +171,11 @@ export function CampusesPanel({
                           : 'Enrolment —'}
                       </span>
                       <PermissionGate permission="school-structure.campus.update">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEdit(c)}
-                        >
-                          <Pencil className="size-3.5" />
-                          Edit
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/admin/campuses/${c.id}/edit`}>
+                            <Pencil className="size-3.5" />
+                            Edit
+                          </Link>
                         </Button>
                       </PermissionGate>
                     </div>
@@ -253,74 +186,6 @@ export function CampusesPanel({
           </ul>
         )}
       </QueryState>
-
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent>
-          <form
-            className="flex h-full flex-col"
-            onSubmit={(e) => {
-              e.preventDefault();
-              save();
-            }}
-          >
-            <SheetHeader className="text-left">
-              <SheetTitle>{edit ? 'Edit campus' : 'Add campus'}</SheetTitle>
-              <SheetDescription>
-                {edit
-                  ? 'Update the display name for this site.'
-                  : 'Create a campus code and name used across sessions and people.'}
-              </SheetDescription>
-            </SheetHeader>
-
-            <div className="mt-6 space-y-4 rounded-xl border border-border bg-muted/30 p-4">
-              {!edit ? (
-                <div className="grid gap-1.5">
-                  <Label required htmlFor="campus-code">
-                    Code
-                  </Label>
-                  <Input
-                    id="campus-code"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. MAIN"
-                    autoComplete="off"
-                  />
-                </div>
-              ) : (
-                <div className="grid gap-1.5">
-                  <Label>Code</Label>
-                  <Input value={code || '—'} disabled />
-                </div>
-              )}
-              <div className="grid gap-1.5">
-                <Label required htmlFor="campus-name">
-                  Name
-                </Label>
-                <Input
-                  id="campus-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Main Campus"
-                  autoComplete="organization"
-                />
-              </div>
-            </div>
-
-            <SheetFooter className="mt-auto flex-row gap-2 pt-6 sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!name.trim() || (!edit && !code.trim()) || saveCampus.isPending}
-                className="bg-teal-700 hover:bg-teal-800"
-              >
-                {saveCampus.isPending ? 'Saving…' : 'Save campus'}
-              </Button>
-            </SheetFooter>
-          </form>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
@@ -330,38 +195,3 @@ export function CampusesPage() {
   return <CampusesPanel />;
 }
 
-function SummaryCard({
-  label,
-  value,
-  icon,
-  iconClass,
-  children,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  iconClass: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {label}
-        </p>
-        <span
-          className={cn(
-            'flex size-9 shrink-0 items-center justify-center rounded-xl',
-            iconClass,
-          )}
-        >
-          {icon}
-        </span>
-      </div>
-      <p className="mt-2 font-heading text-2xl font-semibold tracking-tight tabular-nums">
-        {value}
-      </p>
-      {children ? <div className="mt-2">{children}</div> : null}
-    </div>
-  );
-}

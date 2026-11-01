@@ -29,6 +29,8 @@ type Values = {
   jobTitleCode: string;
   campusId: string;
   createUser: boolean;
+  username: string;
+  password: string;
 };
 
 export function DetailsStep({
@@ -51,8 +53,11 @@ export function DetailsStep({
       jobTitleCode: 'teacher',
       campusId: campusQuery ?? '',
       createUser: false,
+      username: '',
+      password: '',
     },
   });
+  const createUser = form.watch('createUser');
 
   useEffect(() => {
     if (!form.getValues('campusId') && campusQuery) {
@@ -66,10 +71,12 @@ export function DetailsStep({
     form.reset({
       firstName: s.firstName ?? '',
       lastName: s.lastName ?? '',
-      genderCode: s.genderCode ?? 'male',
+      genderCode: s.genderCode ?? s.gender ?? 'male',
       jobTitleCode: s.jobTitleCode ?? 'teacher',
       campusId: s.campusId != null ? String(s.campusId) : campusQuery ?? '',
       createUser: false,
+      username: '',
+      password: '',
     });
   }, [existing.data, form, campusQuery]);
 
@@ -85,7 +92,14 @@ export function DetailsStep({
     const body =
       staffId != null
         ? base
-        : { ...base, createUser: values.createUser || undefined };
+        : values.createUser
+          ? {
+              ...base,
+              createUser: true,
+              username: values.username.trim() || undefined,
+              password: values.password,
+            }
+          : base;
 
     save.mutate(body, {
       onSuccess: (row) => {
@@ -197,13 +211,55 @@ export function DetailsStep({
               />
             </Field>
             {staffId == null ? (
-              <label className="flex items-center gap-2 text-sm">
-                <Checkbox
-                  checked={form.watch('createUser')}
-                  onCheckedChange={(v) => form.setValue('createUser', v === true)}
-                />
-                Create login account
-              </label>
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox
+                    checked={createUser}
+                    onCheckedChange={(v) => form.setValue('createUser', v === true)}
+                  />
+                  Create login account
+                </label>
+                {createUser ? (
+                  <div className="grid gap-3 rounded-lg border border-border bg-muted/30 p-3">
+                    <Field
+                      label="Username"
+                      error={form.formState.errors.username?.message}
+                    >
+                      <Input
+                        {...form.register('username', {
+                          validate: (v) =>
+                            !createUser ||
+                            !v.trim() ||
+                            v.trim().length >= 3 ||
+                            'At least 3 characters',
+                        })}
+                        autoComplete="username"
+                        placeholder="Optional — defaults from name"
+                      />
+                    </Field>
+                    <Field
+                      label="Temporary password"
+                      required
+                      error={form.formState.errors.password?.message}
+                    >
+                      <Input
+                        type="password"
+                        {...form.register('password', {
+                          validate: (v) => {
+                            if (!createUser) return true;
+                            if (!v || v.length < 8) {
+                              return 'Password must be at least 8 characters';
+                            }
+                            return true;
+                          },
+                        })}
+                        autoComplete="new-password"
+                        placeholder="Min. 8 characters"
+                      />
+                    </Field>
+                  </div>
+                ) : null}
+              </div>
             ) : null}
           </FormSection>
         </div>

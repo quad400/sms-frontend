@@ -80,7 +80,9 @@ async function proxy(request: NextRequest, context: RouteContext): Promise<Respo
   }
   responseHeaders.set('X-Request-Id', requestId);
 
-  const body = await upstream.arrayBuffer();
+  // 204/205/304 must not include a body — Response constructor rejects them.
+  const nullBody = [204, 205, 304].includes(upstream.status);
+  const body = nullBody ? null : await upstream.arrayBuffer();
   const response = new NextResponse(body, {
     status: upstream.status,
     headers: responseHeaders,

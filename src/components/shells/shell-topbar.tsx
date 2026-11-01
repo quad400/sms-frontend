@@ -2,8 +2,9 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Bell, GraduationCap, Landmark, PanelLeft, Search } from 'lucide-react';
+import { Bell, Clock3, GraduationCap, Landmark, PanelLeft, Search } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,8 +16,33 @@ import {
 import { formatTimezoneChip, initialsFor } from '@/components/shells/shell-nav';
 import type { SessionUser } from '@/lib/auth/types';
 import { cn } from '@/lib/utils/cn';
-import { Button } from '../ui/button';
 
+export type ShellTopBarProps = {
+  user: SessionUser;
+  timezone: string;
+  accountHref: string;
+  onLogout: () => void;
+  /** Mobile title next to brand mark when search is hidden. */
+  title?: string;
+  academicPeriodLabel?: string | null;
+  notificationCount?: number;
+  notificationsHref?: string;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
+  onOpenSearch?: () => void;
+  searchPlaceholder?: string;
+  showTimezone?: boolean;
+  /** Role extras before period/timezone (campus switcher, child switcher, sync chip). */
+  leading?: ReactNode;
+  /** Extra controls after notifications. */
+  trailing?: ReactNode;
+  className?: string;
+};
+
+/**
+ * Shared portal top bar for student, staff, parent, admin (and IT portal).
+ * Role-specific controls go in `leading` / `trailing` — do not fork this chrome.
+ */
 export function ShellTopBar({
   user,
   timezone,
@@ -29,30 +55,12 @@ export function ShellTopBar({
   onToggleSidebar,
   onOpenSearch,
   searchPlaceholder = 'Search…',
+  showTimezone = true,
   leading,
   trailing,
   onLogout,
   className,
-}: {
-  user: SessionUser;
-  timezone: string;
-  /** Mobile title next to brand mark when search is hidden. */
-  title?: string;
-  accountHref: string;
-  academicPeriodLabel?: string | null;
-  notificationCount?: number;
-  notificationsHref?: string;
-  sidebarCollapsed?: boolean;
-  onToggleSidebar?: () => void;
-  onOpenSearch?: () => void;
-  searchPlaceholder?: string;
-  /** Extra controls before timezone (e.g. sync chip). */
-  leading?: ReactNode;
-  /** Extra controls after notifications. */
-  trailing?: ReactNode;
-  onLogout: () => void;
-  className?: string;
-}) {
+}: ShellTopBarProps) {
   const timezoneLabel = formatTimezoneChip(timezone);
   const badge =
     notificationCount > 0 ? (notificationCount > 99 ? '99+' : String(notificationCount)) : null;
@@ -71,6 +79,7 @@ export function ShellTopBar({
         >
           <Landmark className="size-5" />
         </div>
+
         {onToggleSidebar ? (
           <button
             type="button"
@@ -115,17 +124,24 @@ export function ShellTopBar({
           </div>
         ) : null}
 
-        <div
-          className="hidden h-10 items-center gap-2 rounded-full bg-muted/70 px-4 shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] sm:flex"
-          title={timezoneLabel}
-        >
-          <span className="font-mono text-[11px] font-semibold tracking-wide text-muted-foreground">
-            {timezoneLabel}
-          </span>
-        </div>
+        {showTimezone ? (
+          <div className="hidden h-10 items-center gap-2 rounded-full bg-muted/70 px-3 shadow-[0_1px_3px_0_rgba(15,30,54,0.04)] xl:flex">
+            <Clock3 className="size-3.5 text-muted-foreground" aria-hidden />
+            <span className="font-mono text-[11px] font-semibold tracking-wide text-muted-foreground">
+              {timezoneLabel}
+            </span>
+          </div>
+        ) : null}
 
         {onOpenSearch ? (
-          <Button aria-label="Search" onClick={onOpenSearch} variant="outline" size="icon">
+          <Button
+            type="button"
+            className="flex md:hidden"
+            aria-label="Search"
+            onClick={onOpenSearch}
+            variant="outline"
+            size="icon"
+          >
             <Search className="h-5 w-5" />
           </Button>
         ) : null}
@@ -148,6 +164,7 @@ export function ShellTopBar({
         ) : (
           <div className="relative">
             <Button
+              type="button"
               variant="outline"
               aria-label={badge ? `Notifications, ${badge} unread` : 'Notifications'}
               size="icon"
@@ -203,3 +220,6 @@ export function ShellTopBar({
     </header>
   );
 }
+
+/** @deprecated Prefer `ShellTopBar` — alias kept for call sites naming App chrome. */
+export const AppTopBar = ShellTopBar;

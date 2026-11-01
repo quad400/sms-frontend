@@ -23,7 +23,7 @@ import {
 } from '../lib/calendar-schedule';
 import { formatLongDate, localToday } from '../lib/format';
 import { QueryState } from '../lib/shared';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { StatusBadge } from './shared/status-badge';
 
 const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -177,7 +177,7 @@ export function StaffCalendar() {
             {formatLongDate(activeDate)}
           </h2>
           {dayItems.length === 0 ? (
-            <EmptyPanel
+            <EmptyState
               icon={CalendarOff}
               title="Nothing scheduled"
               description="No classes, leave, holidays or activities on this day."

@@ -16,7 +16,9 @@ export const STUDENT_STATUS_CODES = [
 
 export const STAFF_STATUS_CODES = [
   { code: 'active', label: 'Active' },
-  { code: 'inactive', label: 'Inactive' },
+  { code: 'on-leave', label: 'On leave' },
+  { code: 'suspended', label: 'Suspended' },
+  { code: 'exited', label: 'Exited' },
 ] as const;
 
 export const PROMOTION_OUTCOMES = [
@@ -40,16 +42,20 @@ export const RELATIONSHIP_CODES = [
   { code: 'other', label: 'Other' },
 ] as const;
 
-/** Interim until GET /lookups exists. */
+/** Aligns with backend `staff_job_titles` seed (+ a few UI aliases). */
 export const JOB_TITLE_CODES = [
   { code: 'teacher', label: 'Teacher' },
+  { code: 'head-teacher', label: 'Head Teacher' },
+  { code: 'principal', label: 'Principal' },
+  { code: 'bursar', label: 'Bursar' },
+  { code: 'administrator', label: 'Administrator' },
+  { code: 'support', label: 'Support' },
   { code: 'senior_master', label: 'Senior Master' },
   { code: 'hod', label: 'Head of Department' },
   { code: 'form_tutor', label: 'Form Tutor' },
   { code: 'admin', label: 'Administrator' },
   { code: 'accountant', label: 'Accountant' },
   { code: 'nurse', label: 'School Nurse' },
-  { code: 'support', label: 'Support Staff' },
   { code: 'other', label: 'Other' },
 ] as const;
 

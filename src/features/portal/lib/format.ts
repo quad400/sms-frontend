@@ -1,3 +1,8 @@
+import {
+  formatDisplayDate,
+  formatDisplayDateTime,
+  parseAppDate,
+} from '@/lib/format/date';
 import { asRecord, str } from '@/lib/utils/record';
 
 export const WITHHELD_COPY = 'Your results are not available yet. Please see the school office.';
@@ -37,28 +42,20 @@ export function scoreText(value: unknown): string {
   return '—';
 }
 
-function parseDate(value: string): Date | null {
-  if (!value) return null;
-  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
-  const date = new Date(dateOnly ? `${value}T00:00:00` : value);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
+/** Platform default: `3rd Jan, 2026`. Custom Intl options kept for compact calendar cells. */
 export function formatDate(
   value: unknown,
-  options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' },
+  options?: Intl.DateTimeFormatOptions,
 ): string {
-  const date = parseDate(str(value));
-  return date ? date.toLocaleDateString('en-GB', options) : '';
+  if (options) {
+    const date = parseAppDate(str(value));
+    return date ? date.toLocaleDateString('en-GB', options) : '';
+  }
+  return formatDisplayDate(value);
 }
 
 export function formatDateTime(value: unknown): string {
-  const date = parseDate(str(value));
-  if (!date) return '';
-  return `${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, ${date.toLocaleTimeString(
-    'en-GB',
-    { hour: '2-digit', minute: '2-digit' },
-  )}`;
+  return formatDisplayDateTime(value);
 }
 
 export function firstName(value: string): string {

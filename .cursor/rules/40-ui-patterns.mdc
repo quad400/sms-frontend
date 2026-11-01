@@ -22,11 +22,12 @@ app/**/page.tsx  →  features/*/components  →  features/*/hooks  →  feature
 - One job per component. Split if it mixes list + form + dialog + unrelated fetch.
 - Colocate feature UI under `features/<domain>/components/`; share only true cross-domain UI.
 - Name by role: `StudentsList`, `useStudents`, `adminKeys.students()` — not `Helper`, `utils2`.
-- Handle loading / empty / error explicitly (`QueryState`, empty CTA, mapped errors). No silent catch.
+- Handle loading / empty / error explicitly (`QueryState` → `Loader` / `ErrorState` / `EmptyState`). No silent catch, no ad-hoc pulse blocks.
 
 ## Reusable
 
-- Reach for `components/patterns/*` before inventing (DataTable, PageHeader, MoneyText, StatusBadge, PermissionGate, IconActionButton).
+- Reach for `components/patterns/*` before inventing (DataTable, PageHeader, Loader, ErrorState, EmptyState, MoneyText, StatusBadge, PermissionGate, IconActionButton).
+- Reach for `components/ui/*` before native HTML (`Select`, `DropdownMenu`, `DatePicker`/`Calendar`, `Dialog`, `Sheet` — never raw `<select>` / `<input type="date">`).
 - **Row / table actions are icon-only** (`IconActionButton` / `IconActionLink`) with `aria-label` + `title` — never text like “View” / “Edit” / “Archive” in dense tables.
 - `components/ui/*` = primitives only. Domain wording and school logic stay in features or patterns.
 - Extract a hook when the same query/mutation appears twice; share query keys via `api/keys`.

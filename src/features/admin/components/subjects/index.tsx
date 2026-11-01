@@ -1,22 +1,11 @@
 'use client';
 
+import { Loader } from '@/components/patterns/loader';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BookOpen, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { RefreshCw } from 'lucide-react';
+import { cn } from '@/lib/utils/cn';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
-import { toastError, toastSuccess } from '@/lib/toast';
-import {
-  useCreateSubject,
   useCurriculumSubjects,
   useLevels,
   useSessions,
@@ -54,11 +43,6 @@ function SubjectsListInner() {
   const [department, setDepartment] = useState('');
   const [tier, setTier] = useState('');
   const [page, setPage] = useState(1);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
-
-  const create = useCreateSubject();
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -127,40 +111,25 @@ function SubjectsListInner() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
-  const submitCreate = () => {
-    create.mutate(
-      { code: code.trim(), name: name.trim() },
-      {
-        onSuccess: (row) => {
-          toastSuccess('Subject created');
-          setCreateOpen(false);
-          setCode('');
-          setName('');
-          setSelectedId(row.id);
-        },
-        onError: (e) => toastError('Could not create subject', e.message),
-      },
-    );
-  };
-
   const sessionLabel = activeSession
     ? `${activeSession.name}${activeSession.isActive ? ' Active' : ''}`
     : null;
 
   return (
     <div className="space-y-5">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-700">
-        Academic operations · Curriculum registry
-      </p>
 
-      <SubjectsHeader
-        sessionLabel={sessionLabel}
-        onAdd={() => setCreateOpen(true)}
-      />
+      <SubjectsHeader sessionLabel={sessionLabel} />
 
       <SubjectsSummary total={(subjects.data ?? []).length} />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem]">
+      <div
+        className={cn(
+          'grid gap-4',
+          selected
+            ? 'lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_26rem]'
+            : 'grid-cols-1',
+        )}
+      >
         <div className="space-y-4">
           <SubjectsTable
             rows={pageRows}
@@ -183,7 +152,7 @@ function SubjectsListInner() {
               setPage(1);
             }}
             selectedId={selectedId}
-            onSelect={setSelectedId}
+            onSelect={(id) => setSelectedId(selectedId === id ? null : id)}
             page={pageSafe}
             pages={pages}
             total={total}
@@ -209,93 +178,17 @@ function SubjectsListInner() {
             subject={selected}
             levels={levels.data ?? []}
             curriculumLevelIds={curriculumBySubject.get(selected.id) ?? []}
+            onClose={() => setSelectedId(null)}
           />
-        ) : (
-          <aside className="hidden rounded-xl border border-dashed border-border bg-card/50 p-6 text-center lg:block lg:sticky lg:top-4">
-            <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-              <BookOpen className="size-5" />
-            </span>
-            <p className="mt-3 font-heading text-sm font-semibold">Inspect a subject</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Select a row to review syllabus coverage, textbooks, faculty, and grading.
-            </p>
-          </aside>
-        )}
+        ) : null}
       </div>
-
-      <Sheet
-        open={createOpen}
-        onOpenChange={(o) => {
-          setCreateOpen(o);
-          if (!o) {
-            setCode('');
-            setName('');
-          }
-        }}
-      >
-        <SheetContent>
-          <form
-            className="flex h-full flex-col"
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitCreate();
-            }}
-          >
-            <SheetHeader className="text-left">
-              <SheetTitle>Add subject</SheetTitle>
-              <SheetDescription>
-                Create a subject code and name for the curriculum registry. Level mapping can
-                follow from curriculum tools.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="mt-6 space-y-4 rounded-xl border border-border bg-muted/30 p-4">
-              <div className="grid gap-1.5">
-                <Label required htmlFor="subject-code">
-                  Code
-                </Label>
-                <Input
-                  id="subject-code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder="e.g. MTH-201"
-                  autoComplete="off"
-                />
-              </div>
-              <div className="grid gap-1.5">
-                <Label required htmlFor="subject-name">
-                  Name
-                </Label>
-                <Input
-                  id="subject-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. General Mathematics"
-                  autoComplete="off"
-                />
-              </div>
-            </div>
-            <SheetFooter className="mt-auto flex-row gap-2 pt-6 sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!code.trim() || !name.trim() || create.isPending}
-                className="bg-teal-700 hover:bg-teal-800"
-              >
-                {create.isPending ? 'Creating…' : 'Add subject'}
-              </Button>
-            </SheetFooter>
-          </form>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
 
 export function SubjectsList() {
   return (
-    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+    <Suspense fallback={<Loader />}>
       <SubjectsListInner />
     </Suspense>
   );

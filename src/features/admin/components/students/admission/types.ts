@@ -20,12 +20,12 @@ export const ADMISSION_STEP_META: Record<
   guardian: {
     label: 'Guardian',
     description: 'Primary contact and relationship',
-    permission: 'students.guardian.update',
+    permission: 'students.guardian.link',
   },
   enrolment: {
     label: 'Enrolment',
     description: 'Session and class placement',
-    permission: 'students.enrolment.list',
+    permission: 'students.enrolment.create',
   },
   medical: {
     label: 'Medical',

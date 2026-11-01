@@ -3,11 +3,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ApiClientError } from '@/lib/api/errors';
 import {
+  approveLessonNote,
   approveLessonPlan,
+  broadcastLessonPlanReminders,
   createTimetable,
+  fetchFileDownloadUrl,
+  fetchLessonPlanPacingDigest,
   getLessonPlan,
   getTimetable,
   listAllocations,
+  listLessonNotes,
   listLessonPlans,
   listRooms,
   listTimeSlots,
@@ -16,7 +21,11 @@ import {
   putStaffAllocations,
   putTimeSlots,
   putTimetableSlots,
+  rejectLessonNote,
+  type BroadcastLessonPlanRemindersResult,
+  type LessonPlanPacingDigest,
   type AllocationRow,
+  type LessonNote,
   type LessonPlan,
   type Room,
   type TimeSlot,
@@ -102,11 +111,23 @@ export function useRooms(campusId?: string) {
   });
 }
 
-export function useTimetables(params: { page: number; classId?: string }) {
+export function useTimetables(params: {
+  page: number;
+  classId?: string;
+  termId?: string;
+}) {
   return useQuery<Paginated<Timetable>, ApiClientError>({
-    queryKey: adminKeys.timetables({ page: params.page, classId: params.classId ?? '' }),
+    queryKey: adminKeys.timetables({
+      page: params.page,
+      classId: params.classId ?? '',
+      termId: params.termId ?? '',
+    }),
     queryFn: () =>
-      listTimetables({ page: params.page, classId: params.classId || undefined }),
+      listTimetables({
+        page: params.page,
+        classId: params.classId || undefined,
+        termId: params.termId || undefined,
+      }),
   });
 }
 
@@ -162,5 +183,86 @@ export function useApproveLessonPlan() {
   return useMutation<unknown, ApiClientError, number>({
     mutationFn: approveLessonPlan,
     onSuccess: () => qc.invalidateQueries({ queryKey: adminKeys.lessonPlans({}) }),
+  });
+}
+
+export function useLessonPlanPacingDigest(params?: {
+  termId?: string;
+  weekNumber?: string;
+}) {
+  return useQuery<LessonPlanPacingDigest, ApiClientError>({
+    queryKey: adminKeys.lessonPlanPacingDigest({
+      termId: params?.termId ?? '',
+      weekNumber: params?.weekNumber ?? '',
+    }),
+    queryFn: () => fetchLessonPlanPacingDigest(params),
+  });
+}
+
+export function useBroadcastLessonPlanReminders() {
+  const qc = useQueryClient();
+  return useMutation<
+    BroadcastLessonPlanRemindersResult,
+    ApiClientError,
+    { termId?: number; weekNumber?: number } | undefined
+  >({
+    mutationFn: (body) => broadcastLessonPlanReminders(body),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.lessonPlans({}) });
+      void qc.invalidateQueries({
+        queryKey: [...adminKeys.all, 'lesson-plan-pacing-digest'],
+      });
+    },
+  });
+}
+
+export type LessonNotesParams = {
+  status?: string;
+  page: number;
+  classId?: string;
+  subjectId?: string;
+  termId?: string;
+  weekNumber?: string;
+  staffId?: string;
+};
+
+export function useLessonNotes(params: LessonNotesParams, enabled = true) {
+  return useQuery<Paginated<LessonNote>, ApiClientError>({
+    queryKey: adminKeys.lessonNotes({ ...params }),
+    queryFn: () =>
+      listLessonNotes({
+        status: params.status || undefined,
+        page: params.page,
+        classId: params.classId || undefined,
+        subjectId: params.subjectId || undefined,
+        termId: params.termId || undefined,
+        weekNumber: params.weekNumber || undefined,
+        staffId: params.staffId || undefined,
+      }),
+    enabled,
+  });
+}
+
+export function useApproveLessonNote() {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiClientError, number>({
+    mutationFn: approveLessonNote,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.lessonNotes({}) }),
+  });
+}
+
+export function useRejectLessonNote() {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiClientError, { id: number; reason: string }>({
+    mutationFn: ({ id, reason }) => rejectLessonNote(id, reason),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.lessonNotes({}) }),
+  });
+}
+
+export function useFileDownloadUrl(fileId: number | null, enabled = true) {
+  return useQuery<{ url: string }, ApiClientError>({
+    queryKey: adminKeys.fileDownloadUrl(fileId ?? 0),
+    queryFn: () => fetchFileDownloadUrl(fileId!),
+    enabled: enabled && fileId != null && fileId > 0,
   });
 }

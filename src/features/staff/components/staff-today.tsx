@@ -11,7 +11,8 @@ import { useStaffMe, useStaffOverview } from '../hooks/use-staff-me';
 import { formatLongDate, greetingFor, nowInZone, plural } from '../lib/format';
 import { QueryState } from '../lib/shared';
 import { AnnouncementCard } from './shared/announcement-card';
-import { EmptyPanel, Panel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Panel } from './shared/panel';
 import { TodayLessons } from './today/today-lessons';
 import { TodayTodo } from './today/today-todo';
 
@@ -67,7 +68,7 @@ export function StaffToday() {
                 }
               >
                 {data.announcements.length === 0 ? (
-                  <EmptyPanel
+                  <EmptyState
                     title="No announcements"
                     description="School announcements will appear here."
                   />

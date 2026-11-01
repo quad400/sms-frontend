@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo } from 'react';
 import { FileText } from 'lucide-react';
 import { DataTable, type DataTableColumn } from '@/components/patterns/data-table';
@@ -260,7 +261,7 @@ export function LessonPlansTable({
         </div>
       </div>
 
-      <QueryState isPending={isPending} error={error} onRetry={onRetry}>
+      <QueryState isPending={isPending} error={error} onRetry={onRetry} loaderVariant="table">
         <DataTable
           columns={columns}
           rows={rows}
@@ -268,9 +269,7 @@ export function LessonPlansTable({
           minRows={Math.min(pageSize, 6)}
           onRowClick={(r) => onOpen(r.id)}
           empty={
-            <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No lesson plans in this queue.
-            </p>
+            <EmptyState title="No lesson plans" description="No lesson plans in this queue." />
           }
           className="shadow-[var(--shadow-card)]"
         />

@@ -1,43 +1,28 @@
 /**
- * Presentational placeholders for Class Management UI shell.
- * Replace with real aggregates when class capacity / homeroom APIs land.
+ * Legacy placeholders still used by the full class profile page until those
+ * surfaces have dedicated endpoints (attendance, GPA, capacity).
  */
 
-export const CLASSES_UI_MOCK = {
-  defaultCapacity: 40,
-  summary: {
-    capPct: 97.9,
-    coverageNote: 'JSS 1 through SSS 3 coverage',
-    avgDensity: '39.4 / 40.0',
-    densityNote: 'Optimal Teacher:Pupil ratio',
-    formMasterPct: 100,
-    formMasterUnassigned: 0,
-    homeroomReady: '36 / 36',
-    homeroomNote: 'Physical lock & key assignment complete',
-  },
-  divisions: [
+export function classExtraForId(id: number) {
+  const divisions = [
     { id: 'junior', label: 'Junior Basic', variant: 'info' as const },
     { id: 'science', label: 'Science Core', variant: 'soft' as const },
     { id: 'arts', label: 'Arts & Humanities', variant: 'warning' as const },
     { id: 'primary', label: 'Primary Stream', variant: 'successSoft' as const },
-  ],
-  homerooms: ['B-102 (Main)', 'A-014 (West)', 'C-201 (Main)', 'Lab-3 (Science)', 'D-110 (East)'],
-  prefects: ['Adaobi Nwosu', 'Chinedu Eze', 'Fatima Bello', 'Tunde Adeyemi', 'Grace Okoro'],
-  departments: ['Mathematics', 'Sciences', 'Languages', 'Humanities', 'ICT'],
-} as const;
-
-export type DivisionMeta = (typeof CLASSES_UI_MOCK.divisions)[number];
-
-export function classExtraForId(id: number) {
-  const { divisions, homerooms, prefects, departments, defaultCapacity } = CLASSES_UI_MOCK;
-  const division = divisions[id % divisions.length]!;
-  const homeroom = homerooms[id % homerooms.length]!;
-  const prefect = prefects[id % prefects.length]!;
-  const department = departments[id % departments.length]!;
-  const capacity = defaultCapacity;
-  // Deterministic enrolled count near capacity for table coloring demos.
-  const enrolled = capacity - ((id * 3) % 7) + ((id % 5 === 0) ? 2 : 0);
-  return { division, homeroom, prefect, department, capacity, enrolled };
+  ];
+  const homerooms = ['B-102 (Main)', 'A-014 (West)', 'C-201 (Main)', 'Lab-3 (Science)', 'D-110 (East)'];
+  const prefects = ['Adaobi Nwosu', 'Chinedu Eze', 'Fatima Bello', 'Tunde Adeyemi', 'Grace Okoro'];
+  const departments = ['Mathematics', 'Sciences', 'Languages', 'Humanities', 'ICT'];
+  const capacity = 40;
+  const enrolled = capacity - ((id * 3) % 7) + (id % 5 === 0 ? 2 : 0);
+  return {
+    division: divisions[id % divisions.length]!,
+    homeroom: homerooms[id % homerooms.length]!,
+    prefect: prefects[id % prefects.length]!,
+    department: departments[id % departments.length]!,
+    capacity,
+    enrolled,
+  };
 }
 
 export function rosterExtraForIndex(index: number) {

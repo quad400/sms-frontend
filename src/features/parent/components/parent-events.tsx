@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { CalendarDays, Download } from 'lucide-react';
 import { PageHeader } from '@/components/patterns/page-header';
 import { Button } from '@/components/ui/button';
@@ -22,13 +23,11 @@ export function ParentEvents() {
         onRetry={() => void events.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
-            <CalendarDays className="mx-auto size-8 text-muted-foreground" aria-hidden />
-            <p className="mt-3 text-sm font-medium">No events</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Upcoming school events will be listed here.
-            </p>
-          </div>
+          <EmptyState
+            icon={CalendarDays}
+            title="No events"
+            description="Upcoming school events will be listed here."
+          />
         }
       >
         <ul className="grid gap-2">

@@ -1,7 +1,5 @@
-'use client';
-
-import { StaffAttendancePage } from '@/features/admin/components/attendance-pages';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <StaffAttendancePage />;
+  redirect('/admin/attendance?tab=staff');
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -17,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SummaryCard } from '@/components/patterns/summary-card';
 import { ApiClientError } from '@/lib/api/errors';
 import { PermissionGate } from '@/lib/auth/permissions';
 import { toastError, toastSuccess } from '@/lib/toast';
@@ -276,9 +278,10 @@ export function RolesListPage() {
             </div>
           </article>
         ) : (
-          <p className="rounded-xl border border-dashed border-border px-6 py-12 text-center text-sm text-muted-foreground">
-            No roles yet. Create a custom role to begin.
-          </p>
+          <EmptyState
+            title="No roles yet"
+            description="Create a custom role to begin."
+          />
         )}
       </QueryState>
 
@@ -367,36 +370,6 @@ export function RolesListPage() {
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  icon,
-  iconClass,
-  children,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  iconClass: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {label}
-        </p>
-        <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-xl', iconClass)}>
-          {icon}
-        </span>
-      </div>
-      <p className="mt-2 font-heading text-xl font-semibold tracking-tight tabular-nums">
-        {value}
-      </p>
-      {children ? <div className="mt-2">{children}</div> : null}
-    </div>
-  );
-}
 
 function StatChip({ label, value }: { label: string; value: string }) {
   return (

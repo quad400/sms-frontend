@@ -1,6 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Loader } from '@/components/patterns/loader';
 import { useFeatureFlags } from '@/lib/config/use-feature-flags';
 
 export function ModuleGate({
@@ -15,22 +17,16 @@ export function ModuleGate({
   const flags = useFeatureFlags();
 
   if (flags.isPending) {
-    return (
-      <div className="rounded-2xl border border-border bg-card p-8 text-sm text-muted-foreground">
-        Loading…
-      </div>
-    );
+    return <Loader variant="cards" rows={1} label="Loading module" />;
   }
 
   if (!flags.isEnabled(moduleFlag)) {
     return (
       fallback ?? (
-        <div className="rounded-2xl border border-border bg-card p-8">
-          <h1 className="font-heading text-xl font-semibold text-foreground">Not available</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This module is not enabled for your school.
-          </p>
-        </div>
+        <EmptyState
+          title="Not available"
+          description="This module is not enabled for your school."
+        />
       )
     );
   }

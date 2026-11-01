@@ -11,7 +11,7 @@ import { useTeachingClasses } from '../hooks/use-teaching-classes';
 import { useClassStudentCounts } from '../hooks/use-structure';
 import { plural } from '../lib/format';
 import { QueryState } from '../lib/shared';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 export function StaffClasses() {
   const teaching = useTeachingClasses();
@@ -34,7 +34,7 @@ export function StaffClasses() {
         onRetry={teaching.refetch}
         isEmpty={cards.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={School}
             title="No classes allocated"
             description="You haven’t been allocated to any classes this term. Contact the school office if this looks wrong."

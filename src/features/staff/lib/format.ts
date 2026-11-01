@@ -1,3 +1,9 @@
+import {
+  formatDisplayDate,
+  formatDisplayDateTime,
+  parseAppDate,
+} from '@/lib/format/date';
+
 export const WEEKDAYS = [
   'monday',
   'tuesday',
@@ -39,18 +45,19 @@ export function addDays(dateOnly: string, days: number): string {
 }
 
 export function parseDate(value: string | null | undefined): Date | null {
-  if (!value) return null;
-  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
-  const date = new Date(dateOnly ? `${value}T00:00:00` : value);
-  return Number.isNaN(date.getTime()) ? null : date;
+  return parseAppDate(value);
 }
 
+/** Platform default: `3rd Jan, 2026`. Custom Intl options kept for compact variants. */
 export function formatDate(
   value: string | null | undefined,
-  options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' },
+  options?: Intl.DateTimeFormatOptions,
 ): string {
-  const date = parseDate(value);
-  return date ? date.toLocaleDateString('en-GB', options) : '';
+  if (options) {
+    const date = parseAppDate(value);
+    return date ? date.toLocaleDateString('en-GB', options) : '';
+  }
+  return formatDisplayDate(value);
 }
 
 export function formatLongDate(value: string | null | undefined): string {
@@ -58,11 +65,7 @@ export function formatLongDate(value: string | null | undefined): string {
 }
 
 export function formatDateTime(value: string | null | undefined): string {
-  const date = parseDate(value);
-  if (!date) return '';
-  const day = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-  const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  return `${day}, ${time}`;
+  return formatDisplayDateTime(value);
 }
 
 /** `08:30:00` / `8:30` → `08:30`. */

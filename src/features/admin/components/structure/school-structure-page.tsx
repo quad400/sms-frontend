@@ -1,6 +1,8 @@
 'use client';
 
+import { Loader } from '@/components/patterns/loader';
 import { Suspense, useCallback } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Building2, CalendarDays, Plus } from 'lucide-react';
 import { PageHeader } from '@/components/patterns/page-header';
@@ -51,7 +53,6 @@ function SchoolStructureInner() {
   const activeSession = (sessions.data ?? []).find((s) => s.isActive);
 
   const tab = parseTab(searchParams.get('tab'));
-  const create = searchParams.get('create') === '1';
 
   const visibleTabs = TABS.filter((t) => !t.permission || can(t.permission));
   const effectiveTab: StructureTab =
@@ -60,24 +61,16 @@ function SchoolStructureInner() {
       : (visibleTabs[0]?.id ?? 'campuses');
 
   const setTab = useCallback(
-    (next: StructureTab, opts?: { create?: boolean }) => {
+    (next: StructureTab) => {
       const params = new URLSearchParams(searchParams.toString());
       if (next === 'campuses') params.delete('tab');
       else params.set('tab', next);
-      if (opts?.create) params.set('create', '1');
-      else params.delete('create');
+      params.delete('create');
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams],
   );
-
-  const clearCreate = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete('create');
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [pathname, router, searchParams]);
 
   return (
     <div className="space-y-5">
@@ -99,28 +92,33 @@ function SchoolStructureInner() {
           <div className="flex flex-wrap items-center gap-2">
             {effectiveTab === 'campuses' ? (
               <PermissionGate permission="school-structure.campus.create">
-                <Button
-                  type="button"
-                  size="sm"
-                  className="bg-teal-700 hover:bg-teal-800"
-                  onClick={() => setTab('campuses', { create: true })}
-                >
-                  <Plus className="size-4" />
-                  Add campus
+                <Button asChild size="sm" className="bg-teal-700 hover:bg-teal-800">
+                  <Link href="/admin/campuses/new">
+                    <Plus className="size-4" />
+                    Add campus
+                  </Link>
                 </Button>
               </PermissionGate>
             ) : (
               <PermissionGate permission="school-structure.session.create">
-                <Button
-                  type="button"
-                  size="sm"
-                  className="bg-teal-700 hover:bg-teal-800"
-                  onClick={() => setTab('sessions', { create: true })}
-                  disabled={!campusQuery}
-                >
-                  <Plus className="size-4" />
-                  Add session
-                </Button>
+                {campusQuery ? (
+                  <Button asChild size="sm" className="bg-teal-700 hover:bg-teal-800">
+                    <Link href="/admin/sessions/new">
+                      <Plus className="size-4" />
+                      Add session
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="bg-teal-700 hover:bg-teal-800"
+                    disabled
+                  >
+                    <Plus className="size-4" />
+                    Add session
+                  </Button>
+                )}
               </PermissionGate>
             )}
           </div>
@@ -170,24 +168,14 @@ function SchoolStructureInner() {
         })}
       </nav>
 
-      {effectiveTab === 'campuses' ? (
-        <CampusesPanel
-          createRequested={create}
-          onCreateHandled={clearCreate}
-        />
-      ) : (
-        <SessionsPanel
-          createRequested={create}
-          onCreateHandled={clearCreate}
-        />
-      )}
+      {effectiveTab === 'campuses' ? <CampusesPanel /> : <SessionsPanel />}
     </div>
   );
 }
 
 export function SchoolStructurePage() {
   return (
-    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+    <Suspense fallback={<Loader />}>
       <SchoolStructureInner />
     </Suspense>
   );

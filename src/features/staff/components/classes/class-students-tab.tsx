@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useClassRoster } from '../../hooks/use-structure';
 import { fullName, plural, statusLabel } from '../../lib/format';
 import { QueryState } from '../../lib/shared';
-import { EmptyPanel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 export function ClassStudentsTab({ classId }: { classId: number }) {
   const roster = useClassRoster(classId);
@@ -32,7 +32,7 @@ export function ClassStudentsTab({ classId }: { classId: number }) {
       onRetry={() => void roster.refetch()}
       isEmpty={(roster.data ?? []).length === 0}
       empty={
-        <EmptyPanel
+        <EmptyState
           icon={UsersRound}
           title="No students on this roster"
           description="There are no active students enrolled in this class."
@@ -61,7 +61,7 @@ export function ClassStudentsTab({ classId }: { classId: number }) {
         </div>
 
         {rows.length === 0 ? (
-          <EmptyPanel title="No matches" description="No students match your search." />
+          <EmptyState title="No matches" description="No students match your search." />
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
             <table className="w-full min-w-[28rem] border-collapse text-sm">

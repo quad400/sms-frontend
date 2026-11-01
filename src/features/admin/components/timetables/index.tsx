@@ -1,8 +1,12 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Loader } from '@/components/patterns/loader';
 import { Suspense, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { toastError, toastSuccess } from '@/lib/toast';
+import { Pencil, Plus } from 'lucide-react';
+import { toastSuccess } from '@/lib/toast';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -12,17 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import { cn } from '@/lib/utils/cn';
+import type { Timetable } from '../../api/academics';
 import {
-  useCreateTimetable,
   useRooms,
   useTimeSlots,
   useTimetable,
@@ -37,6 +33,7 @@ import {
 } from '../../hooks/use-structure';
 import { useAdminCampus } from '../../lib/campus';
 import { QueryState } from '../../lib/shared';
+import { ClassTimetableSidebar } from './class-sidebar';
 import { ConflictPanel } from './conflict-panel';
 import { LivePeriodBar } from './live-bar';
 import { ScheduleGrid } from './schedule-grid';
@@ -50,6 +47,14 @@ const VIEW_TABS: Array<{ id: ViewMode; label: string }> = [
   { id: 'teacher', label: 'By Teacher' },
   { id: 'room', label: 'By Facility / Room' },
 ];
+
+function createHref(opts: { classId?: string; termId?: string }) {
+  const params = new URLSearchParams();
+  if (opts.classId) params.set('classId', opts.classId);
+  if (opts.termId) params.set('termId', opts.termId);
+  const qs = params.toString();
+  return qs ? `/admin/timetables/new?${qs}` : '/admin/timetables/new';
+}
 
 function TimetablesInner() {
   const router = useRouter();
@@ -77,11 +82,12 @@ function TimetablesInner() {
   const [view, setView] = useState<ViewMode>('class');
   const [classId, setClassId] = useState(classFromUrl);
   const [termId, setTermId] = useState('');
-  const [createOpen, setCreateOpen] = useState(false);
-  const [newClassId, setNewClassId] = useState('');
-  const [newTermId, setNewTermId] = useState('');
 
-  const create = useCreateTimetable();
+  /** Catalogue of timetables for the selected term (to badge each class). */
+  const termCatalogue = useTimetables({
+    page: 1,
+    termId: termId || undefined,
+  });
 
   useEffect(() => {
     if (classFromUrl && classFromUrl !== classId) setClassId(classFromUrl);
@@ -95,19 +101,43 @@ function TimetablesInner() {
     }
   }, [terms.data, termId]);
 
+  /** Auto-select first class when none chosen. */
+  useEffect(() => {
+    if (classId || !(classes.data?.length)) return;
+    const first = classes.data[0];
+    if (first) setClassFilter(String(first.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classes.data]);
+
   const list = useTimetables({
     page: 1,
     classId: classId || undefined,
+    termId: termId || undefined,
   });
 
+  const timetablesByClassId = useMemo(() => {
+    const map = new Map<number, Timetable>();
+    for (const t of termCatalogue.data?.data ?? []) {
+      if (!map.has(t.classId)) map.set(t.classId, t);
+    }
+    /** Fold in the selected class result (may be beyond page 1 of catalogue). */
+    for (const t of list.data?.data ?? []) {
+      map.set(t.classId, t);
+    }
+    return map;
+  }, [termCatalogue.data?.data, list.data?.data]);
+
   const matchingTimetable = useMemo(() => {
+    if (!classId) return null;
+    const byClass = timetablesByClassId.get(Number(classId));
+    if (byClass) return byClass;
     const rows = list.data?.data ?? [];
     if (termId) {
       const hit = rows.find((t) => String(t.termId) === termId);
       if (hit) return hit;
     }
     return rows[0] ?? null;
-  }, [list.data?.data, termId]);
+  }, [classId, timetablesByClassId, list.data?.data, termId]);
 
   const detail = useTimetable(matchingTimetable?.id ?? 0, matchingTimetable != null);
   const timetableDetail = detail.data ?? matchingTimetable;
@@ -115,6 +145,7 @@ function TimetablesInner() {
   const termMeta = (terms.data ?? []).find((t) => String(t.id) === termId);
   const termLabel =
     termMeta?.periodName ?? termMeta?.name ?? activeSession?.name ?? null;
+  const selectedClass = (classes.data ?? []).find((c) => String(c.id) === classId);
 
   const setClassFilter = (id: string) => {
     setClassId(id);
@@ -125,31 +156,18 @@ function TimetablesInner() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   };
 
-  const submitCreate = () => {
-    create.mutate(
-      { classId: Number(newClassId), termId: Number(newTermId) },
-      {
-        onSuccess: (t) => {
-          toastSuccess('Timetable created');
-          setCreateOpen(false);
-          router.push(`/admin/timetables/${t.id}`);
-        },
-        onError: (e) => toastError('Could not create timetable', e.message),
-      },
-    );
-  };
+  const newHref = createHref({
+    classId: classId || undefined,
+    termId: termId || undefined,
+  });
 
   const hasRealSlots = (timetableDetail?.slots?.length ?? 0) > 0;
-  const useDemo = !hasRealSlots;
+  const useDemo = !classId;
 
   return (
     <div className="space-y-5">
       <TimetablesHeader
-        onCreate={() => {
-          setNewClassId(classId || '');
-          setNewTermId(termId || '');
-          setCreateOpen(true);
-        }}
+        createHref={newHref}
         onValidate={() =>
           toastSuccess('Validator clear', 'No teacher or room collisions in Strict Mode.')
         }
@@ -157,15 +175,22 @@ function TimetablesInner() {
 
       <TimetablesSummary
         termLabel={termLabel}
-        timetableCount={list.data?.meta.total ?? list.data?.data?.length ?? 0}
+        timetableCount={termCatalogue.data?.meta.total ?? termCatalogue.data?.data?.length ?? 0}
       />
 
       <LivePeriodBar />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-3">
+      <div className="">
+        <ClassTimetableSidebar
+          classes={classes.data ?? []}
+          selectedClassId={classId}
+          onSelect={setClassFilter}
+          timetablesByClassId={timetablesByClassId}
+        />
+
+        <div className="space-y-3 min-w-0">
           <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3 shadow-[var(--shadow-card)] lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               {VIEW_TABS.map((t) => {
                 const active = view === t.id;
                 return (
@@ -187,25 +212,6 @@ function TimetablesInner() {
             </div>
             <div className="flex flex-wrap items-end gap-2">
               <div className="grid gap-1">
-                <Label className="text-[10px] text-muted-foreground">Class arm</Label>
-                <Select
-                  value={classId || 'none'}
-                  onValueChange={(v) => setClassFilter(v === 'none' ? '' : v)}
-                >
-                  <SelectTrigger className="h-9 w-[12rem]" aria-label="Class arm">
-                    <SelectValue placeholder="Select class" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">All / pick class</SelectItem>
-                    {(classes.data ?? []).map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-1">
                 <Label className="text-[10px] text-muted-foreground">Academic term</Label>
                 <Select
                   value={termId || 'none'}
@@ -224,31 +230,81 @@ function TimetablesInner() {
                   </SelectContent>
                 </Select>
               </div>
+              {matchingTimetable ? (
+                <Button asChild size="sm" className="h-9 bg-teal-700 hover:bg-teal-800">
+                  <Link href={`/admin/timetables/${matchingTimetable.id}`}>
+                    <Pencil className="size-3.5" />
+                    Adjust schedule
+                  </Link>
+                </Button>
+              ) : classId ? (
+                <Button asChild size="sm" className="h-9 bg-teal-700 hover:bg-teal-800">
+                  <Link href={createHref({ classId, termId: termId || undefined })}>
+                    <Plus className="size-3.5" />
+                    Create timetable
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </div>
 
+          {selectedClass ? (
+            <p className="text-xs text-muted-foreground">
+              Viewing{' '}
+              <span className="font-semibold text-foreground">{selectedClass.name}</span>
+              {matchingTimetable ? (
+                <>
+                  {' '}
+                  · Timetable #{matchingTimetable.id} ·{' '}
+                  <span className="capitalize">{matchingTimetable.status}</span>
+                </>
+              ) : (
+                ' · No timetable for this term yet'
+              )}
+            </p>
+          ) : null}
+
           {view !== 'class' ? (
-            <div className="rounded-xl border border-dashed border-border bg-card px-6 py-12 text-center shadow-[var(--shadow-card)]">
-              <p className="font-heading text-sm font-semibold">
-                {view === 'teacher' ? 'Teacher view' : 'Facility view'} coming soon
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Switch to By Class Arm to inspect the live wall grid for a cohort.
-              </p>
-              <Button
-                type="button"
-                size="sm"
-                className="mt-3 bg-teal-700 hover:bg-teal-800"
-                onClick={() => setView('class')}
-              >
-                Back to class grid
-              </Button>
-            </div>
+            <EmptyState
+              title={view === 'teacher' ? 'Teacher view coming soon' : 'Facility view coming soon'}
+              description="Switch to By Class Arm to inspect the live wall grid for a cohort."
+              className="bg-card shadow-[var(--shadow-card)]"
+              action={
+                <Button
+                  type="button"
+                  size="sm"
+                  className="bg-teal-700 hover:bg-teal-800"
+                  onClick={() => setView('class')}
+                >
+                  Back to class grid
+                </Button>
+              }
+            />
+          ) : !classId ? (
+            <EmptyState
+              title="Select a class arm"
+              description="Choose a class from the list to view and adjust its timetable."
+              className="bg-card shadow-[var(--shadow-card)]"
+            />
+          ) : !matchingTimetable && !list.isPending ? (
+            <EmptyState
+              title={`No timetable for ${selectedClass?.name ?? 'this class'}`}
+              description="Create a master grid for this arm and term, then assign periods in the builder."
+              className="bg-card shadow-[var(--shadow-card)]"
+              action={
+                <Button asChild size="sm" className="bg-teal-700 hover:bg-teal-800">
+                  <Link href={createHref({ classId, termId: termId || undefined })}>
+                    <Plus className="size-3.5" />
+                    Create timetable
+                  </Link>
+                </Button>
+              }
+            />
           ) : (
             <QueryState
               isPending={
                 timeSlots.isPending ||
-                (classId ? list.isPending : false) ||
+                list.isPending ||
                 (!!matchingTimetable && detail.isPending && !detail.data)
               }
               error={timeSlots.error ?? list.error ?? detail.error}
@@ -259,102 +315,33 @@ function TimetablesInner() {
               }}
             >
               {(timeSlots.data?.length ?? 0) === 0 ? (
-                <div className="rounded-xl border border-dashed border-border px-6 py-12 text-center">
-                  <p className="font-heading text-sm font-semibold">No time slots configured</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Define period bells before building class grids.
-                  </p>
-                </div>
+                <EmptyState
+                  title="No time slots configured"
+                  description="Define period bells before building class grids."
+                />
               ) : (
                 <ScheduleGrid
                   timeSlots={timeSlots.data ?? []}
                   timetable={
-                    detail.data?.slots
-                      ? detail.data
-                      : timetableDetail
+                    detail.data?.slots ? detail.data : timetableDetail
                   }
                   subjects={subjects.data ?? []}
                   staff={staff.data?.data ?? []}
                   rooms={rooms.data ?? []}
-                  useDemo={useDemo || !classId}
+                  useDemo={useDemo && !hasRealSlots}
                 />
               )}
             </QueryState>
           )}
         </div>
-
-        <ConflictPanel />
       </div>
-
-      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent>
-          <form
-            className="flex h-full flex-col"
-            onSubmit={(e) => {
-              e.preventDefault();
-              submitCreate();
-            }}
-          >
-            <SheetHeader className="text-left">
-              <SheetTitle>New timetable</SheetTitle>
-              <SheetDescription>
-                Create a master grid for a class arm and term, then edit periods in the builder.
-              </SheetDescription>
-            </SheetHeader>
-            <div className="mt-6 space-y-4 rounded-xl border border-border bg-muted/30 p-4">
-              <div className="grid gap-1.5">
-                <Label required>Class arm</Label>
-                <Select value={newClassId || undefined} onValueChange={setNewClassId}>
-                  <SelectTrigger aria-label="New timetable class">
-                    <SelectValue placeholder="Select class" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(classes.data ?? []).map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-1.5">
-                <Label required>Term</Label>
-                <Select value={newTermId || undefined} onValueChange={setNewTermId}>
-                  <SelectTrigger aria-label="New timetable term">
-                    <SelectValue placeholder="Select term" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(terms.data ?? []).map((t) => (
-                      <SelectItem key={t.id} value={String(t.id)}>
-                        {t.periodName ?? t.name ?? `Term ${t.id}`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <SheetFooter className="mt-auto flex-row gap-2 pt-6 sm:justify-end">
-              <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!newClassId || !newTermId || create.isPending}
-                className="bg-teal-700 hover:bg-teal-800"
-              >
-                {create.isPending ? 'Creating…' : 'Create & open builder'}
-              </Button>
-            </SheetFooter>
-          </form>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }
 
 export function TimetablesList() {
   return (
-    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+    <Suspense fallback={<Loader />}>
       <TimetablesInner />
     </Suspense>
   );

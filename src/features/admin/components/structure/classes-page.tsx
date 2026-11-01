@@ -1,7 +1,8 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { CalendarDays, Plus, School } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '@/components/patterns/page-header';
 import { SectionCard } from '@/components/patterns/section-card';
 import { Button } from '@/components/ui/button';
@@ -17,12 +18,14 @@ import {
 } from '@/components/ui/sheet';
 import { PermissionGate } from '@/lib/auth/permissions';
 import { toastError, toastSuccess } from '@/lib/toast';
-import type { Level, SchoolClass } from '../../api/structure';
+import type { Level, LevelStage, SchoolClass } from '../../api/structure';
 import {
   useClasses,
   useCreateClass,
   useCreateLevel,
+  useCreateLevelStage,
   useLevels,
+  useLevelStages,
   useSessions,
 } from '../../hooks/use-structure';
 import { useAdminCampus } from '../../lib/campus';
@@ -33,23 +36,17 @@ const selectClass =
   'h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground ' +
   'outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50';
 
-const STAGE_ORDER = ['primary', 'jss', 'ss'] as const;
-const STAGE_LABEL: Record<(typeof STAGE_ORDER)[number], string> = {
-  primary: 'Primary',
-  jss: 'Junior secondary',
-  ss: 'Senior secondary',
-};
-
 type LevelGroup = { levelId: number; name: string; rows: SchoolClass[] };
 
 function stageCodeOf(level: Level): string {
-  return level.stage ?? level.stageCode ?? 'primary';
+  return level.stage ?? level.stageCode ?? '';
 }
 
-function groupLevelsByStage(levels: Level[]) {
+function groupLevelsByStage(levels: Level[], stages: LevelStage[]) {
   const buckets = new Map<string, Level[]>();
   for (const level of levels) {
     const code = stageCodeOf(level);
+    if (!code) continue;
     const arr = buckets.get(code) ?? [];
     arr.push(level);
     buckets.set(code, arr);
@@ -57,15 +54,25 @@ function groupLevelsByStage(levels: Level[]) {
   for (const arr of buckets.values()) {
     arr.sort((a, b) => (a.ordinal ?? 0) - (b.ordinal ?? 0) || a.name.localeCompare(b.name));
   }
+  const stageCodes = stages.map((s) => s.code);
+  const labelByCode = new Map(stages.map((s) => [s.code, s.name]));
   const orderedCodes = [
-    ...STAGE_ORDER.filter((c) => buckets.has(c)),
-    ...[...buckets.keys()].filter((c) => !(STAGE_ORDER as readonly string[]).includes(c)),
+    ...stageCodes.filter((c) => buckets.has(c)),
+    ...[...buckets.keys()].filter((c) => !stageCodes.includes(c)),
   ];
   return orderedCodes.map((code) => ({
     code,
-    label: STAGE_LABEL[code as (typeof STAGE_ORDER)[number]] ?? buckets.get(code)?.[0]?.stageName ?? code,
+    label: labelByCode.get(code) ?? buckets.get(code)?.[0]?.stageName ?? code,
     levels: buckets.get(code) ?? [],
   }));
+}
+
+function slugifyStageCode(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export function ClassesPage() {
@@ -81,6 +88,7 @@ export function ClassesPage() {
     (activeSessionMeta?.campusId != null ? String(activeSessionMeta.campusId) : undefined);
 
   const levels = useLevels();
+  const stages = useLevelStages();
   const classesKey = `${effectiveCampusId ?? ''}-${activeSession}`;
   const classes = useClasses({
     campusId: effectiveCampusId,
@@ -89,11 +97,24 @@ export function ClassesPage() {
   });
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [stageOpen, setStageOpen] = useState(false);
   const [yearGroupOpen, setYearGroupOpen] = useState(false);
+
   const [levelId, setLevelId] = useState('');
   const [armName, setArmName] = useState('A');
+
+  const [stageCode, setStageCode] = useState('');
+  const [stageName, setStageName] = useState('');
+  const [stageCodeTouched, setStageCodeTouched] = useState(false);
+
   const [ygName, setYgName] = useState('');
-  const [ygStage, setYgStage] = useState<(typeof STAGE_ORDER)[number]>('primary');
+  const [ygStage, setYgStage] = useState('');
+
+  useEffect(() => {
+    if (ygStage) return;
+    const first = stages.data?.[0]?.code;
+    if (first) setYgStage(first);
+  }, [stages.data, ygStage]);
 
   const byLevel = useMemo<LevelGroup[]>(() => {
     const map = new Map<number, LevelGroup>();
@@ -106,7 +127,6 @@ export function ClassesPage() {
       group.rows.push(c);
       map.set(c.levelId, group);
     }
-    // Prefer school year-group order when levels are loaded.
     const order = new Map((levels.data ?? []).map((l, i) => [l.id, l.ordinal ?? i]));
     return [...map.values()].sort(
       (a, b) => (order.get(a.levelId) ?? 999) - (order.get(b.levelId) ?? 999),
@@ -114,21 +134,28 @@ export function ClassesPage() {
   }, [classes.data, levels.data]);
 
   const levelsByStage = useMemo(
-    () => groupLevelsByStage(levels.data ?? []),
-    [levels.data],
+    () => groupLevelsByStage(levels.data ?? [], stages.data ?? []),
+    [levels.data, stages.data],
   );
 
   const createClassMutation = useCreateClass(classesKey);
   const createLevelMutation = useCreateLevel();
+  const createStageMutation = useCreateLevelStage();
 
   const resetClassForm = () => {
     setArmName('A');
     setLevelId('');
   };
 
+  const resetStageForm = () => {
+    setStageCode('');
+    setStageName('');
+    setStageCodeTouched(false);
+  };
+
   const resetYearGroupForm = () => {
     setYgName('');
-    setYgStage('primary');
+    setYgStage(stages.data?.[0]?.code ?? '');
   };
 
   const openCreate = (preselectLevelId?: number) => {
@@ -137,7 +164,11 @@ export function ClassesPage() {
   };
 
   const canSubmitClass =
-    !!levelId && !!armName.trim() && !!effectiveCampusId && !!activeSession && !createClassMutation.isPending;
+    !!levelId &&
+    !!armName.trim() &&
+    !!effectiveCampusId &&
+    !!activeSession &&
+    !createClassMutation.isPending;
 
   const submitCreate = () => {
     if (!canSubmitClass) return;
@@ -159,7 +190,31 @@ export function ClassesPage() {
     );
   };
 
-  const canSubmitYearGroup = !!ygName.trim() && !createLevelMutation.isPending;
+  const canSubmitStage =
+    !!stageCode.trim() && !!stageName.trim() && !createStageMutation.isPending;
+
+  const submitStage = () => {
+    if (!canSubmitStage) return;
+    createStageMutation.mutate(
+      { code: stageCode.trim(), name: stageName.trim() },
+      {
+        onSuccess: (created) => {
+          toastSuccess('Stage created');
+          setStageOpen(false);
+          resetStageForm();
+          setYgStage(created.code);
+          setYearGroupOpen(true);
+        },
+        onError: (e) => toastError('Could not create stage', e.message),
+      },
+    );
+  };
+
+  const canSubmitYearGroup =
+    !!ygName.trim() &&
+    !!ygStage &&
+    !createLevelMutation.isPending &&
+    !stages.isPending;
 
   const submitYearGroup = () => {
     if (!canSubmitYearGroup) return;
@@ -181,6 +236,7 @@ export function ClassesPage() {
   };
 
   const needsScope = !activeSession || !effectiveCampusId;
+  const hasStages = (stages.data?.length ?? 0) > 0;
   const hasYearGroups = (levels.data?.length ?? 0) > 0;
 
   return (
@@ -191,6 +247,9 @@ export function ClassesPage() {
         actions={
           <div className="flex flex-wrap gap-2">
             <PermissionGate permission="school-structure.level.create">
+              <Button type="button" variant="outline" onClick={() => setStageOpen(true)}>
+                Add stage
+              </Button>
               <Button type="button" variant="outline" onClick={() => setYearGroupOpen(true)}>
                 Add year group
               </Button>
@@ -249,54 +308,54 @@ export function ClassesPage() {
         </SectionCard>
       ) : (
         <QueryState
-          isPending={classes.isPending || levels.isPending}
-          error={classes.error ?? levels.error}
+          isPending={classes.isPending || levels.isPending || stages.isPending}
+          error={classes.error ?? levels.error ?? stages.error}
           onRetry={() => {
             void classes.refetch();
             void levels.refetch();
+            void stages.refetch();
           }}
         >
-          {!hasYearGroups ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <School className="size-6" aria-hidden />
-              </span>
-              <div className="space-y-1">
-                <h2 className="font-heading text-lg font-semibold tracking-tight">
-                  No year groups yet
-                </h2>
-                <p className="max-w-sm text-sm text-muted-foreground">
-                  Seed Primary 1–6, JSS 1–3 and SS 1–3, or add a custom year group, then create
-                  class arms.
-                </p>
-              </div>
-              <PermissionGate permission="school-structure.level.create">
-                <Button type="button" onClick={() => setYearGroupOpen(true)}>
-                  Add year group
-                </Button>
-              </PermissionGate>
-            </div>
+          {!hasStages ? (
+            <EmptyState
+              icon={School}
+              title="No stages yet"
+              description="Create a stage first (e.g. Primary, Junior secondary), then add year groups and class arms."
+              action={
+                <PermissionGate permission="school-structure.level.create">
+                  <Button type="button" onClick={() => setStageOpen(true)}>
+                    Add stage
+                  </Button>
+                </PermissionGate>
+              }
+            />
+          ) : !hasYearGroups ? (
+            <EmptyState
+              icon={School}
+              title="No year groups yet"
+              description="Add a year group under an existing stage (e.g. Primary 1, JSS 2), then create class arms."
+              action={
+                <PermissionGate permission="school-structure.level.create">
+                  <Button type="button" onClick={() => setYearGroupOpen(true)}>
+                    Add year group
+                  </Button>
+                </PermissionGate>
+              }
+            />
           ) : byLevel.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-14 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                <School className="size-6" aria-hidden />
-              </span>
-              <div className="space-y-1">
-                <h2 className="font-heading text-lg font-semibold tracking-tight">
-                  No classes yet
-                </h2>
-                <p className="max-w-sm text-sm text-muted-foreground">
-                  Pick a year group (Primary 1, JSS 2, SS 1…) and an arm (A, B, C) for{' '}
-                  {activeSessionMeta?.name ?? 'this session'}.
-                </p>
-              </div>
-              <PermissionGate permission="school-structure.class.create">
-                <Button type="button" onClick={() => openCreate()}>
-                  <Plus className="size-4" aria-hidden />
-                  Add first class
-                </Button>
-              </PermissionGate>
-            </div>
+            <EmptyState
+              icon={School}
+              title="No classes yet"
+              description={`Pick a year group (Primary 1, JSS 2, SS 1…) and an arm (A, B, C) for ${activeSessionMeta?.name ?? 'this session'}.`}
+              action={
+                <PermissionGate permission="school-structure.class.create">
+                  <Button type="button" onClick={() => openCreate()}>
+                    <Plus className="size-4" aria-hidden />
+                    Add first class
+                  </Button>
+                </PermissionGate>
+              }
+            />
           ) : (
             <div className="space-y-8">
               {byLevel.map(({ levelId: lid, name, rows }) => (
@@ -384,7 +443,7 @@ export function ClassesPage() {
                 </select>
                 {!hasYearGroups ? (
                   <p className="text-xs text-muted-foreground">
-                    No year groups loaded. Add one or re-run the database seed.
+                    No year groups yet. Add a stage, then a year group.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
@@ -422,6 +481,73 @@ export function ClassesPage() {
       </Sheet>
 
       <Sheet
+        open={stageOpen}
+        onOpenChange={(open) => {
+          setStageOpen(open);
+          if (!open) resetStageForm();
+        }}
+      >
+        <SheetContent>
+          <form
+            className="flex h-full flex-col"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitStage();
+            }}
+          >
+            <SheetHeader className="text-left">
+              <SheetTitle>Add stage</SheetTitle>
+              <SheetDescription>
+                Stages group year levels — e.g. Primary, Junior secondary, Senior secondary.
+              </SheetDescription>
+            </SheetHeader>
+
+            <div className="mt-6 grid gap-5">
+              <div className="grid gap-1.5">
+                <Label htmlFor="stage-name">Name</Label>
+                <Input
+                  id="stage-name"
+                  value={stageName}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setStageName(next);
+                    if (!stageCodeTouched) setStageCode(slugifyStageCode(next));
+                  }}
+                  placeholder="e.g. Junior secondary"
+                  autoComplete="off"
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="stage-code">Code</Label>
+                <Input
+                  id="stage-code"
+                  value={stageCode}
+                  onChange={(e) => {
+                    setStageCodeTouched(true);
+                    setStageCode(slugifyStageCode(e.target.value));
+                  }}
+                  placeholder="e.g. jss"
+                  autoComplete="off"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Stable identifier used when creating year groups. Lowercase, no spaces.
+                </p>
+              </div>
+            </div>
+
+            <SheetFooter className="mt-auto flex-row gap-2 pt-6 sm:justify-end">
+              <Button type="button" variant="outline" onClick={() => setStageOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!canSubmitStage}>
+                {createStageMutation.isPending ? 'Saving…' : 'Save stage'}
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+      <Sheet
         open={yearGroupOpen}
         onOpenChange={(open) => {
           setYearGroupOpen(open);
@@ -439,8 +565,7 @@ export function ClassesPage() {
             <SheetHeader className="text-left">
               <SheetTitle>Add year group</SheetTitle>
               <SheetDescription>
-                Custom year groups for this primary / secondary school (e.g. Nursery 1). Defaults
-                Primary 1–6, JSS 1–3, SS 1–3 come from seed.
+                A year level under an existing stage — e.g. Primary 3 or JSS 1.
               </SheetDescription>
             </SheetHeader>
 
@@ -451,14 +576,26 @@ export function ClassesPage() {
                   id="yg-stage"
                   className={selectClass}
                   value={ygStage}
-                  onChange={(e) => setYgStage(e.target.value as (typeof STAGE_ORDER)[number])}
+                  onChange={(e) => setYgStage(e.target.value)}
+                  disabled={stages.isPending || !hasStages}
                 >
-                  {STAGE_ORDER.map((code) => (
-                    <option key={code} value={code}>
-                      {STAGE_LABEL[code]}
-                    </option>
-                  ))}
+                  {!hasStages ? (
+                    <option value="">No stages yet</option>
+                  ) : stages.isPending ? (
+                    <option value="">Loading stages…</option>
+                  ) : (
+                    (stages.data ?? []).map((stage) => (
+                      <option key={stage.id} value={stage.code}>
+                        {stage.name}
+                      </option>
+                    ))
+                  )}
                 </select>
+                {!hasStages ? (
+                  <p className="text-xs text-muted-foreground">
+                    Create a stage first, then come back to add year groups.
+                  </p>
+                ) : null}
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="yg-name">Name</Label>
@@ -468,6 +605,7 @@ export function ClassesPage() {
                   onChange={(e) => setYgName(e.target.value)}
                   placeholder="e.g. Nursery 1"
                   autoComplete="off"
+                  disabled={!hasStages}
                 />
               </div>
             </div>
@@ -476,9 +614,21 @@ export function ClassesPage() {
               <Button type="button" variant="outline" onClick={() => setYearGroupOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={!canSubmitYearGroup}>
-                {createLevelMutation.isPending ? 'Saving…' : 'Save year group'}
-              </Button>
+              {!hasStages ? (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setYearGroupOpen(false);
+                    setStageOpen(true);
+                  }}
+                >
+                  Add stage first
+                </Button>
+              ) : (
+                <Button type="submit" disabled={!canSubmitYearGroup}>
+                  {createLevelMutation.isPending ? 'Saving…' : 'Save year group'}
+                </Button>
+              )}
             </SheetFooter>
           </form>
         </SheetContent>

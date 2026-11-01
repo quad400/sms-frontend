@@ -6,7 +6,7 @@ import { useStaffLookups } from '../../hooks/use-staff-lookups';
 import { useClassStudentCounts } from '../../hooks/use-structure';
 import { QueryState } from '../../lib/shared';
 import { AssessmentTable } from '../shared/assessment-table';
-import { EmptyPanel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 export function ClassScoresTab({ classId }: { classId: number }) {
   const assessments = useAssessments({ classId });
@@ -22,7 +22,7 @@ export function ClassScoresTab({ classId }: { classId: number }) {
       onRetry={() => void assessments.refetch()}
       isEmpty={rows.length === 0}
       empty={
-        <EmptyPanel
+        <EmptyState
           icon={GraduationCap}
           title="No assessments for this class"
           description="Tests and exams for your subjects in this class will be listed here."

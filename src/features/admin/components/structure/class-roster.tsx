@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import Link from 'next/link';
 import { useStudents } from '../../hooks/use-students';
 import { QueryState } from '../../lib/shared';
@@ -25,9 +26,7 @@ export function ClassRoster({ classId }: { classId: number }) {
         onRetry={() => void roster.refetch()}
       >
         {(roster.data?.data ?? []).length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-            No students enrolled yet.
-          </p>
+          <EmptyState title="No students enrolled" description="No students enrolled yet." />
         ) : (
           <ul className="divide-y divide-border/70 overflow-hidden rounded-2xl border border-border bg-card">
             {(roster.data?.data ?? []).map((s) => {

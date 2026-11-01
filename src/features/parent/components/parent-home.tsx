@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import {
@@ -57,9 +58,10 @@ export function ParentHome() {
         }}
       >
         {children.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border bg-card px-4 py-10 text-center text-sm text-muted-foreground">
-            No children are linked to this account yet. Contact the school office if this looks wrong.
-          </p>
+          <EmptyState
+            title="No children linked"
+            description="No children are linked to this account yet. Contact the school office if this looks wrong."
+          />
         ) : (
           <>
             {outstanding > 0 && primaryBalance ? (
@@ -193,9 +195,11 @@ export function ParentHome() {
               </div>
               <QueryState isPending={announcements.isPending} error={announcements.error}>
                 {(announcements.data ?? data?.announcements ?? []).slice(0, 3).length === 0 ? (
-                  <p className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-                    No announcements right now.
-                  </p>
+                  <EmptyState
+                    title="No announcements"
+                    description="No announcements right now."
+                    className="py-6"
+                  />
                 ) : (
                   <ul className="grid gap-2">
                     {(announcements.data ?? data?.announcements ?? []).slice(0, 3).map((item) => (

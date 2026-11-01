@@ -7,7 +7,7 @@ import { useLessonNotes } from '../../hooks/use-lessons';
 import { useStaffLookups } from '../../hooks/use-staff-lookups';
 import { formatDate } from '../../lib/format';
 import { QueryState } from '../../lib/shared';
-import { EmptyPanel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 export function ClassNotesTab({ classId }: { classId: number }) {
   const notes = useLessonNotes({ classId });
@@ -21,7 +21,7 @@ export function ClassNotesTab({ classId }: { classId: number }) {
       onRetry={() => void notes.refetch()}
       isEmpty={rows.length === 0}
       empty={
-        <EmptyPanel
+        <EmptyState
           icon={NotebookText}
           title="No lesson notes for this class"
           description="Notes you share with this class will appear here."

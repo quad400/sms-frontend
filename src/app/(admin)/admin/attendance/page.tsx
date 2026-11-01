@@ -1,7 +1,13 @@
 'use client';
 
-import { AttendanceOverviewPage } from '@/features/admin/components/attendance-pages';
+import { Loader } from '@/components/patterns/loader';
+import { Suspense } from 'react';
+import { AttendanceHub } from '@/features/admin/components/attendance';
 
 export default function Page() {
-  return <AttendanceOverviewPage />;
+  return (
+    <Suspense fallback={<Loader />}>
+      <AttendanceHub />
+    </Suspense>
+  );
 }

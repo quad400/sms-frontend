@@ -59,6 +59,30 @@ export type LessonPlan = {
   staffName?: string;
 };
 
+export type LessonNote = {
+  id: number;
+  status: string;
+  staffId: number;
+  subjectId: number;
+  classId: number;
+  sessionId: number;
+  termId: number;
+  weekNumber?: number | null;
+  title: string;
+  body: string;
+  attachments: Array<{ id: number; fileId: number }>;
+  approvedBy?: number | null;
+  approvedAt?: string | null;
+  rejectedBy?: number | null;
+  rejectedAt?: string | null;
+  reviewNote?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  className?: string;
+  subjectName?: string;
+  staffName?: string;
+};
+
 async function asList<T>(res: Paginated<T> | T[]): Promise<T[]> {
   return Array.isArray(res) ? res : (res.data ?? []);
 }
@@ -153,4 +177,75 @@ export function getLessonPlan(id: number) {
 
 export function approveLessonPlan(id: number) {
   return proxyPost(`/api/v1/lesson-plans/${id}/approve`, {});
+}
+
+export type LessonPlanPacingDigest = {
+  termId: number | null;
+  weekNumber: number | null;
+  draft: number;
+  submitted: number;
+  approved: number;
+  overdue: number;
+  total: number;
+  submissionRate: number | null;
+  reminderCandidates: number;
+};
+
+export type BroadcastLessonPlanRemindersResult = {
+  notified: number;
+  staffIds: number[];
+  draftPlanCount: number;
+};
+
+export function fetchLessonPlanPacingDigest(params?: {
+  termId?: string;
+  weekNumber?: string;
+}) {
+  return proxyGet<LessonPlanPacingDigest>('/api/v1/lesson-plans/pacing-digest', {
+    termId: params?.termId,
+    weekNumber: params?.weekNumber,
+  });
+}
+
+export function broadcastLessonPlanReminders(body?: {
+  termId?: number;
+  weekNumber?: number;
+}) {
+  return proxyPost<BroadcastLessonPlanRemindersResult>(
+    '/api/v1/lesson-plans/reminders',
+    body ?? {},
+  );
+}
+
+export function listLessonNotes(params: {
+  status?: string;
+  page?: number;
+  classId?: string;
+  subjectId?: string;
+  termId?: string;
+  weekNumber?: string;
+  staffId?: string;
+}): Promise<Paginated<LessonNote>> {
+  return proxyGet('/api/v1/lesson-notes', {
+    status: params.status,
+    classId: params.classId,
+    subjectId: params.subjectId,
+    termId: params.termId,
+    weekNumber: params.weekNumber,
+    staffId: params.staffId,
+    page: String(params.page ?? 1),
+    pageSize: String(PAGE_SIZE),
+  });
+}
+
+export function approveLessonNote(id: number) {
+  return proxyPost(`/api/v1/lesson-notes/${id}/approve`, {});
+}
+
+export function rejectLessonNote(id: number, reason: string) {
+  return proxyPost(`/api/v1/lesson-notes/${id}/reject`, { reason });
+}
+
+export function fetchFileDownloadUrl(fileId: number): Promise<{ url: string }> {
+  return proxyGet<{ url: string }>(`/api/v1/files/${fileId}/download-url`);
 }

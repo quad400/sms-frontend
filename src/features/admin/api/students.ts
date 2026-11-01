@@ -10,6 +10,18 @@ export type ListStudentsParams = {
   status?: string;
 };
 
+export type StudentsSummary = {
+  totalEnrolled: number;
+  enrolledThisTerm: number;
+  male: number;
+  female: number;
+  active: number;
+  byStatus: Record<string, number>;
+  byGender: Record<string, number>;
+  attendanceRate: number | null;
+  attendanceWindowDays: number;
+};
+
 export function listStudents(params: ListStudentsParams = {}): Promise<Paginated<StudentRow>> {
   return proxyGet('/api/v1/students', {
     page: String(params.page ?? 1),
@@ -18,6 +30,12 @@ export function listStudents(params: ListStudentsParams = {}): Promise<Paginated
     campusId: params.campusId,
     classId: params.classId,
     status: params.status,
+  });
+}
+
+export function getStudentsSummary(campusId?: string): Promise<StudentsSummary> {
+  return proxyGet('/api/v1/students/summary', {
+    campusId,
   });
 }
 
@@ -37,7 +55,32 @@ export function archiveStudent(id: number): Promise<void> {
   return proxyDelete(`/api/v1/students/${id}`);
 }
 
-export function listStudentGuardians(studentId: number) {
+export type LinkedGuardian = {
+  id: number;
+  studentId: number;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email?: string | null;
+  address?: string | null;
+  occupation?: string | null;
+  relationship: string;
+  isPrimaryContact: boolean;
+  canPickUp: boolean;
+  isFeePayer: boolean;
+};
+
+export type StudentEnrolment = {
+  id: number;
+  studentId: number;
+  classId: number;
+  sessionId: number;
+  status: string;
+  enrolledAt: string;
+  endedAt?: string | null;
+};
+
+export function listStudentGuardians(studentId: number): Promise<LinkedGuardian[]> {
   return proxyGet(`/api/v1/students/${studentId}/guardians`);
 }
 
@@ -57,11 +100,14 @@ export function unlinkStudentGuardian(studentId: number, guardianId: number) {
   return proxyDelete(`/api/v1/students/${studentId}/guardians/${guardianId}`);
 }
 
-export function listStudentEnrolments(studentId: number) {
+export function listStudentEnrolments(studentId: number): Promise<StudentEnrolment[]> {
   return proxyGet(`/api/v1/students/${studentId}/enrolments`);
 }
 
-export function createEnrolment(studentId: number, body: Record<string, unknown>) {
+export function createEnrolment(
+  studentId: number,
+  body: { sessionId: number; classId: number; enrolledAt?: string },
+): Promise<StudentEnrolment> {
   return proxyPost(`/api/v1/students/${studentId}/enrolments`, body);
 }
 
@@ -74,10 +120,19 @@ export function createTransfer(studentId: number, body: Record<string, unknown>)
 }
 
 export type StudentMedicalInfo = {
-  allergies?: string | null;
-  conditions?: string | null;
-  medications?: string | null;
-  emergencyNotes?: string | null;
+  studentId: number;
+  allergies: string | null;
+  conditions: string | null;
+  medications: string | null;
+  emergencyNotes: string | null;
+  updatedAt: string | null;
+};
+
+export type StudentMedicalInfoInput = {
+  allergies: string | null;
+  conditions: string | null;
+  medications: string | null;
+  emergencyNotes: string | null;
 };
 
 export function getStudentMedicalInfo(studentId: number): Promise<StudentMedicalInfo> {
@@ -86,7 +141,7 @@ export function getStudentMedicalInfo(studentId: number): Promise<StudentMedical
 
 export function putStudentMedicalInfo(
   studentId: number,
-  body: StudentMedicalInfo,
+  body: StudentMedicalInfoInput,
 ): Promise<StudentMedicalInfo> {
   return proxyPut(`/api/v1/students/${studentId}/medical-info`, body);
 }

@@ -17,7 +17,7 @@ import { useClassRoster } from '../hooks/use-structure';
 import { fullName, plural } from '../lib/format';
 import { QueryState } from '../lib/shared';
 import { ConfirmDialog } from './shared/confirm-dialog';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { StatusBadge } from './shared/status-badge';
 import { StickyActions } from './shared/sticky-actions';
 import { ScoreGrid, type ScoreRowModel } from './scores/score-grid';
@@ -149,7 +149,7 @@ export function StaffScoreEntry({ assessmentId }: { assessmentId: number }) {
         }}
         isEmpty={!data}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={Inbox}
             title="Assessment not available"
             description="This assessment doesn’t exist or isn’t part of your allocations."
@@ -192,7 +192,7 @@ export function StaffScoreEntry({ assessmentId }: { assessmentId: number }) {
             </p>
 
             {rows.length === 0 ? (
-              <EmptyPanel
+              <EmptyState
                 title="No students to score"
                 description={
                   roster.error

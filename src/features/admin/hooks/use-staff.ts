@@ -8,9 +8,11 @@ import {
   createStaffMember,
   getStaffAllocations,
   getStaffMember,
+  getStaffSummary,
   listStaff,
   putStaffAllocations,
   updateStaffMember,
+  type StaffSummary,
 } from '../api/staff';
 import type { Paginated, StaffRow } from '../types';
 
@@ -20,12 +22,21 @@ export type StaffListParams = {
   campusId?: string;
   status?: string;
   jobTitle?: string;
+  category?: string;
 };
 
 export function useStaffList(params: StaffListParams = {}, enabled = true) {
   return useQuery<Paginated<StaffRow>, ApiClientError>({
     queryKey: adminKeys.staffList({ ...params }),
     queryFn: () => listStaff(params),
+    enabled,
+  });
+}
+
+export function useStaffSummary(campusId?: string, enabled = true) {
+  return useQuery<StaffSummary, ApiClientError>({
+    queryKey: adminKeys.staffSummary(campusId),
+    queryFn: () => getStaffSummary(campusId),
     enabled,
   });
 }
@@ -59,7 +70,10 @@ export function useArchiveStaff() {
   const qc = useQueryClient();
   return useMutation<void, ApiClientError, number>({
     mutationFn: archiveStaffMember,
-    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.all }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.all });
+      void qc.invalidateQueries({ queryKey: adminKeys.staffSummary() });
+    },
   });
 }
 

@@ -120,6 +120,7 @@ export function RoleShell({
       </Sheet>
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* One shared top bar for every AppShell role — extras via leading/trailing. */}
         <ShellTopBar
           user={user}
           timezone={timezone}

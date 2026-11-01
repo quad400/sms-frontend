@@ -2,11 +2,12 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { Archive, ClipboardList, Eye, IdCard, Pencil, Search, Settings2, X } from 'lucide-react';
+import { Archive, Eye, Pencil, Phone, Search, X } from 'lucide-react';
 import { DataTable, type DataTableColumn } from '@/components/patterns/data-table';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { IconActionButton, IconActionLink } from '@/components/patterns/icon-action';
+import { StatusBadge } from '@/components/patterns/status-badge';
 import { TablePagination } from '@/components/patterns/table-pagination';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,17 +18,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PermissionGate } from '@/lib/auth/permissions';
+import { formatDisplayDateOrDash } from '@/lib/format/date';
 import { cn } from '@/lib/utils/cn';
+import type { StaffSummary } from '../../api/staff';
+import { GENDER_CODES, JOB_TITLE_CODES, STAFF_STATUS_CODES, labelForCode } from '../../lib/codes';
 import { QueryState } from '../../lib/shared';
 import { fullName, type StaffRow } from '../../types';
-import { STAFF_UI_MOCK, staffExtraForIndex } from './ui-mock';
 import { avatarTone, initials } from './utils';
 
-const STATUS_TODAY_VARIANT = {
-  checked_in: 'successSoft',
-  duty: 'warning',
-  leave: 'dangerSoft',
-} as const;
+export type StaffCategoryTab = {
+  value: string;
+  label: string;
+  count: number;
+};
 
 export function StaffTable({
   rows,
@@ -37,18 +40,21 @@ export function StaffTable({
   density,
   q,
   onQChange,
-  department,
-  onDepartmentChange,
-  employment,
-  onEmploymentChange,
+  jobTitle,
+  onJobTitleChange,
+  status,
+  onStatusChange,
   category,
   onCategoryChange,
+  categoryTabs,
+  campusNameById,
   page,
   pages,
   total,
   pageSize,
   onPageChange,
   onArchive,
+  onOpenStaff,
 }: {
   rows: StaffRow[];
   isPending: boolean;
@@ -57,24 +63,27 @@ export function StaffTable({
   density: 'compact' | 'comfortable';
   q: string;
   onQChange: (v: string) => void;
-  department: string;
-  onDepartmentChange: (v: string) => void;
-  employment: string;
-  onEmploymentChange: (v: string) => void;
+  jobTitle: string;
+  onJobTitleChange: (v: string) => void;
+  status: string;
+  onStatusChange: (v: string) => void;
   category: string;
   onCategoryChange: (v: string) => void;
+  categoryTabs: StaffCategoryTab[];
+  campusNameById: Map<number, string>;
   page: number;
   pages: number;
   total: number;
   pageSize: number;
   onPageChange: (p: number) => void;
   onArchive: (id: number) => void;
+  onOpenStaff: (id: number) => void;
 }) {
   const columns: DataTableColumn<StaffRow>[] = useMemo(() => {
     return [
       {
         id: 'member',
-        header: 'Faculty / Staff Member',
+        header: 'Staff member',
         cell: (r) => {
           const name = fullName(r.firstName, r.lastName, r.middleName);
           return (
@@ -91,125 +100,88 @@ export function StaffTable({
                 <Link
                   href={`/admin/staff/${r.id}`}
                   className="truncate font-semibold text-foreground hover:text-teal-700 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {name}
                 </Link>
                 <p className="font-mono text-[11px] text-muted-foreground">
                   {r.staffNumber ?? `STA-${r.id}`}
                 </p>
-                {r.email ? (
-                  <p className="truncate text-xs text-muted-foreground">{r.email}</p>
-                ) : null}
               </div>
             </div>
           );
         },
       },
       {
-        id: 'dept',
-        header: 'Department & Designation',
+        id: 'role',
+        header: 'Role',
         cell: (r) => {
-          const extra = staffExtraForIndex(r.id);
+          const code = r.jobTitleCode ?? r.jobTitle;
+          const title =
+            r.jobTitleName ||
+            r.jobTitle ||
+            labelForCode(JOB_TITLE_CODES, code);
+          const gender = labelForCode(GENDER_CODES, r.genderCode ?? r.gender);
           return (
             <div className="min-w-0 text-sm">
-              <p className="font-semibold text-foreground">{extra.department}</p>
-              <p className="text-muted-foreground">
-                {r.jobTitle ?? r.jobTitleCode ?? extra.designation}
-              </p>
-              {extra.classLabel ? (
-                <p className="text-xs text-muted-foreground">{extra.classLabel}</p>
+              <p className="font-semibold text-foreground">{title !== '—' ? title : '—'}</p>
+              {gender !== '—' ? (
+                <p className="text-xs text-muted-foreground">{gender}</p>
               ) : null}
             </div>
           );
         },
       },
       {
-        id: 'schedule',
-        header: 'Assigned Schedule & Subjects',
-        cell: (r) => {
-          const extra = staffExtraForIndex(r.id);
-          return (
-            <div className="max-w-[14rem] text-sm">
-              <p className="truncate font-medium">{extra.subjects}</p>
-              <p className="text-xs text-muted-foreground">
-                {extra.periods != null
-                  ? `${extra.periods} periods/wk`
-                  : extra.shiftHours != null
-                    ? `${extra.shiftHours} hrs/wk Shift`
-                    : '—'}
+        id: 'contact',
+        header: 'Contact',
+        cell: (r) => (
+          <div className="min-w-0 text-sm">
+            <p className="truncate font-medium">{r.email ?? '—'}</p>
+            {r.phone ? (
+              <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                <Phone className="size-3" />
+                {r.phone}
               </p>
-            </div>
-          );
-        },
+            ) : null}
+          </div>
+        ),
       },
       {
-        id: 'load',
-        header: 'Workload Load',
-        cell: (r) => {
-          const extra = staffExtraForIndex(r.id);
-          if (extra.periods == null || extra.periodCap == null) {
-            return (
-              <span className="text-xs text-muted-foreground">
-                {extra.shiftHours != null ? `${extra.shiftHours} hrs/wk` : '—'}
-              </span>
-            );
-          }
-          const pct = Math.round((extra.periods / extra.periodCap) * 100);
-          return (
-            <div className="min-w-[7rem] space-y-1">
-              <div className="flex items-baseline justify-between gap-2 text-xs">
-                <span className="font-semibold tabular-nums">{pct}%</span>
-                <span className="text-muted-foreground tabular-nums">
-                  {extra.periods}/{extra.periodCap} per.
-                </span>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                <span
-                  className="block h-full rounded-full bg-teal-700"
-                  style={{ width: `${Math.min(pct, 100)}%` }}
-                />
-              </div>
-            </div>
-          );
-        },
+        id: 'campus',
+        header: 'Campus',
+        cell: (r) => (
+          <span className="text-sm text-muted-foreground">
+            {r.campusId != null
+              ? campusNameById.get(r.campusId) ?? `Campus #${r.campusId}`
+              : '—'}
+          </span>
+        ),
       },
       {
-        id: 'today',
-        header: 'Status Today',
-        cell: (r) => {
-          const extra = staffExtraForIndex(r.id);
-          return (
-            <Badge
-              size="sm"
-              variant={STATUS_TODAY_VARIANT[extra.statusToday.kind]}
-            >
-              {extra.statusToday.label}
-            </Badge>
-          );
-        },
+        id: 'hireDate',
+        header: 'Hire date',
+        cell: (r) => (
+          <span className="text-sm tabular-nums text-muted-foreground">
+            {formatDisplayDateOrDash(r.hireDate)}
+          </span>
+        ),
       },
       {
-        id: 'contract',
-        header: 'Contract',
-        cell: (r) => {
-          const extra = staffExtraForIndex(r.id);
-          return (
-            <Badge size="sm" variant="info">
-              {extra.contract}
-            </Badge>
-          );
-        },
+        id: 'status',
+        header: 'Status',
+        cell: (r) => <StatusBadge status={r.statusCode ?? r.status ?? 'active'} />,
       },
       {
         id: 'actions',
         header: '',
-        className: 'w-[5.5rem] text-right',
+        className: 'w-[7.5rem] text-right',
         cell: (r) => (
           <div className="flex justify-end gap-0.5" onClick={(e) => e.stopPropagation()}>
-            <IconActionLink
+            <IconActionButton
               label="View staff profile"
               icon={<Eye />}
-              href={`/admin/staff/${r.id}`}
+              onClick={() => onOpenStaff(r.id)}
             />
             <PermissionGate permission="staff.staff.update">
               <IconActionLink
@@ -230,77 +202,84 @@ export function StaffTable({
         ),
       },
     ];
-  }, [onArchive]);
+  }, [campusNameById, onArchive, onOpenStaff]);
+
+  const hasFilters = Boolean(status || jobTitle || category || q);
+  const resetFilters = () => {
+    onStatusChange('active');
+    onJobTitleChange('');
+    onCategoryChange('');
+    onQChange('');
+  };
 
   return (
-    <div className="space-y-3 w-full">
-      <div className="flex flex-row items-center justify-between w-full gap-2 rounded-xl border border-border bg-card p-2 shadow-[var(--shadow-card)]">
-        <div className="flex flex-row items-center gap-2">
-          <label className="group relative flex min-w-80 flex-1 items-center gap-2 rounded-lg bg-muted/60 px-2 transition focus-within:bg-card focus-within:ring-1 focus-within:ring-teal-700/20">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-teal-50 text-teal-700 transition group-focus-within:bg-teal-100">
-              <Search className="size-4" aria-hidden />
-            </span>
-            <Input
-              value={q}
-              onChange={(e) => onQChange(e.target.value)}
-              placeholder="Search staff by name or ID…"
-              aria-label="Search staff"
-              className="h-10 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-            />
-            {q ? (
-              <button
-                type="button"
-                onClick={() => onQChange('')}
-                className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                aria-label="Clear search"
-              >
-                <X className="size-3.5" />
-              </button>
-            ) : null}
-          </label>
-        </div>
+    <div className="w-full space-y-3">
+      <div className="flex w-full flex-row flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-2 shadow-[var(--shadow-card)]">
+        <label className="group relative flex min-w-56 flex-1 items-center gap-2 rounded-lg bg-muted/60 px-2 transition focus-within:bg-card focus-within:ring-2 focus-within:ring-teal-700/20">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-teal-50 text-teal-700 transition group-focus-within:bg-teal-100">
+            <Search className="size-4" aria-hidden />
+          </span>
+          <Input
+            value={q}
+            onChange={(e) => onQChange(e.target.value)}
+            placeholder="Search staff by name or ID…"
+            aria-label="Search staff"
+            className="h-10 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+          />
+          {q ? (
+            <button
+              type="button"
+              onClick={() => onQChange('')}
+              className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="size-3.5" />
+            </button>
+          ) : null}
+        </label>
 
-        <div className="flex flex-row items-center gap-2">
+        <div className="flex flex-row flex-wrap items-center gap-2">
           <Select
-            value={department || 'all'}
-            onValueChange={(v) => onDepartmentChange(v === 'all' ? '' : v)}
+            value={jobTitle || 'all'}
+            onValueChange={(v) => onJobTitleChange(v === 'all' ? '' : v)}
           >
-            <SelectTrigger className="max-w-50" aria-label="Department">
-              <SelectValue placeholder="All Departments" />
+            <SelectTrigger className="min-w-40" aria-label="Job title">
+              <SelectValue placeholder="All roles" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Departments</SelectItem>
-              {STAFF_UI_MOCK.departments.map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.label}
+              <SelectItem value="all">All roles</SelectItem>
+              {JOB_TITLE_CODES.filter((j) =>
+                ['teacher', 'head-teacher', 'principal', 'bursar', 'administrator', 'support'].includes(
+                  j.code,
+                ),
+              ).map((j) => (
+                <SelectItem key={j.code} value={j.code}>
+                  {j.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Select
-            value={employment || 'all'}
-            onValueChange={(v) => onEmploymentChange(v === 'all' ? '' : v)}
+            value={status || 'all'}
+            onValueChange={(v) => onStatusChange(v === 'all' ? '' : v)}
           >
-            <SelectTrigger className="max-w-50" aria-label="Employment">
-              <SelectValue placeholder="Employment: All" />
+            <SelectTrigger className="min-w-36" aria-label="Status">
+              <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
-              {STAFF_UI_MOCK.employmentTypes.map((e) => (
-                <SelectItem key={e.value || 'all'} value={e.value || 'all'}>
-                  {e.label}
+              <SelectItem value="all">All statuses</SelectItem>
+              {STAFF_STATUS_CODES.map((s) => (
+                <SelectItem key={s.code} value={s.code}>
+                  {s.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button type="button" variant="outline" size="sm">
-            <Settings2 className="size-4" />
-            Filter
-          </Button>
         </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {STAFF_UI_MOCK.categoryTabs.map((tab) => {
+        {categoryTabs.map((tab) => {
           const active = category === tab.value;
           return (
             <button
@@ -311,29 +290,48 @@ export function StaffTable({
                 'rounded-full px-3 py-1.5 text-xs font-semibold transition',
                 active
                   ? 'bg-teal-700 text-white'
-                  : 'bg-sky-50 text-sky-900 hover:bg-sky-100',
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80',
               )}
             >
-              {tab.label} {tab.count}
+              {tab.label} ({tab.count.toLocaleString()})
             </button>
           );
         })}
+        {hasFilters ? (
+          <button
+            type="button"
+            className="text-xs font-semibold text-teal-700 hover:underline"
+            onClick={resetFilters}
+          >
+            Reset filters
+          </button>
+        ) : null}
       </div>
 
-      <QueryState isPending={isPending} error={error} onRetry={onRetry}>
+      <QueryState isPending={isPending} error={error} onRetry={onRetry} loaderVariant="table">
         <div className="flex flex-col">
           <DataTable
             columns={columns}
             rows={rows}
             density={density}
             minRows={Math.min(pageSize, 8)}
+            onRowClick={(r) => onOpenStaff(r.id)}
             empty={
-              <div className="flex max-w-sm flex-col items-center px-6 py-8 text-center">
-                <p className="font-heading text-base font-semibold">No staff found</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Try adjusting search or filters, or onboard a new staff member.
-                </p>
-              </div>
+              <EmptyState
+                title={hasFilters ? 'No staff match these filters' : 'No staff yet'}
+                description={
+                  hasFilters
+                    ? 'Try clearing search, role, status, or category.'
+                    : 'Onboard a staff member or import a roster to populate this directory.'
+                }
+                action={
+                  hasFilters ? (
+                    <Button type="button" variant="outline" size="sm" onClick={resetFilters}>
+                      Reset filters
+                    </Button>
+                  ) : undefined
+                }
+              />
             }
           />
           <TablePagination
@@ -342,10 +340,18 @@ export function StaffTable({
             total={total}
             pageSize={pageSize}
             onPageChange={onPageChange}
-            noun="staff personnel"
+            noun="staff"
           />
         </div>
       </QueryState>
     </div>
   );
+}
+
+export function buildStaffCategoryTabs(summary: StaffSummary | undefined): StaffCategoryTab[] {
+  return [
+    { value: '', label: 'All staff', count: summary?.total ?? 0 },
+    { value: 'teaching', label: 'Teaching', count: summary?.teaching ?? 0 },
+    { value: 'non-teaching', label: 'Non-teaching', count: summary?.nonTeaching ?? 0 },
+  ];
 }

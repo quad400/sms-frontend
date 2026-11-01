@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { AppSidebar, buildPortalNavGroups } from '@/components/shells/app-sidebar';
-import { SidebarUserMenu } from '@/components/shells/sidebar-user-menu';
+import { ShellTopBar } from '@/components/shells/shell-topbar';
 import { useSession } from '@/lib/auth/permissions';
 import { canAccessItPortal, portalHomeForUserType } from '@/lib/auth/portal';
 import { motion } from '@/lib/motion/classes';
@@ -12,9 +12,11 @@ import { cn } from '@/lib/utils/cn';
 
 export function PortalShell({
   title,
+  timezone = 'UTC',
   children,
 }: {
   title: string;
+  timezone?: string;
   children: ReactNode;
 }) {
   const { user } = useSession();
@@ -25,6 +27,10 @@ export function PortalShell({
     router.replace('/login');
     router.refresh();
   }
+
+  const homeHref = user ? portalHomeForUserType(user.userType) : '/';
+  /** IT/legacy portal has no dedicated account route — fall back to home. */
+  const accountHref = homeHref;
 
   const groups = useMemo(() => {
     if (!user) {
@@ -50,17 +56,13 @@ export function PortalShell({
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 md:px-6">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground md:hidden">{title}</p>
-            <p className="truncate text-xs text-muted-foreground">
-              Signed in as {user.displayName}
-            </p>
-          </div>
-          <div className="md:hidden">
-            <SidebarUserMenu user={user} onLogout={() => void logout()} className="w-auto max-w-[220px]" />
-          </div>
-        </header>
+        <ShellTopBar
+          user={user}
+          timezone={timezone}
+          title={title}
+          accountHref={accountHref}
+          onLogout={() => void logout()}
+        />
 
         <main className={cn('mx-auto w-full max-w-[1440px] flex-1 p-4 md:p-6', motion.shellMain)}>
           {children}

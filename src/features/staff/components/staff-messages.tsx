@@ -11,7 +11,7 @@ import { useSendThreadMessage, useThread, useThreads } from '../hooks/use-commun
 import { formatDate, formatDateTime } from '../lib/format';
 import { QueryState } from '../lib/shared';
 import { CONTROL_CLASS } from './shared/fields';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 function newClientRef(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -39,7 +39,7 @@ export function StaffMessages() {
         onRetry={() => void threads.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={MessageSquare}
             title="No conversations yet"
             description="When a parent or guardian starts a conversation with you, it will show up here."
@@ -76,7 +76,7 @@ export function StaffMessages() {
 
           <div className={cn(activeId === null ? 'hidden md:block' : undefined)}>
             {activeId === null ? (
-              <EmptyPanel
+              <EmptyState
                 icon={MessageSquare}
                 title="Select a conversation"
                 description="Choose a conversation on the left to read and reply."
@@ -147,7 +147,13 @@ function ThreadView({ threadId, onBack }: { threadId: number; onBack: () => void
           error={thread.error}
           onRetry={() => void thread.refetch()}
           isEmpty={(messages?.length ?? 0) === 0}
-          empty={<p className="py-8 text-center text-sm text-muted-foreground">No messages yet.</p>}
+          empty={
+            <EmptyState
+              title="No messages yet"
+              description="Send the first message to start this conversation."
+              className="border-0 bg-transparent py-8"
+            />
+          }
         >
           {(messages ?? []).map((message) => {
             const mine = message.senderUserId === user?.id;

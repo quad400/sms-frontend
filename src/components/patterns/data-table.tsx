@@ -1,6 +1,7 @@
 'use client';
 
 import type { CSSProperties, ReactNode } from 'react';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { cn } from '@/lib/utils/cn';
 
 export type DataTableColumn<T> = {
@@ -56,11 +57,7 @@ export function DataTable<T extends { id: string | number }>({
         )}
         style={shellStyle}
       >
-        {empty ?? (
-          <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-            No rows to show.
-          </p>
-        )}
+        {empty ?? <EmptyState title="No rows to show" description="" />}
       </div>
     );
   }

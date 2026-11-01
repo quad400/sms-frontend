@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo, useState } from 'react';
 import {
   Archive,
@@ -31,8 +32,8 @@ import { QueryState } from '../../lib/shared';
 import { fullName, type StudentRow } from '../../types';
 import type { SchoolClass } from '../../api/structure';
 import { ageFromDob, avatarTone, initials } from './utils';
-import { STUDENTS_UI_MOCK } from './ui-mock';
 import { Checkbox } from '@/components/ui/checkbox';
+import type { StudentStatusTab } from './status-tabs';
 
 export function StudentsTable({
   rows,
@@ -44,12 +45,10 @@ export function StudentsTable({
   onQChange,
   classId,
   onClassIdChange,
-  houseId,
-  onHouseIdChange,
   status,
   onStatusChange,
+  statusTabs,
   classes,
-  houses,
   page,
   pages,
   total,
@@ -67,12 +66,10 @@ export function StudentsTable({
   onQChange: (v: string) => void;
   classId: string;
   onClassIdChange: (v: string) => void;
-  houseId: string;
-  onHouseIdChange: (v: string) => void;
   status: string;
   onStatusChange: (v: string) => void;
+  statusTabs: StudentStatusTab[];
   classes: SchoolClass[];
-  houses: Array<{ id: number; name: string }>;
   page: number;
   pages: number;
   total: number;
@@ -131,7 +128,7 @@ export function StudentsTable({
         id: 'class',
         header: 'Class',
         cell: (r) => (
-          <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold tabular-nums">
+          <span className="rounded-md whitespace-nowrap bg-muted px-2 py-0.5 text-xs font-semibold tabular-nums">
             {r.className ?? '—'}
           </span>
         ),
@@ -155,7 +152,7 @@ export function StudentsTable({
       },
       {
         id: 'guardian',
-        header: 'Primary guardian',
+        header: 'Guardian',
         cell: (r) => (
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{r.primaryGuardianName ?? '—'}</p>
@@ -200,11 +197,10 @@ export function StudentsTable({
     ];
   }, [onArchive, onOpenStudent, selected]);
 
-  const hasFilters = Boolean(status || classId || houseId || q);
+  const hasFilters = Boolean(status || classId || q);
   const resetFilters = () => {
     onStatusChange('');
     onClassIdChange('');
-    onHouseIdChange('');
     onQChange('');
   };
 
@@ -259,7 +255,7 @@ export function StudentsTable({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {STUDENTS_UI_MOCK.statusTabs.map((tab) => {
+        {statusTabs.map((tab) => {
           const active = status === tab.value || (status === '' && tab.value === 'active');
           return (
             <button
@@ -299,9 +295,21 @@ export function StudentsTable({
             minRows={pageSize}
             onRowClick={(r) => onOpenStudent(r.id)}
             empty={
-              <StudentsTableEmpty
-                hasFilters={hasFilters}
-                onResetFilters={resetFilters}
+              <EmptyState
+                icon={Users}
+                title={hasFilters ? 'No students match these filters' : 'No students yet'}
+                description={
+                  hasFilters
+                    ? 'Try clearing search, class, or status to widen the list.'
+                    : 'Add a student or import a roster to populate this directory.'
+                }
+                action={
+                  hasFilters ? (
+                    <Button type="button" variant="outline" size="sm" onClick={resetFilters}>
+                      Reset filters
+                    </Button>
+                  ) : undefined
+                }
               />
             }
           />
@@ -319,37 +327,3 @@ export function StudentsTable({
   );
 }
 
-function StudentsTableEmpty({
-  hasFilters,
-  onResetFilters,
-}: {
-  hasFilters: boolean;
-  onResetFilters: () => void;
-}) {
-  return (
-    <div className="flex max-w-sm flex-col items-center px-6 py-8 text-center">
-      <span className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-700">
-        <Users className="size-5" aria-hidden />
-      </span>
-      <p className="font-heading text-base font-semibold text-foreground">
-        {hasFilters ? 'No students match these filters' : 'No students yet'}
-      </p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {hasFilters
-          ? 'Try clearing search, class, house, or status to widen the list.'
-          : 'Add a student or import a roster to populate this directory.'}
-      </p>
-      {hasFilters ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-4"
-          onClick={onResetFilters}
-        >
-          Reset filters
-        </Button>
-      ) : null}
-    </div>
-  );
-}

@@ -11,6 +11,7 @@ import {
   createClass,
   createHouse,
   createLevel,
+  createLevelStage,
   createSession,
   createSubject,
   deleteClass,
@@ -21,6 +22,7 @@ import {
   listCurriculumSubjects,
   listHouses,
   listLevels,
+  listLevelStages,
   listSessions,
   listSubjects,
   listTerms,
@@ -28,12 +30,14 @@ import {
   updateCampus,
   updateClass,
   updateHouse,
+  updateSession,
   updateSubject,
   updateTerm,
   type Campus,
   type CurriculumSubject,
   type House,
   type Level,
+  type LevelStage,
   type SchoolClass,
   type Session,
   type Subject,
@@ -63,7 +67,7 @@ export function useSaveCampus() {
 
 export function useSessions(campusId?: string) {
   return useQuery<Session[], ApiClientError>({
-    queryKey: adminKeys.sessions(),
+    queryKey: [...adminKeys.sessions(), campusId ?? ''] as const,
     queryFn: () => listSessions(campusId),
   });
 }
@@ -128,6 +132,21 @@ export function useCreateSession() {
   });
 }
 
+export function useUpdateSession() {
+  const qc = useQueryClient();
+  return useMutation<
+    Session,
+    ApiClientError,
+    { id: number; body: { name?: string; startDate?: string; endDate?: string } }
+  >({
+    mutationFn: ({ id, body }) => updateSession(id, body),
+    onSuccess: (row) => {
+      void qc.invalidateQueries({ queryKey: adminKeys.sessions() });
+      void qc.invalidateQueries({ queryKey: adminKeys.session(row.id) });
+    },
+  });
+}
+
 export function useUpdateTermHolidays() {
   return useMutation<
     Term,
@@ -168,6 +187,14 @@ export function useLevels() {
   return useQuery<Level[], ApiClientError>({
     queryKey: adminKeys.levels(),
     queryFn: listLevels,
+  });
+}
+
+export function useLevelStages(enabled = true) {
+  return useQuery<LevelStage[], ApiClientError>({
+    queryKey: adminKeys.levelStages(),
+    queryFn: listLevelStages,
+    enabled,
   });
 }
 
@@ -216,6 +243,14 @@ export function useCreateLevel() {
   return useMutation<Level, ApiClientError, Record<string, unknown>>({
     mutationFn: createLevel,
     onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.levels() }),
+  });
+}
+
+export function useCreateLevelStage() {
+  const qc = useQueryClient();
+  return useMutation<LevelStage, ApiClientError, Record<string, unknown>>({
+    mutationFn: createLevelStage,
+    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.levelStages() }),
   });
 }
 

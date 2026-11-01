@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/patterns/page-header';
 import { useAnnouncements } from '../hooks/use-communication';
 import { QueryState } from '../lib/shared';
 import { AnnouncementCard } from './shared/announcement-card';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 export function StaffAnnouncements() {
   const announcements = useAnnouncements();
@@ -27,7 +27,7 @@ export function StaffAnnouncements() {
         onRetry={() => void announcements.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={Megaphone}
             title="No announcements"
             description="School announcements will appear here once they’re published."

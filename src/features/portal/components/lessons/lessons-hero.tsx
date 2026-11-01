@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { Clock, ExternalLink, User, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
@@ -18,17 +19,13 @@ export function LessonsHero({
 }) {
   if (!session) {
     return (
-      <section
-        aria-label="Featured session"
-        className="rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center shadow-[var(--shadow-card)]"
-      >
-        <span className="mx-auto mb-3 flex size-11 items-center justify-center rounded-xl bg-academic/10 text-academic">
-          <Video className="size-5" aria-hidden />
-        </span>
-        <p className="font-heading text-lg font-semibold">No live session right now</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          When a teacher schedules a class, it will appear here with a join link.
-        </p>
+      <section aria-label="Featured session">
+        <EmptyState
+          icon={Video}
+          title="No live session right now"
+          description="When a teacher schedules a class, it will appear here with a join link."
+          className="bg-card shadow-[var(--shadow-card)]"
+        />
       </section>
     );
   }

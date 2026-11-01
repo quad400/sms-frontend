@@ -7,7 +7,8 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils/cn';
 import { formatTime, minutesOf, timeRange } from '../../lib/format';
 import type { StaffOverview } from '../../types';
-import { EmptyPanel, Panel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Panel } from '../shared/panel';
 
 type PeriodState = 'now' | 'next' | 'done' | 'later';
 
@@ -41,7 +42,7 @@ export function TodayLessons({
   return (
     <Panel title="My lessons today" description={`${periods.length} ${periods.length === 1 ? 'period' : 'periods'} scheduled`}>
       {periods.length === 0 ? (
-        <EmptyPanel
+        <EmptyState
           title="No lessons today"
           description="Nothing is timetabled for you today. Check your weekly timetable for the full week."
           icon={Coffee}

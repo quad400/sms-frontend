@@ -2,7 +2,7 @@
 
 import { CalendarDays, Grid3x3, Shield, Waves } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils/cn';
+import { SummaryCard } from '@/components/patterns/summary-card';
 import { TIMETABLES_UI_MOCK } from './ui-mock';
 
 export function TimetablesSummary({
@@ -73,45 +73,3 @@ export function TimetablesSummary({
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  icon,
-  iconClass,
-  valueClass,
-  children,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  iconClass: string;
-  valueClass?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {label}
-        </p>
-        <span
-          className={cn(
-            'flex size-9 shrink-0 items-center justify-center rounded-xl',
-            iconClass,
-          )}
-        >
-          {icon}
-        </span>
-      </div>
-      <p
-        className={cn(
-          'mt-2 font-heading font-semibold tracking-tight tabular-nums',
-          valueClass ?? 'text-2xl',
-        )}
-      >
-        {value}
-      </p>
-      {children ? <div className="mt-2">{children}</div> : null}
-    </div>
-  );
-}

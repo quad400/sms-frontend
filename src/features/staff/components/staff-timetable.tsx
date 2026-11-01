@@ -11,7 +11,7 @@ import { useStaffLookups } from '../hooks/use-staff-lookups';
 import { useStaffTimetable } from '../hooks/use-staff-timetable';
 import { minutesOf, nowInZone, WEEKDAYS, WEEKDAY_LABEL, type Weekday } from '../lib/format';
 import { QueryState } from '../lib/shared';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { DayAgenda } from './timetable/day-agenda';
 import type { PeriodRow, TimetableEntry } from './timetable/timetable-types';
 import { WeekGrid } from './timetable/week-grid';
@@ -121,7 +121,7 @@ export function StaffTimetable() {
         onRetry={timetable.refetch}
         isEmpty={entries.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={CalendarX2}
             title="No timetable yet"
             description="You have no teaching periods on a published timetable for the current term."

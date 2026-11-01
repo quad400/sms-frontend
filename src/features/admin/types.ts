@@ -41,9 +41,11 @@ export type StaffRow = {
   firstName: string;
   lastName: string;
   middleName?: string | null;
+  gender?: string;
   genderCode?: string;
   jobTitleCode?: string;
   jobTitle?: string;
+  jobTitleName?: string;
   campusId?: number;
   status?: string;
   statusCode?: string;

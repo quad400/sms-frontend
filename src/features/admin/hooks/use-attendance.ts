@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ApiClientError } from '@/lib/api/errors';
 import {
   fetchAttendanceSummaries,
+  fetchStaffAttendanceSummaries,
+  fetchStudentAttendanceSummaries,
   getRegister,
   getStaffAttendance,
   listRegisters,
@@ -13,6 +15,8 @@ import {
   type AttendanceRegister,
   type AttendanceSummary,
   type StaffAttendanceRow,
+  type StaffAttendanceSummary,
+  type StudentAttendanceSummary,
 } from '../api/attendance';
 import { adminKeys } from '../api/keys';
 import type { Paginated } from '../types';
@@ -34,6 +38,7 @@ export function useAttendanceSummaries(params: {
   to: string;
   classId?: string;
   campusId?: string;
+  enabled?: boolean;
 }) {
   return useQuery<
     { from: string; to: string; classes: AttendanceSummary[] },
@@ -52,6 +57,60 @@ export function useAttendanceSummaries(params: {
         classId: params.classId || undefined,
         campusId: params.campusId,
       }),
+    enabled: params.enabled !== false,
+  });
+}
+
+export function useStudentAttendanceSummaries(params: {
+  from: string;
+  to: string;
+  classId?: string;
+  campusId?: string;
+  page: number;
+  enabled?: boolean;
+}) {
+  return useQuery<Paginated<StudentAttendanceSummary>, ApiClientError>({
+    queryKey: adminKeys.studentAttendanceSummaries({
+      from: params.from,
+      to: params.to,
+      classId: params.classId,
+      campusId: params.campusId,
+      page: params.page,
+    }),
+    queryFn: () =>
+      fetchStudentAttendanceSummaries({
+        from: params.from,
+        to: params.to,
+        classId: params.classId || undefined,
+        campusId: params.campusId,
+        page: params.page,
+      }),
+    enabled: params.enabled !== false,
+  });
+}
+
+export function useStaffAttendanceSummaries(params: {
+  from: string;
+  to: string;
+  campusId?: string;
+  enabled?: boolean;
+}) {
+  return useQuery<
+    { from: string; to: string; staff: StaffAttendanceSummary[] },
+    ApiClientError
+  >({
+    queryKey: adminKeys.staffAttendanceSummaries({
+      from: params.from,
+      to: params.to,
+      campusId: params.campusId,
+    }),
+    queryFn: () =>
+      fetchStaffAttendanceSummaries({
+        from: params.from,
+        to: params.to,
+        campusId: params.campusId,
+      }),
+    enabled: params.enabled !== false,
   });
 }
 
@@ -83,7 +142,7 @@ export function useReopenRegister(registerId: number) {
 }
 
 export function useStaffAttendance(date: string, campusId?: string) {
-  return useQuery<{ date: string; records: StaffAttendanceRow[] }, ApiClientError>({
+  return useQuery<StaffAttendanceRow[], ApiClientError>({
     queryKey: adminKeys.staffAttendance(date, campusId),
     queryFn: () => getStaffAttendance(date, campusId),
   });

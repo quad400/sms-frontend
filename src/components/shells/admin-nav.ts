@@ -6,6 +6,7 @@ import {
   CalendarDays,
   ClipboardList,
   FileBarChart,
+  FileText,
   GraduationCap,
   LayoutDashboard,
   Megaphone,
@@ -71,15 +72,6 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     label: 'Academics',
     items: [
       {
-        href: '/admin/campuses',
-        label: 'Structure',
-        icon: Building2,
-        anyPermission: [
-          'school-structure.campus.list',
-          'school-structure.session.list',
-        ],
-      },
-      {
         href: '/admin/classes',
         label: 'Classes',
         icon: School,
@@ -90,12 +82,6 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         label: 'Subjects',
         icon: BookOpen,
         permission: 'school-structure.subject.list',
-      },
-      {
-        href: '/admin/houses',
-        label: 'Houses',
-        icon: Building2,
-        permission: 'school-structure.house.list',
       },
       {
         href: '/admin/allocations',
@@ -110,6 +96,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         permission: 'academics.timetable.list',
       },
       {
+        href: '/admin/lesson-notes',
+        label: 'Lesson notes',
+        icon: FileText,
+        permission: 'academics.lesson-note.list',
+      },
+      {
         href: '/admin/lesson-plans',
         label: 'Lesson plans',
         icon: ClipboardList,
@@ -119,19 +111,11 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         href: '/admin/attendance',
         label: 'Attendance',
         icon: ClipboardList,
-        permission: 'attendance.register.list',
-      },
-      {
-        href: '/admin/attendance/reports',
-        label: 'Attendance reports',
-        icon: ClipboardList,
-        permission: 'attendance.summary.read',
-      },
-      {
-        href: '/admin/staff-attendance',
-        label: 'Staff attendance',
-        icon: Users,
-        permission: 'attendance.staff.list',
+        anyPermission: [
+          'attendance.register.list',
+          'attendance.summary.read',
+          'attendance.staff.list',
+        ],
       },
     ],
   },
@@ -313,6 +297,20 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
         label: 'Report catalogue',
         icon: FileBarChart,
         permission: 'reporting.report.list',
+      },
+    ],
+  },
+  {
+    label: 'School setup',
+    items: [
+      {
+        href: '/admin/campuses',
+        label: 'Structure',
+        icon: Building2,
+        anyPermission: [
+          'school-structure.campus.list',
+          'school-structure.session.list',
+        ],
       },
     ],
   },

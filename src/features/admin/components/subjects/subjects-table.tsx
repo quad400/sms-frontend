@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo } from 'react';
 import { Eye, Search } from 'lucide-react';
 import { DataTable, type DataTableColumn } from '@/components/patterns/data-table';
@@ -236,7 +237,7 @@ export function SubjectsTable({
         </div>
       </div>
 
-      <QueryState isPending={isPending} error={error} onRetry={onRetry}>
+      <QueryState isPending={isPending} error={error} onRetry={onRetry} loaderVariant="table">
         <DataTable
           columns={columns}
           rows={rows}
@@ -244,9 +245,7 @@ export function SubjectsTable({
           minRows={Math.min(pageSize, 8)}
           onRowClick={(r) => onSelect(r.id)}
           empty={
-            <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No subjects match these filters.
-            </p>
+            <EmptyState title="No subjects" description="No subjects match these filters." />
           }
           className="shadow-[var(--shadow-card)]"
         />

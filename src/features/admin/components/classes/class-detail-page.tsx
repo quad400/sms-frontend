@@ -1,5 +1,8 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
+import { MetaChip } from '@/components/patterns/meta-chip';
+import { QuickLink } from '@/components/patterns/quick-link';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,7 +12,8 @@ import {
   CalendarDays,
   ClipboardList,
   DoorOpen,
-  Printer,
+  Layers,
+  Pencil,
   School,
   Trash2,
   UserRound,
@@ -33,6 +37,7 @@ import { useStaffList, useStaffMember } from '../../hooks/use-staff';
 import {
   useClass,
   useDeleteClass,
+  useSession,
   useUpdateClass,
 } from '../../hooks/use-structure';
 import { useStudents } from '../../hooks/use-students';
@@ -58,6 +63,7 @@ export function ClassDetailPage({ classId }: { classId: number }) {
     ? `${c.campusId}-${c.sessionId}`
     : undefined;
   const update = useUpdateClass(invalidateKey);
+  const session = useSession(c?.sessionId ?? null);
 
   const staffList = useStaffList(
     { campusId: c?.campusId != null ? String(c.campusId) : undefined, status: 'active', page: 1 },
@@ -76,6 +82,7 @@ export function ClassDetailPage({ classId }: { classId: number }) {
   const enrolled = c?.studentCount ?? extra?.enrolled ?? totalStudents;
   const capacity = extra?.capacity ?? 40;
   const over = enrolled > capacity;
+  const fillPct = Math.min(100, Math.round((enrolled / Math.max(capacity, 1)) * 100));
 
   const formTutor =
     formTutorQuery.data ??
@@ -84,8 +91,17 @@ export function ClassDetailPage({ classId }: { classId: number }) {
       : null) ??
     null;
 
+  const formTutorName = formTutor
+    ? fullName(formTutor.firstName, formTutor.lastName, formTutor.middleName)
+    : null;
+
   const armLabel =
     c?.armName ?? c?.name?.split(/\s+/).pop() ?? '—';
+  const stageLabel = c?.levelStageName ?? c?.levelStage ?? null;
+  const subtitle = [stageLabel, c?.levelName, c?.armName ? `Arm ${c.armName}` : null]
+    .filter(Boolean)
+    .join(' · ');
+  const sessionName = session.data?.name ?? null;
 
   const teacherRows = useMemo(
     () => allocations.data?.data ?? [],
@@ -140,91 +156,76 @@ export function ClassDetailPage({ classId }: { classId: number }) {
         onRetry={() => void schoolClass.refetch()}
       >
         {!c || !extra ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-6 py-16 text-center shadow-[var(--shadow-card)]">
-            <span className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-              <School className="size-5" />
-            </span>
-            <p className="font-heading text-base font-semibold">Class not available</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              This arm may have been removed or you may not have access.
-            </p>
-            <Button asChild variant="outline" size="sm" className="mt-4">
-              <Link href="/admin/classes">Back to directory</Link>
-            </Button>
-          </div>
+          <EmptyState
+            icon={School}
+            title="Class not available"
+            description="This arm may have been removed or you may not have access."
+            className="bg-card shadow-[var(--shadow-card)]"
+            action={
+              <Button asChild variant="outline" size="sm">
+                <Link href="/admin/classes">Back to directory</Link>
+              </Button>
+            }
+          />
         ) : (
           <>
             <header className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
-              <div className="bg-[linear-gradient(160deg,rgba(15,118,110,0.1),transparent_55%)] px-5 py-5 sm:px-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="bg-[linear-gradient(160deg,rgba(15,118,110,0.12),transparent_58%)] px-5 py-5 sm:px-6">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-start gap-4">
-                    <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-teal-50 font-heading text-xl font-bold text-teal-800 shadow-sm ring-1 ring-black/5">
-                      {armLabel}
+                    <span className="flex size-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-teal-700 font-heading text-white shadow-sm ring-1 ring-black/5">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-teal-100/90">
+                        Arm
+                      </span>
+                      <span className="text-2xl font-bold leading-none">{armLabel}</span>
                     </span>
-                    <div className="min-w-0 space-y-2">
+                    <div className="min-w-0 space-y-2.5">
                       <div>
                         <h1 className="truncate font-heading text-2xl font-semibold tracking-tight">
                           {c.name}
                         </h1>
-                        <p className="mt-0.5 text-sm text-muted-foreground">
-                          {[c.levelName, c.armName ? `Arm ${c.armName}` : null]
-                            .filter(Boolean)
-                            .join(' · ')}
-                        </p>
+                        {subtitle ? (
+                          <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                            {subtitle}
+                          </p>
+                        ) : null}
                       </div>
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <Badge variant="successSoft" size="sm">
-                          Active Stream
-                        </Badge>
-                        <Badge variant={extra.division.variant} size="sm">
-                          {extra.division.label}
-                        </Badge>
-                        <MetaChip>
+                        {stageLabel ? (
+                          <MetaChip className="inline-flex items-center gap-1 bg-teal-50 text-teal-800">
+                            <Layers className="size-3" />
+                            {stageLabel}
+                          </MetaChip>
+                        ) : null}
+                        {sessionName ? <MetaChip>{sessionName}</MetaChip> : null}
+                        <MetaChip className="inline-flex items-center gap-1">
                           <DoorOpen className="size-3" />
                           {extra.homeroom}
                         </MetaChip>
-                        <MetaChip
-                          className={
-                            over
-                              ? 'bg-rose-50 text-rose-800'
-                              : 'bg-emerald-50 text-emerald-800'
-                          }
-                        >
-                          <Users className="size-3" />
-                          {enrolled} / {capacity} enrolled
-                        </MetaChip>
+                        {formTutorName ? (
+                          <MetaChip className="inline-flex items-center gap-1">
+                            <UserRound className="size-3" />
+                            {formTutorName}
+                          </MetaChip>
+                        ) : (
+                          <MetaChip className="inline-flex items-center gap-1 bg-amber-50 text-amber-900">
+                            <UserRound className="size-3" />
+                            No form tutor
+                          </MetaChip>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex shrink-0 flex-wrap gap-2">
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/admin/timetables?classId=${classId}`}>
-                        <CalendarDays className="size-3.5" />
-                        Timetable
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/admin/attendance?classId=${classId}`}>
-                        <ClipboardList className="size-3.5" />
-                        Attendance
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href={`/admin/allocations?classId=${classId}`}>
-                        <BookOpen className="size-3.5" />
-                        Teachers
-                      </Link>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled
-                    >
-                      <Printer className="size-3.5" />
-                      Print Register
-                    </Button>
+                    <PermissionGate permission="school-structure.class.update">
+                      <Button asChild size="sm" className="bg-teal-700 hover:bg-teal-800">
+                        <Link href={`/admin/classes/${classId}/edit`}>
+                          <Pencil className="size-3.5" />
+                          Edit arm
+                        </Link>
+                      </Button>
+                    </PermissionGate>
                     <PermissionGate permission="school-structure.class.delete">
                       <Button
                         type="button"
@@ -240,7 +241,81 @@ export function ClassDetailPage({ classId }: { classId: number }) {
                   </div>
                 </div>
               </div>
+
+              <div className="border-t border-border px-5 py-3.5 sm:px-6">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Enrolment
+                    </p>
+                    <p
+                      className={cn(
+                        'mt-0.5 font-heading text-lg font-semibold tabular-nums',
+                        over ? 'text-rose-700' : 'text-foreground',
+                      )}
+                    >
+                      {enrolled}
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {' '}
+                        / {capacity} seats
+                      </span>
+                    </p>
+                  </div>
+                  <p
+                    className={cn(
+                      'text-xs font-semibold tabular-nums',
+                      over ? 'text-rose-700' : 'text-teal-700',
+                    )}
+                  >
+                    {fillPct}% filled
+                    {over ? ' · over capacity' : ''}
+                  </p>
+                </div>
+                <div
+                  className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-valuenow={fillPct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label="Class enrolment fill"
+                >
+                  <div
+                    className={cn(
+                      'h-full rounded-full transition-[width]',
+                      over ? 'bg-rose-500' : 'bg-teal-600',
+                    )}
+                    style={{ width: `${Math.min(fillPct, 100)}%` }}
+                  />
+                </div>
+              </div>
             </header>
+
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <QuickLink
+                href={`/admin/timetables?classId=${classId}`}
+                icon={CalendarDays}
+                label="Timetable"
+                hint="Periods & rooms"
+              />
+              <QuickLink
+                href={`/admin/attendance?classId=${classId}`}
+                icon={ClipboardList}
+                label="Attendance"
+                hint="Registers"
+              />
+              <QuickLink
+                href={`/admin/allocations?classId=${classId}`}
+                icon={BookOpen}
+                label="Teachers"
+                hint="Subject matrix"
+              />
+              <QuickLink
+                href={`/admin/students?classId=${classId}`}
+                icon={Users}
+                label="Roster"
+                hint={`${enrolled} enrolled`}
+              />
+            </div>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <StatCard label="Boys" value={split.boys} />
@@ -353,9 +428,11 @@ export function ClassDetailPage({ classId }: { classId: number }) {
                   onRetry={() => void allocations.refetch()}
                 >
                   {teacherRows.length === 0 ? (
-                    <p className="rounded-lg border border-dashed border-border px-3 py-8 text-center text-sm text-muted-foreground">
-                      No subject teachers allocated yet.
-                    </p>
+                    <EmptyState
+                      title="No subject teachers"
+                      description="No subject teachers allocated yet."
+                      className="py-6"
+                    />
                   ) : (
                     <ul className="divide-y divide-border/70 overflow-hidden rounded-lg border border-border">
                       {teacherRows.slice(0, 6).map((row, i) => (
@@ -406,9 +483,7 @@ export function ClassDetailPage({ classId }: { classId: number }) {
                 onRetry={() => void roster.refetch()}
               >
                 {students.length === 0 ? (
-                  <p className="rounded-xl border border-dashed border-border px-4 py-12 text-center text-sm text-muted-foreground">
-                    No students enrolled yet.
-                  </p>
+                  <EmptyState title="No students enrolled" description="" />
                 ) : (
                   <div className="overflow-x-auto rounded-xl border border-border">
                     <table className="w-full min-w-[640px] text-left text-sm">
@@ -503,24 +578,6 @@ export function ClassDetailPage({ classId }: { classId: number }) {
   );
 }
 
-function MetaChip({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground',
-        className,
-      )}
-    >
-      {children}
-    </span>
-  );
-}
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (

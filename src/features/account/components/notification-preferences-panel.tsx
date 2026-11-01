@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Bell, BellOff } from 'lucide-react';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { ErrorState } from '@/components/patterns/error-state';
+import { Loader } from '@/components/patterns/loader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -106,18 +109,26 @@ export function NotificationPreferencesPanel() {
   }
 
   if (prefs.isPending) {
-    return <p className="text-sm text-muted-foreground">Loading preferences…</p>;
+    return <Loader variant="inline" label="Loading preferences" />;
   }
 
   if (prefs.error) {
-    return <p className="text-sm text-muted-foreground">{loadError}</p>;
+    return (
+      <ErrorState
+        description={loadError ?? undefined}
+        onRetry={() => void prefs.refetch()}
+        className="py-8"
+      />
+    );
   }
 
   if (draft.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No notification channels are configured for your school yet.
-      </p>
+      <EmptyState
+        title="No channels configured"
+        description="No notification channels are configured for your school yet."
+        className="border-0 bg-transparent py-6"
+      />
     );
   }
 

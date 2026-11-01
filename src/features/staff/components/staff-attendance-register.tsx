@@ -21,7 +21,7 @@ import { CounterBar } from './attendance/counter-bar';
 import { isMark, MARK_ORDER } from './attendance/mark-config';
 import { MarkRow, type RosterRow } from './attendance/mark-row';
 import { ConfirmDialog } from './shared/confirm-dialog';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import { StatusBadge } from './shared/status-badge';
 import { StickyActions } from './shared/sticky-actions';
 import type { AttendanceMark } from '../types';
@@ -194,7 +194,7 @@ export function StaffAttendanceRegister({ registerId }: { registerId: number }) 
             </div>
 
             {rows.length === 0 ? (
-              <EmptyPanel
+              <EmptyState
                 icon={UsersRound}
                 title="No students on this register"
                 description={

@@ -35,10 +35,32 @@ export type AttendanceSummary = {
 };
 
 export type StaffAttendanceRow = {
+  id?: number;
   staffId: number;
   staffName?: string;
+  mark?: string;
   markCode?: string | null;
   note?: string | null;
+  date?: string;
+  campusId?: number;
+};
+
+export type StudentAttendanceSummary = {
+  studentId: number;
+  studentName: string;
+  classId: number;
+  className: string;
+  counts: Record<string, number>;
+  total: number;
+  attendanceRate: number | null;
+};
+
+export type StaffAttendanceSummary = {
+  staffId: number;
+  staffName: string;
+  counts: Record<string, number>;
+  total: number;
+  attendanceRate: number | null;
 };
 
 export function listRegisters(params: {
@@ -90,8 +112,40 @@ export function fetchAttendanceSummaries(params: {
   );
 }
 
+export function fetchStudentAttendanceSummaries(params: {
+  from: string;
+  to: string;
+  classId?: string;
+  campusId?: string;
+  page?: number;
+}) {
+  return proxyGet<Paginated<StudentAttendanceSummary>>('/api/v1/attendance/summaries/students', {
+    from: params.from,
+    to: params.to,
+    classId: params.classId,
+    campusId: params.campusId,
+    page: String(params.page ?? 1),
+    pageSize: String(PAGE_SIZE),
+  });
+}
+
+export function fetchStaffAttendanceSummaries(params: {
+  from: string;
+  to: string;
+  campusId?: string;
+}) {
+  return proxyGet<{ from: string; to: string; staff: StaffAttendanceSummary[] }>(
+    '/api/v1/attendance/summaries/staff',
+    {
+      from: params.from,
+      to: params.to,
+      campusId: params.campusId,
+    },
+  );
+}
+
 export function getStaffAttendance(date: string, campusId?: string) {
-  return proxyGet<{ date: string; records: StaffAttendanceRow[] }>('/api/v1/staff-attendance', {
+  return proxyGet<StaffAttendanceRow[]>('/api/v1/staff-attendance', {
     date,
     campusId,
   });

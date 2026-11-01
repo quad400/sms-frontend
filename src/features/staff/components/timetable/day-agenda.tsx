@@ -1,13 +1,13 @@
 import { cn } from '@/lib/utils/cn';
 import { Badge } from '@/components/ui/badge';
 import { formatTime, timeRange, WEEKDAY_LABEL, type Weekday } from '../../lib/format';
-import { EmptyPanel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 import type { TimetableEntry } from './timetable-types';
 
 export function DayAgenda({ day, entries }: { day: Weekday; entries: TimetableEntry[] }) {
   if (entries.length === 0) {
     return (
-      <EmptyPanel
+      <EmptyState
         title={`No lessons on ${WEEKDAY_LABEL[day]}`}
         description="You have no teaching periods scheduled for this day."
       />

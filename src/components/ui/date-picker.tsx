@@ -1,18 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { format, isValid, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { Calendar as CalendarIcon, X } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { formatDisplayDate, parseAppDate } from '@/lib/format/date';
 import { cn } from '@/lib/utils/cn';
 
 const ISO_DATE = 'yyyy-MM-dd';
 
 function parseIsoDate(value?: string | null): Date | undefined {
-  if (!value) return undefined;
-  const parsed = parse(value.slice(0, 10), ISO_DATE, new Date());
-  return isValid(parsed) ? parsed : undefined;
+  return parseAppDate(value) ?? undefined;
 }
 
 function toIsoDate(date: Date): string {
@@ -84,7 +83,7 @@ export function DatePicker({
               selected ? 'text-foreground' : 'font-normal text-muted-foreground',
             )}
           >
-            {selected ? format(selected, 'd MMM yyyy') : placeholder}
+            {selected ? formatDisplayDate(selected) : placeholder}
           </span>
           {allowClear && selected && !disabled ? (
             <span
@@ -120,7 +119,9 @@ export function DatePicker({
             {selected ? 'Selected' : 'Choose a date'}
           </p>
           <p className="mt-0.5 font-heading text-lg font-medium tracking-tight text-foreground">
-            {selected ? format(selected, 'EEEE, d MMM yyyy') : placeholder}
+            {selected
+              ? `${format(selected, 'EEEE')}, ${formatDisplayDate(selected)}`
+              : placeholder}
           </p>
         </div>
         <Calendar

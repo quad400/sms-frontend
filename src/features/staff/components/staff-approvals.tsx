@@ -20,7 +20,7 @@ import { useStaffMe } from '../hooks/use-staff-me';
 import { formatDate, inclusiveDays, plural } from '../lib/format';
 import { QueryState } from '../lib/shared';
 import { ConfirmDialog } from './shared/confirm-dialog';
-import { EmptyPanel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
 
 type Kind = 'results' | 'lessonPlans' | 'leave';
 
@@ -103,7 +103,7 @@ export function StaffApprovals() {
     return (
       <div className="space-y-5">
         <PageHeader title="Approvals" />
-        <EmptyPanel
+        <EmptyState
           icon={CheckCheck}
           title="Nothing to approve"
           description="Your role doesn’t include approving results, lesson plans or leave."
@@ -222,7 +222,7 @@ function QueueState({
       error={query.error}
       onRetry={() => void query.refetch()}
       isEmpty={count === 0}
-      empty={<EmptyPanel icon={CheckCheck} title="All caught up" description={empty} />}
+      empty={<EmptyState icon={CheckCheck} title="All caught up" description={empty} />}
     >
       <ul className="grid gap-2.5">{children}</ul>
     </QueryState>

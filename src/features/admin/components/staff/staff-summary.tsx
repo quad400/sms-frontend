@@ -2,93 +2,104 @@
 
 import { Building2, CalendarDays, Ratio, Users } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import { STAFF_UI_MOCK } from './ui-mock';
+import { SummaryCard } from '@/components/patterns/summary-card';
+import type { StaffSummary as StaffSummaryData } from '../../api/staff';
 
-export function StaffSummary() {
-  const s = STAFF_UI_MOCK.summary;
+export function StaffSummary({
+  data,
+  isPending,
+}: {
+  data: StaffSummaryData | undefined;
+  isPending?: boolean;
+}) {
+  const total = data?.total ?? 0;
+  const teaching = data?.teaching ?? 0;
+  const nonTeaching = data?.nonTeaching ?? 0;
+  const onDuty = data?.onDuty ?? 0;
+  const presentPct = data?.presentPct;
+  const leaveApproved = data?.leaveApproved ?? 0;
+  const ratio = data?.studentStaffRatio ?? '—';
+  const ratioNote = data?.ratioNote ?? '';
+  const functionalUnits = data?.functionalUnits ?? 0;
+  const campuses = data?.campuses ?? 0;
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <SummaryCard
         label="Total Staff"
-        value={String(s.total)}
+        value={isPending ? '—' : total.toLocaleString()}
         icon={<Users className="size-4" />}
         iconClass="bg-teal-50 text-teal-700"
       >
         <p className="text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">{s.teaching}</span> Teaching ·{' '}
-          <span className="font-semibold text-foreground">{s.nonTeaching}</span> Non-Teaching
+          {isPending ? (
+            '…'
+          ) : (
+            <>
+              <span className="font-semibold text-foreground">{teaching.toLocaleString()}</span>{' '}
+              Teaching ·{' '}
+              <span className="font-semibold text-foreground">
+                {nonTeaching.toLocaleString()}
+              </span>{' '}
+              Non-Teaching
+            </>
+          )}
         </p>
       </SummaryCard>
 
       <SummaryCard
         label="On Duty Today"
-        value={String(s.onDuty)}
+        value={isPending ? '—' : onDuty.toLocaleString()}
         icon={<CalendarDays className="size-4" />}
         iconClass="bg-emerald-50 text-emerald-700"
       >
-        <p className="text-xs font-semibold text-emerald-700">{s.presentPct}% Present</p>
-        {/* <p className="mt-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2 text-[11px] font-medium text-amber-900">
-          <CalendarDays className="mt-0.5 size-3.5 shrink-0" />
-          {s.leaveApproved} on approved medical / exam leave
-        </p> */}
+        {isPending ? (
+          <p className="text-xs text-muted-foreground">…</p>
+        ) : presentPct != null ? (
+          <p className="text-xs font-semibold text-emerald-700">{presentPct}% Present</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {leaveApproved > 0
+              ? `${leaveApproved.toLocaleString()} on approved leave · no attendance marked yet`
+              : 'No attendance marked yet'}
+          </p>
+        )}
       </SummaryCard>
 
       <SummaryCard
         label="Student-Staff Ratio"
-        value={s.studentStaffRatio}
+        value={isPending ? '—' : ratio}
         icon={<Ratio className="size-4" />}
         iconClass="bg-sky-50 text-sky-700"
       >
-        <span className="inline-flex rounded-md bg-emerald-50 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-          {s.ratioNote}
-        </span>
+        {isPending || !ratioNote ? null : (
+          <span
+            className={cn(
+              'inline-flex rounded-md px-1.5 py-0.5 text-[11px] font-semibold',
+              data?.studentStaffRatioValue != null &&
+                data.studentStaffRatioValue <= 25
+                ? 'bg-emerald-50 text-emerald-700'
+                : 'bg-muted text-muted-foreground',
+            )}
+          >
+            {ratioNote}
+          </span>
+        )}
       </SummaryCard>
 
       <SummaryCard
         label="Functional Units"
-        value={String(s.functionalUnits)}
+        value={isPending ? '—' : functionalUnits.toLocaleString()}
         icon={<Building2 className="size-4" />}
         iconClass="bg-violet-50 text-violet-700"
       >
-        <p className="text-xs text-muted-foreground">Across {s.campuses} Campuses</p>
+        <p className="text-xs text-muted-foreground">
+          {isPending
+            ? '…'
+            : `Across ${campuses.toLocaleString()} Campus${campuses === 1 ? '' : 'es'}`}
+        </p>
       </SummaryCard>
     </div>
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  icon,
-  iconClass,
-  children,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  iconClass: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          {label}
-        </p>
-        <span
-          className={cn(
-            'flex size-9 shrink-0 items-center justify-center rounded-xl',
-            iconClass,
-          )}
-        >
-          {icon}
-        </span>
-      </div>
-      <p className="mt-2 font-heading text-2xl font-semibold tracking-tight tabular-nums text-foreground">
-        {value}
-      </p>
-      {children ? <div className="mt-2">{children}</div> : null}
-    </div>
-  );
-}

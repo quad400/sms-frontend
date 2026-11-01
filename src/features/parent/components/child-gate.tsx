@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { UserX } from 'lucide-react';
@@ -22,20 +23,17 @@ export function ChildGate({
   return (
     <QueryState isPending={isPending} error={error} onRetry={refetch}>
       {!allowed ? (
-        <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center shadow-[var(--shadow-card)]">
-          <span className="flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-            <UserX className="size-6" aria-hidden />
-          </span>
-          <div className="space-y-1">
-            <h1 className="font-heading text-lg font-semibold">Child not available</h1>
-            <p className="text-sm text-muted-foreground">
-              This student is not linked to your parent account, or the link was removed.
-            </p>
-          </div>
-          <Link href="/parent" className={buttonVariants({ variant: 'outline' })}>
-            Back to home
-          </Link>
-        </div>
+        <EmptyState
+          icon={UserX}
+          title="Child not available"
+          description="This student is not linked to your parent account, or the link was removed."
+          className="mx-auto max-w-md bg-card shadow-[var(--shadow-card)]"
+          action={
+            <Link href="/parent" className={buttonVariants({ variant: 'outline' })}>
+              Back to home
+            </Link>
+          }
+        />
       ) : (
         children
       )}

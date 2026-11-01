@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -59,9 +60,7 @@ export function ClassDetailPage({ classId }: { classId: number }) {
         onRetry={() => void schoolClass.refetch()}
       >
         {!c ? (
-          <p className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-            Class not available.
-          </p>
+          <EmptyState title="Class not available" description="This class may have been removed or you may not have access." />
         ) : (
           <>
             <EntityHeader

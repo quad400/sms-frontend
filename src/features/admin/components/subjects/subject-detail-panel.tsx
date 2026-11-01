@@ -1,7 +1,8 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import Link from 'next/link';
-import { BookMarked, GraduationCap, Layers, Users } from 'lucide-react';
+import { BookMarked, GraduationCap, Layers, Pencil, Users, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/patterns/status-badge';
@@ -9,20 +10,28 @@ import { PermissionGate } from '@/lib/auth/permissions';
 import { toastError, toastSuccess } from '@/lib/toast';
 import { cn } from '@/lib/utils/cn';
 import type { Level, Subject } from '../../api/structure';
+import { useAllocations } from '../../hooks/use-academics';
 import { useUpdateSubject } from '../../hooks/use-structure';
+import { QueryState } from '../../lib/shared';
 import { SUBJECTS_UI_MOCK, subjectExtraForId } from './ui-mock';
 
 export function SubjectDetailPanel({
   subject,
   levels,
   curriculumLevelIds,
+  onClose,
 }: {
   subject: Subject;
   levels: Level[];
   curriculumLevelIds: number[];
+  onClose?: () => void;
 }) {
   const extra = subjectExtraForId(subject.id, subject.code);
   const update = useUpdateSubject();
+  const allocations = useAllocations({
+    subjectId: String(subject.id),
+    page: 1,
+  });
 
   const levelNames = levels
     .filter((l) => curriculumLevelIds.includes(l.id))
@@ -41,27 +50,43 @@ export function SubjectDetailPanel({
   return (
     <aside className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-[var(--shadow-card)] lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)]">
       <div className="border-b border-border p-4">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant="info" size="sm" className="font-mono">
-            {subject.code}
-          </Badge>
-          {extra.compulsory ? (
-            <Badge variant="soft" size="sm">
-              Compulsory Core
-            </Badge>
-          ) : (
-            <Badge variant="secondary" size="sm">
-              {extra.tier}
-            </Badge>
-          )}
-          <StatusBadge status={subject.isActive === false ? 'inactive' : 'active'} />
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="info" size="sm" className="font-mono">
+                {subject.code}
+              </Badge>
+              {extra.compulsory ? (
+                <Badge variant="soft" size="sm">
+                  Compulsory Core
+                </Badge>
+              ) : (
+                <Badge variant="secondary" size="sm">
+                  {extra.tier}
+                </Badge>
+              )}
+              <StatusBadge status={subject.isActive === false ? 'inactive' : 'active'} />
+            </div>
+            <h2 className="mt-2 font-heading text-lg font-semibold tracking-tight">
+              {subject.name}
+            </h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {extra.department} · {extra.levelSpan}
+            </p>
+          </div>
+          {onClose ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0"
+              aria-label="Close inspection"
+              onClick={onClose}
+            >
+              <X className="size-4" />
+            </Button>
+          ) : null}
         </div>
-        <h2 className="mt-2 font-heading text-lg font-semibold tracking-tight">
-          {subject.name}
-        </h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          {extra.department} · {extra.levelSpan}
-        </p>
       </div>
 
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
@@ -107,19 +132,34 @@ export function SubjectDetailPanel({
         <section className="space-y-2">
           <h3 className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
             <Users className="size-3.5" />
-            Assigned Faculty Roster
+            Classes teaching this subject
           </h3>
-          <ul className="divide-y divide-border/70 overflow-hidden rounded-lg border border-border">
-            {SUBJECTS_UI_MOCK.facultyRoster.map((f) => (
-              <li key={f.name} className="px-3 py-2.5 text-sm">
-                <p className="font-semibold">{f.name}</p>
-                <p className="text-xs text-muted-foreground">{f.role}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="text-[11px] text-muted-foreground">
-            Lead · {extra.lead.name} ({extra.lead.title})
-          </p>
+          <QueryState
+            isPending={allocations.isPending}
+            error={allocations.error}
+            onRetry={() => void allocations.refetch()}
+          >
+            {(allocations.data?.data ?? []).length === 0 ? (
+              <EmptyState
+                title="Not allocated yet"
+                description="Not allocated to any class yet."
+                className="py-6"
+              />
+            ) : (
+              <ul className="divide-y divide-border/70 overflow-hidden rounded-lg border border-border">
+                {(allocations.data?.data ?? []).map((a) => (
+                  <li key={a.id ?? `${a.classId}-${a.staffId}`} className="px-3 py-2.5 text-sm">
+                    <p className="font-semibold">
+                      {a.className ?? `Class ${a.classId}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {a.staffName ?? (a.staffId ? `Staff #${a.staffId}` : 'Unassigned')}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </QueryState>
         </section>
 
         <section className="space-y-2">
@@ -164,13 +204,14 @@ export function SubjectDetailPanel({
       </div>
 
       <div className="space-y-2 border-t border-border p-3">
-        <Button
-          type="button"
-          className="w-full bg-teal-700 hover:bg-teal-800"
-          disabled
-        >
-          Update Scheme of Work
-        </Button>
+        <PermissionGate permission="school-structure.subject.update">
+          <Button asChild className="w-full bg-teal-700 hover:bg-teal-800">
+            <Link href={`/admin/subjects/${subject.id}/edit`}>
+              <Pencil className="size-3.5" />
+              Edit subject
+            </Link>
+          </Button>
+        </PermissionGate>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" className="flex-1">
             <Link href={`/admin/allocations?subjectId=${subject.id}`}>Allocations</Link>

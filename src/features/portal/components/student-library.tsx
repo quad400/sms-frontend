@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { PageHeader } from '@/components/patterns/page-header';
 import { usePortalLibrary } from '../hooks/use-portal-library';
 import { QueryState } from './query-state';
@@ -41,7 +42,11 @@ export function StudentLibrary() {
         <section className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)] md:p-6">
           <h2 className="font-heading text-lg font-semibold">Currently borrowed</h2>
           {loans.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">No active loans.</p>
+            <EmptyState
+              title="No active loans"
+              description=""
+              className="mt-3 border-0 bg-transparent py-4"
+            />
           ) : (
             <ul className="mt-4 divide-y divide-border">
               {loans.map((row, index) => {

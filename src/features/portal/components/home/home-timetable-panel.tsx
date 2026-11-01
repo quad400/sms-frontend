@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Clock3, MapPin, UserRound } from 'lucide-react';
 import type { TimetableSlot } from '../../lib/schedule';
@@ -152,18 +153,19 @@ export function HomeTimetablePanel({
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/25 px-4 py-10 text-center">
-            <p className="font-heading text-lg font-semibold">No more lessons today</p>
-            <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              That’s the full day — check the week view for what’s coming up.
-            </p>
-            <Link
-              href="/student/timetable"
-              className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-academic hover:underline"
-            >
-              Open timetable <ArrowRight className="size-4" aria-hidden />
-            </Link>
-          </div>
+          <EmptyState
+            title="No more lessons today"
+            description="That’s the full day — check the week view for what’s coming up."
+            className="min-h-[200px] bg-muted/25"
+            action={
+              <Link
+                href="/student/timetable"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-academic hover:underline"
+              >
+                Open timetable <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            }
+          />
         )}
 
         {daySlots.length > 0 ? (

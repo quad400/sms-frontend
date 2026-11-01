@@ -1,5 +1,4 @@
-import type { ComponentType, ReactNode } from 'react';
-import { Inbox } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils/cn';
 
 export function Panel({
@@ -35,38 +34,5 @@ export function Panel({
       ) : null}
       {children}
     </section>
-  );
-}
-
-/** Dashed empty state for lists that loaded fine but have no rows. */
-export function EmptyPanel({
-  title,
-  description,
-  icon: Icon = Inbox,
-  action,
-  className,
-}: {
-  title: string;
-  description?: string;
-  icon?: ComponentType<{ className?: string }>;
-  action?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        'flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/40 px-6 py-10 text-center',
-        className,
-      )}
-    >
-      <span className="mb-3 flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-        <Icon className="size-5" aria-hidden />
-      </span>
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      {description ? (
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
-      ) : null}
-      {action ? <div className="mt-4">{action}</div> : null}
-    </div>
   );
 }

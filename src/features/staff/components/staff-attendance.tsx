@@ -16,7 +16,8 @@ import { useStaffLookups } from '../hooks/use-staff-lookups';
 import { useTeachingClasses } from '../hooks/use-teaching-classes';
 import { formatDate, formatLongDate, localToday } from '../lib/format';
 import { QueryState } from '../lib/shared';
-import { EmptyPanel, Panel } from './shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Panel } from './shared/panel';
 import { SelectField } from './shared/fields';
 import { StatusBadge } from './shared/status-badge';
 
@@ -71,7 +72,7 @@ export function StaffAttendance({ initialClassId }: { initialClassId?: number })
         onRetry={teaching.refetch}
         isEmpty={teaching.classes.length === 0}
         empty={
-          <EmptyPanel
+          <EmptyState
             icon={ClipboardList}
             title="No classes to take attendance for"
             description="You haven’t been allocated to a class this term."
@@ -157,7 +158,7 @@ export function StaffAttendance({ initialClassId }: { initialClassId?: number })
           onRetry={() => void recent.refetch()}
           isEmpty={(recent.data?.data ?? []).length === 0}
           empty={
-            <EmptyPanel
+            <EmptyState
               icon={ClipboardList}
               title="No registers yet"
               description="Registers you open will be listed here."

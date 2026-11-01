@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Download, Plus, ShieldCheck } from 'lucide-react';
 import { PageHeader } from '@/components/patterns/page-header';
 import { Button } from '@/components/ui/button';
@@ -7,10 +8,10 @@ import { PermissionGate } from '@/lib/auth/permissions';
 import { TIMETABLES_UI_MOCK } from './ui-mock';
 
 export function TimetablesHeader({
-  onCreate,
+  createHref = '/admin/timetables/new',
   onValidate,
 }: {
-  onCreate: () => void;
+  createHref?: string;
   onValidate?: () => void;
 }) {
   return (
@@ -33,14 +34,11 @@ export function TimetablesHeader({
             Export Wall Grid
           </Button>
           <PermissionGate permission="academics.timetable.create">
-            <Button
-              type="button"
-              size="sm"
-              className="bg-teal-700 hover:bg-teal-800"
-              onClick={onCreate}
-            >
-              <Plus className="size-4" />
-              Substitute Assignment
+            <Button asChild size="sm" className="bg-teal-700 hover:bg-teal-800">
+              <Link href={createHref}>
+                <Plus className="size-4" />
+                New timetable
+              </Link>
             </Button>
           </PermissionGate>
         </div>

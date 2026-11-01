@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo } from 'react';
 import { Eye, Search, Settings2 } from 'lucide-react';
 import { DataTable, type DataTableColumn } from '@/components/patterns/data-table';
@@ -10,7 +11,15 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils/cn';
 import type { Level, SchoolClass } from '../../api/structure';
 import { QueryState } from '../../lib/shared';
-import { classExtraForId } from './ui-mock';
+
+const STAGE_BADGE: Record<
+  string,
+  { label: string; variant: 'info' | 'soft' | 'warning' | 'successSoft' }
+> = {
+  primary: { label: 'Primary', variant: 'successSoft' },
+  jss: { label: 'Junior Secondary', variant: 'info' },
+  ss: { label: 'Senior Secondary', variant: 'soft' },
+};
 
 export function ClassesTable({
   rows,
@@ -69,22 +78,26 @@ export function ClassesTable({
         id: 'arm',
         header: 'Class Arm',
         cell: (r) => {
-          const extra = classExtraForId(r.id);
-          const over = extra.enrolled > extra.capacity;
+          const enrolled = r.studentCount ?? 0;
           return (
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span
                   className={cn(
                     'size-2 shrink-0 rounded-full',
-                    over ? 'bg-rose-500' : r.formTeacherStaffId ? 'bg-emerald-500' : 'bg-amber-400',
+                    !r.formTeacherStaffId
+                      ? 'bg-amber-400'
+                      : enrolled > 0
+                        ? 'bg-emerald-500'
+                        : 'bg-sky-400',
                   )}
                   aria-hidden
                 />
                 <span className="font-semibold text-foreground">{r.name}</span>
               </div>
               <p className="mt-0.5 pl-4 text-[11px] text-muted-foreground">
-                Prefect · {extra.prefect}
+                {r.levelName ?? '—'}
+                {r.armName ? ` · Arm ${r.armName}` : ''}
               </p>
             </div>
           );
@@ -92,12 +105,12 @@ export function ClassesTable({
       },
       {
         id: 'division',
-        header: 'Division / Track',
+        header: 'Stage',
         cell: (r) => {
-          const { division } = classExtraForId(r.id);
+          const stage = r.levelStage ? STAGE_BADGE[r.levelStage] : null;
           return (
-            <Badge variant={division.variant} size="sm">
-              {division.label}
+            <Badge variant={stage?.variant ?? 'soft'} size="sm">
+              {stage?.label ?? r.levelStageName ?? r.levelName ?? '—'}
             </Badge>
           );
         },
@@ -106,7 +119,6 @@ export function ClassesTable({
         id: 'formMaster',
         header: 'Form Master',
         cell: (r) => {
-          const extra = classExtraForId(r.id);
           if (!r.formTeacherStaffId) {
             return <span className="text-sm text-amber-700">Unassigned</span>;
           }
@@ -114,52 +126,26 @@ export function ClassesTable({
           return (
             <div className="min-w-0 text-sm">
               <p className="font-semibold text-foreground">{name}</p>
-              <p className="text-xs text-muted-foreground">{extra.department}</p>
             </div>
           );
-        },
-      },
-      {
-        id: 'homeroom',
-        header: 'Homeroom',
-        cell: (r) => {
-          const { homeroom } = classExtraForId(r.id);
-          return <span className="text-sm font-medium tabular-nums">{homeroom}</span>;
         },
       },
       {
         id: 'enrolled',
         header: 'Enrolled',
         cell: (r) => {
-          const real = r.studentCount;
-          const extra = classExtraForId(r.id);
-          const enrolled = real ?? extra.enrolled;
-          const capacity = extra.capacity;
-          const over = enrolled > capacity;
-          const full = enrolled >= capacity;
-          const under = enrolled < capacity - 5;
+          const enrolled = r.studentCount ?? 0;
           return (
-            <div className="space-y-0.5">
-              <span
-                className={cn(
-                  'inline-flex rounded-md px-2 py-0.5 text-xs font-semibold tabular-nums',
-                  over
-                    ? 'bg-rose-50 text-rose-800'
-                    : full
-                      ? 'bg-emerald-50 text-emerald-800'
-                      : under
-                        ? 'bg-sky-50 text-sky-800'
-                        : 'bg-emerald-50 text-emerald-800',
-                )}
-              >
-                {enrolled} / {capacity}
-              </span>
-              {over ? (
-                <p className="text-[11px] font-medium text-rose-700">
-                  +{enrolled - capacity} Over
-                </p>
-              ) : null}
-            </div>
+            <span
+              className={cn(
+                'inline-flex rounded-md px-2 py-0.5 text-xs font-semibold tabular-nums',
+                enrolled > 0
+                  ? 'bg-emerald-50 text-emerald-800'
+                  : 'bg-muted text-muted-foreground',
+              )}
+            >
+              {enrolled.toLocaleString()}
+            </span>
           );
         },
       },
@@ -223,7 +209,7 @@ export function ClassesTable({
             <Input
               value={q}
               onChange={(e) => onQChange(e.target.value)}
-              placeholder="Filter arm, tutor, room…"
+              placeholder="Filter arm, tutor…"
               className="h-9 pl-8"
               aria-label="Filter class arms"
             />
@@ -235,7 +221,7 @@ export function ClassesTable({
         </div>
       </div>
 
-      <QueryState isPending={isPending} error={error} onRetry={onRetry}>
+      <QueryState isPending={isPending} error={error} onRetry={onRetry} loaderVariant="table">
         <DataTable
           columns={columns}
           rows={rows}
@@ -243,9 +229,7 @@ export function ClassesTable({
           minRows={Math.min(pageSize, 8)}
           onRowClick={(r) => onSelect(r.id)}
           empty={
-            <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No class arms match these filters.
-            </p>
+            <EmptyState title="No class arms" description="No class arms match these filters." />
           }
           className="shadow-[var(--shadow-card)]"
         />

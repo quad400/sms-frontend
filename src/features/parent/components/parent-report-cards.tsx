@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { Download, Eye, FileText } from 'lucide-react';
 import { PageHeader } from '@/components/patterns/page-header';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -68,9 +69,10 @@ export function ParentReportCards({
         onRetry={() => void cards.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <p className="rounded-2xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-            No report cards have been published yet.
-          </p>
+          <EmptyState
+            title="No report cards yet"
+            description="No report cards have been published yet."
+          />
         }
       >
         <ul className="grid gap-2">

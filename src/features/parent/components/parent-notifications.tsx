@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Bell, CheckCheck } from 'lucide-react';
@@ -53,11 +54,11 @@ export function ParentNotifications() {
         onRetry={() => void inbox.refetch()}
         isEmpty={rows.length === 0}
         empty={
-          <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
-            <Bell className="mx-auto size-8 text-muted-foreground" aria-hidden />
-            <p className="mt-3 text-sm font-medium">You’re all caught up</p>
-            <p className="mt-1 text-sm text-muted-foreground">New notifications will show up here.</p>
-          </div>
+          <EmptyState
+            icon={Bell}
+            title="You’re all caught up"
+            description="New notifications will show up here."
+          />
         }
       >
         <ul className="grid gap-2">

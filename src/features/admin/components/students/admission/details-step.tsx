@@ -16,8 +16,8 @@ import {
 import { ApiClientError } from '@/lib/api/errors';
 import { toastError, toastSuccess } from '@/lib/toast';
 import { useSaveStudent, useStudent } from '../../../hooks/use-students';
-import { useCampuses, useHouses } from '../../../hooks/use-structure';
-import { GENDER_CODES } from '../../../lib/codes';
+import { useCampuses } from '../../../hooks/use-structure';
+import { GENDER_CODES, STUDENT_STATUS_CODES } from '../../../lib/codes';
 import { useAdminCampus } from '../../../lib/campus';
 import { QueryState } from '../../../lib/shared';
 import type { StudentRow } from '../../../types';
@@ -30,7 +30,7 @@ type Values = {
   dateOfBirth: string;
   genderCode: string;
   campusId: string;
-  houseId: string;
+  statusCode: string;
 };
 
 export function DetailsStep({
@@ -53,12 +53,9 @@ export function DetailsStep({
       dateOfBirth: '',
       genderCode: 'male',
       campusId: campusQuery ?? '',
-      houseId: '',
+      statusCode: 'active',
     },
   });
-
-  const campusId = form.watch('campusId') || campusQuery;
-  const houses = useHouses(campusId || undefined);
 
   useEffect(() => {
     if (!form.getValues('campusId') && campusQuery) {
@@ -76,7 +73,7 @@ export function DetailsStep({
       dateOfBirth: s.dateOfBirth?.slice(0, 10) ?? '',
       genderCode: s.genderCode ?? s.gender ?? 'male',
       campusId: s.campusId != null ? String(s.campusId) : campusQuery ?? '',
-      houseId: s.houseId != null ? String(s.houseId) : '',
+      statusCode: s.statusCode ?? s.status ?? 'active',
     });
   }, [existing.data, form, campusQuery]);
 
@@ -85,17 +82,23 @@ export function DetailsStep({
       form.setError('dateOfBirth', { message: 'Required' });
       return;
     }
+    if (!values.campusId && studentId == null) {
+      form.setError('campusId', { message: 'Required' });
+      return;
+    }
     const base = {
       firstName: values.firstName.trim(),
       middleName: values.middleName.trim() || undefined,
       lastName: values.lastName.trim(),
       dateOfBirth: values.dateOfBirth,
       genderCode: values.genderCode,
-      houseId: values.houseId ? Number(values.houseId) : undefined,
     };
     const body =
       studentId != null
-        ? base
+        ? {
+            ...base,
+            statusCode: values.statusCode || undefined,
+          }
         : {
             ...base,
             campusId: Number(values.campusId),
@@ -104,7 +107,11 @@ export function DetailsStep({
     save.mutate(body, {
       onSuccess: (row) => {
         toastSuccess(studentId ? 'Student updated' : 'Student created');
-        onCreated(row);
+        onCreated({
+          ...row,
+          genderCode: row.genderCode ?? row.gender,
+          statusCode: row.statusCode ?? row.status,
+        });
       },
       onError: (e) => {
         if (
@@ -118,8 +125,6 @@ export function DetailsStep({
       },
     });
   };
-
-  const houseOptions = houses.data ?? [];
 
   return (
     <QueryState
@@ -220,33 +225,33 @@ export function DetailsStep({
               )}
             />
           </Field>
-          <Field label="House (optional)" hint="Can be assigned later from the profile.">
-            <Controller
-              control={form.control}
-              name="houseId"
-              render={({ field }) => (
-                <Select
-                  value={field.value || 'none'}
-                  onValueChange={(v) => field.onChange(v === 'none' ? '' : v)}
-                >
-                  <SelectTrigger aria-label="House">
-                    <SelectValue placeholder="None" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    {houseOptions.map((h) => (
-                      <SelectItem key={h.id} value={String(h.id)}>
-                        {h.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </Field>
-          <p className="rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-            Class placement happens in the Enrolment step after the student record is created.
-          </p>
+          {studentId != null ? (
+            <Field label="Status" required>
+              <Controller
+                control={form.control}
+                name="statusCode"
+                rules={{ required: 'Required' }}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger aria-label="Status">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STUDENT_STATUS_CODES.map((s) => (
+                        <SelectItem key={s.code} value={s.code}>
+                          {s.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </Field>
+          ) : (
+            <p className="rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+              Class placement happens in the Enrolment step after the student record is created.
+            </p>
+          )}
         </FormSection>
       </div>
 

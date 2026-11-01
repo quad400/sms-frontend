@@ -39,18 +39,29 @@ export function Field({
   children,
   hint,
   required,
+  action,
 }: {
   label: string;
   error?: string;
   children: React.ReactNode;
-  hint?: string;
+  hint?: React.ReactNode;
   required?: boolean;
+  action?: React.ReactNode;
 }) {
   return (
     <div className="grid gap-1.5">
-      <Label required={required}>{label}</Label>
+      <div className="flex items-center justify-between gap-2">
+        <Label required={required}>{label}</Label>
+        {action}
+      </div>
       {children}
-      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+      {hint ? (
+        typeof hint === 'string' ? (
+          <p className="text-xs text-muted-foreground">{hint}</p>
+        ) : (
+          <div className="text-xs text-muted-foreground">{hint}</div>
+        )
+      ) : null}
       {error ? <p className="text-xs text-danger">{error}</p> : null}
     </div>
   );

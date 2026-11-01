@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Lock } from 'lucide-react';
+import { Loader } from '@/components/patterns/loader';
 import { PageHeader } from '@/components/patterns/page-header';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/lib/auth/permissions';
@@ -24,18 +25,37 @@ import {
   type OnboardingStep,
 } from './types';
 
-export function StaffOnboardingWizard() {
+export function StaffOnboardingWizard({
+  mode = 'create',
+  initialStaffId,
+}: {
+  mode?: 'create' | 'edit';
+  initialStaffId?: number;
+} = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { can } = useSession();
+  const isEdit = mode === 'edit';
 
   const staffIdParam = searchParams.get('staffId');
-  const staffId =
+  const staffIdFromQuery =
     staffIdParam && Number.isFinite(Number(staffIdParam))
       ? Number(staffIdParam)
       : null;
+  const staffId = initialStaffId ?? staffIdFromQuery;
   const step = parseOnboardingStep(searchParams.get('step'));
+
+  useEffect(() => {
+    if (!isEdit || initialStaffId == null) return;
+    const needsId = staffIdFromQuery !== initialStaffId;
+    const needsStep = !searchParams.get('step');
+    if (!needsId && !needsStep) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('staffId', String(initialStaffId));
+    if (needsStep) params.set('step', 'details');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [isEdit, initialStaffId, staffIdFromQuery, searchParams, pathname, router]);
 
   const staffQuery = useStaffMember(staffId, staffId != null);
   const staff = staffQuery.data ?? null;
@@ -80,6 +100,9 @@ export function StaffOnboardingWizard() {
   }, [step, staffId]);
 
   const stepLocked = (s: OnboardingStep): boolean => {
+    if (s === 'details' && isEdit) {
+      return !can('staff.staff.update');
+    }
     const perm = ONBOARDING_STEP_META[s].permission;
     if (!perm) return false;
     return !can(perm);
@@ -90,19 +113,26 @@ export function StaffOnboardingWizard() {
     effectiveStep !== 'done' &&
     stepLocked(effectiveStep);
 
+  const backHref =
+    isEdit && staffId != null ? `/admin/staff/${staffId}` : '/admin/staff';
+
   return (
     <div className="mx-auto space-y-5">
       <div className="space-y-3">
         <Link
-          href="/admin/staff"
+          href={backHref}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:underline"
         >
           <ArrowLeft className="size-3.5" />
-          Back to directory
+          {isEdit ? 'Back to profile' : 'Back to directory'}
         </Link>
         <PageHeader
-          title="Onboard staff"
-          description="Create the staff record, then add contact details and teaching allocations."
+          title={isEdit ? 'Edit staff' : 'Onboard staff'}
+          description={
+            isEdit
+              ? 'Update personal details, contact information, and teaching allocations.'
+              : 'Create the staff record, then add contact details and teaching allocations.'
+          }
           titleAddon={
             staff?.staffNumber ? (
               <span className="rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-teal-800">
@@ -227,11 +257,15 @@ export function StaffOnboardingWizard() {
           ) : null}
 
           {effectiveStep === 'done' && staff ? (
-            <DoneStep staff={staff} onOnboardAnother={onOnboardAnother} />
+            <DoneStep
+              staff={staff}
+              mode={mode}
+              onOnboardAnother={onOnboardAnother}
+            />
           ) : null}
 
           {effectiveStep === 'done' && staffId != null && !staff ? (
-            <p className="text-sm text-muted-foreground">Loading staff…</p>
+            <Loader variant="inline" label="Loading staff" />
           ) : null}
         </QueryState>
       )}

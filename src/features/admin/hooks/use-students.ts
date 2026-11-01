@@ -10,21 +10,38 @@ import {
   createTransfer,
   getStudent,
   getStudentMedicalInfo,
+  getStudentsSummary,
   linkStudentGuardian,
   listStudentEnrolments,
   listStudentGuardians,
   listStudents,
   putStudentMedicalInfo,
+  unlinkStudentGuardian,
+  updateEnrolment,
   updateStudent,
+  updateStudentGuardian,
+  type LinkedGuardian,
   type ListStudentsParams,
+  type StudentEnrolment,
   type StudentMedicalInfo,
+  type StudentMedicalInfoInput,
+  type StudentsSummary,
 } from '../api/students';
-import type { Paginated, StudentRow } from '../types';
+import { updateGuardian } from '../api/guardians';
+import type { GuardianRow, Paginated, StudentRow } from '../types';
 
 export function useStudents(params: ListStudentsParams = {}, enabled = true) {
   return useQuery<Paginated<StudentRow>, ApiClientError>({
     queryKey: adminKeys.students({ ...params }),
     queryFn: () => listStudents(params),
+    enabled,
+  });
+}
+
+export function useStudentsSummary(campusId?: string, enabled = true) {
+  return useQuery<StudentsSummary, ApiClientError>({
+    queryKey: adminKeys.studentsSummary(campusId),
+    queryFn: () => getStudentsSummary(campusId),
     enabled,
   });
 }
@@ -38,7 +55,7 @@ export function useStudent(id: number | null | undefined, enabled = true) {
 }
 
 export function useStudentGuardians(studentId: number, enabled = true) {
-  return useQuery<unknown, ApiClientError>({
+  return useQuery<LinkedGuardian[], ApiClientError>({
     queryKey: adminKeys.studentGuardians(studentId),
     queryFn: () => listStudentGuardians(studentId),
     enabled,
@@ -46,7 +63,7 @@ export function useStudentGuardians(studentId: number, enabled = true) {
 }
 
 export function useStudentEnrolments(studentId: number, enabled = true) {
-  return useQuery<unknown, ApiClientError>({
+  return useQuery<StudentEnrolment[], ApiClientError>({
     queryKey: adminKeys.studentEnrolments(studentId),
     queryFn: () => listStudentEnrolments(studentId),
     enabled,
@@ -67,7 +84,10 @@ export function useSaveStudent(studentId?: number) {
   return useMutation<StudentRow, ApiClientError, Record<string, unknown>>({
     mutationFn: (body) =>
       studentId != null ? updateStudent(studentId, body) : createStudent(body),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: adminKeys.all }),
+    onSuccess: (row) => {
+      void qc.invalidateQueries({ queryKey: adminKeys.all });
+      void qc.setQueryData(adminKeys.student(row.id), row);
+    },
   });
 }
 
@@ -96,8 +116,36 @@ export function useCreateTransfer(studentId: number) {
 
 export function useLinkStudentGuardian(studentId: number) {
   const qc = useQueryClient();
-  return useMutation<unknown, ApiClientError, Record<string, unknown>>({
-    mutationFn: (body) => linkStudentGuardian(studentId, body),
+  return useMutation<LinkedGuardian, ApiClientError, Record<string, unknown>>({
+    mutationFn: (body) => linkStudentGuardian(studentId, body) as Promise<LinkedGuardian>,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.studentGuardians(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.studentsSummary() });
+    },
+  });
+}
+
+export type UpdateLinkedGuardianInput = {
+  guardianId: number;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email?: string | null;
+  address?: string | null;
+  occupation?: string | null;
+  relationshipCode: string;
+  isPrimaryContact: boolean;
+  canPickUp: boolean;
+  isFeePayer: boolean;
+};
+
+export function useUnlinkStudentGuardian(studentId: number) {
+  const qc = useQueryClient();
+  return useMutation<void, ApiClientError, number>({
+    mutationFn: async (guardianId) => {
+      await unlinkStudentGuardian(studentId, guardianId);
+    },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminKeys.studentGuardians(studentId) });
       void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) });
@@ -105,22 +153,86 @@ export function useLinkStudentGuardian(studentId: number) {
   });
 }
 
+/** Updates guardian profile + link flags for an already-linked guardian. */
+export function useUpdateStudentGuardian(studentId: number) {
+  const qc = useQueryClient();
+  return useMutation<GuardianRow, ApiClientError, UpdateLinkedGuardianInput>({
+    mutationFn: async ({
+      guardianId,
+      firstName,
+      lastName,
+      phone,
+      email,
+      address,
+      occupation,
+      relationshipCode,
+      isPrimaryContact,
+      canPickUp,
+      isFeePayer,
+    }) => {
+      const row = await updateGuardian(guardianId, {
+        firstName,
+        lastName,
+        phone,
+        email: email || null,
+        address: address || null,
+        occupation: occupation || null,
+      });
+      await updateStudentGuardian(studentId, guardianId, {
+        relationshipCode,
+        isPrimaryContact,
+        canPickUp,
+        isFeePayer,
+      });
+      return row;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.studentGuardians(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.guardians({}) });
+    },
+  });
+}
+
 export function useCreateEnrolment(studentId: number) {
   const qc = useQueryClient();
-  return useMutation<unknown, ApiClientError, Record<string, unknown>>({
+  return useMutation<
+    StudentEnrolment,
+    ApiClientError,
+    { sessionId: number; classId: number; enrolledAt?: string }
+  >({
     mutationFn: (body) => createEnrolment(studentId, body),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: adminKeys.studentEnrolments(studentId) });
       void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.studentsSummary() });
+    },
+  });
+}
+
+export function useUpdateEnrolment(studentId: number) {
+  const qc = useQueryClient();
+  return useMutation<
+    StudentEnrolment,
+    ApiClientError,
+    { enrolmentId: number; classId: number }
+  >({
+    mutationFn: ({ enrolmentId, classId }) =>
+      updateEnrolment(enrolmentId, { classId }) as Promise<StudentEnrolment>,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: adminKeys.studentEnrolments(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.student(studentId) });
+      void qc.invalidateQueries({ queryKey: adminKeys.studentsSummary() });
     },
   });
 }
 
 export function useSaveStudentMedical(studentId: number) {
   const qc = useQueryClient();
-  return useMutation<StudentMedicalInfo, ApiClientError, StudentMedicalInfo>({
+  return useMutation<StudentMedicalInfo, ApiClientError, StudentMedicalInfoInput>({
     mutationFn: (body) => putStudentMedicalInfo(studentId, body),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      qc.setQueryData(adminKeys.studentMedical(studentId), data);
       void qc.invalidateQueries({ queryKey: adminKeys.studentMedical(studentId) });
     },
   });

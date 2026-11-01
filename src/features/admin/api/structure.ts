@@ -22,6 +22,8 @@ export type SchoolClass = {
   armId?: number;
   armName?: string;
   levelName?: string;
+  levelStage?: string | null;
+  levelStageName?: string | null;
   name: string;
   formTeacherStaffId?: number | null;
   studentCount?: number;
@@ -51,6 +53,12 @@ export type Term = {
 };
 
 export type Subject = { id: number; code: string; name: string; isActive?: boolean };
+export type LevelStage = {
+  id: number;
+  code: string;
+  name: string;
+};
+
 export type Level = {
   id: number;
   name: string;
@@ -178,6 +186,16 @@ export function updateSubject(id: number, body: Record<string, unknown>) {
 
 export async function listLevels(): Promise<Level[]> {
   return asList(await proxyGet<Paginated<Level> | Level[]>('/api/v1/levels'));
+}
+
+export async function listLevelStages(): Promise<LevelStage[]> {
+  return asList(
+    await proxyGet<Paginated<LevelStage> | LevelStage[]>('/api/v1/levels/stages'),
+  );
+}
+
+export function createLevelStage(body: Record<string, unknown>) {
+  return proxyPost<LevelStage>('/api/v1/levels/stages', body);
 }
 
 export function createLevel(body: Record<string, unknown>) {

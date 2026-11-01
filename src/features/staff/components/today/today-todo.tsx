@@ -4,7 +4,8 @@ import type { ComponentType } from 'react';
 import { formatDate, plural } from '../../lib/format';
 import type { ApprovalCounts } from '../../hooks/use-approvals';
 import type { StaffOverview } from '../../types';
-import { EmptyPanel, Panel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Panel } from '../shared/panel';
 
 type TodoItem = {
   key: string;
@@ -97,7 +98,7 @@ export function TodayTodo({
   return (
     <Panel title="To do" description="Things that need your attention">
       {items.length === 0 ? (
-        <EmptyPanel
+        <EmptyState
           title="You’re all caught up"
           description="No open registers, pending scores or lesson plans right now."
           icon={PartyPopper}

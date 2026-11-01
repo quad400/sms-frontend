@@ -1,26 +1,11 @@
 /**
- * Presentational placeholders for the Students directory UI shell.
- * Replace with real aggregates when backend summary endpoints are ready.
+ * Presentational placeholders still used by header/sidebar until those
+ * surfaces have dedicated endpoints.
  */
 
 export const STUDENTS_UI_MOCK = {
   description: 'Directory and master enrolments across all campuses and active cohorts.',
   sessionLabel: '2024/2025 Session',
-  summary: {
-    totalEnrolled: 1420,
-    totalDelta: '+14 this term',
-    male: 728,
-    female: 692,
-    boarding: 480,
-    day: 940,
-    attendanceRate: 96.4,
-    attendanceDelta: '+0.8% MoM',
-  },
-  statusTabs: [
-    { value: 'active', label: 'Active', count: 1412, tone: 'active' as const },
-    { value: 'inactive', label: 'On Leave', count: 5, tone: 'muted' as const },
-    { value: 'withdrawn', label: 'Suspended', count: 3, tone: 'danger' as const },
-  ],
   capacity: [
     { id: 'jss1', label: 'JSS 1', arms: 4, enrolled: 118, capacity: 120 },
     { id: 'jss2', label: 'JSS 2', arms: 4, enrolled: 112, capacity: 120 },

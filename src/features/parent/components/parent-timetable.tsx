@@ -1,5 +1,6 @@
 'use client';
 
+import { EmptyState } from '@/components/patterns/empty-state';
 import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/patterns/page-header';
 import { SegmentedControl } from '@/components/ui/segmented-control';
@@ -57,9 +58,10 @@ export function ParentTimetable({
         onRetry={() => void timetable.refetch()}
         isEmpty={slots.length === 0}
         empty={
-          <p className="rounded-2xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
-            No published timetable for this child yet.
-          </p>
+          <EmptyState
+            title="No timetable yet"
+            description="No published timetable for this child yet."
+          />
         }
       >
         <div className="overflow-x-auto">
@@ -82,9 +84,7 @@ export function ParentTimetable({
 function DayList({ slots }: { slots: TimetableSlot[] }) {
   if (slots.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
-        No lessons on this day.
-      </p>
+      <EmptyState title="No lessons on this day" description="" />
     );
   }
   return (

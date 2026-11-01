@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ConfirmDialog } from '@/components/patterns/confirm-dialog';
 import { toastError, toastSuccess } from '@/lib/toast';
-import { useArchiveStudent, useStudents } from '../../hooks/use-students';
-import { useClasses, useHouses, useSessions } from '../../hooks/use-structure';
+import { useArchiveStudent, useStudents, useStudentsSummary } from '../../hooks/use-students';
+import { useClasses } from '../../hooks/use-structure';
 import { useAdminCampus } from '../../lib/campus';
 import { ImportWizard } from '../import-wizard';
 import { StudentDetailSheet } from './student-detail-sheet';
 import { StudentsHeader } from './students-header';
-import { StudentsSidebar } from './students-sidebar';
 import { StudentsSummary } from './students-summary';
 import { StudentsTable } from './students-table';
+import { STATUS_TABS } from './status-tabs';
 
 export function StudentsList() {
   const router = useRouter();
@@ -38,7 +38,6 @@ export function StudentsList() {
   const [qInput, setQInput] = useState('');
   const [q, setQ] = useState('');
   const [classId, setClassId] = useState('');
-  const [houseId, setHouseId] = useState('');
   const [status, setStatus] = useState('active');
   const [archiveId, setArchiveId] = useState<number | null>(null);
   const [importOpen, setImportOpen] = useState(false);
@@ -63,19 +62,20 @@ export function StudentsList() {
   );
 
   const students = useStudents(params);
+  const summary = useStudentsSummary(campusQuery);
   const classes = useClasses({ campusId: campusQuery, key: campusQuery });
-  const houses = useHouses(campusQuery);
-  const sessions = useSessions(campusQuery);
   const archive = useArchiveStudent();
 
-  const activeSession = (sessions.data ?? []).find((s) => s.isActive) ?? null;
+  const statusTabs = useMemo(
+    () =>
+      STATUS_TABS.map((tab) => ({
+        ...tab,
+        count: summary.data?.byStatus[tab.value] ?? 0,
+      })),
+    [summary.data?.byStatus],
+  );
 
-  const tableRows = useMemo(() => {
-    const rows = students.data?.data ?? [];
-    if (!houseId) return rows;
-    const hid = Number(houseId);
-    return rows.filter((r) => r.houseId === hid);
-  }, [houseId, students.data?.data]);
+  const tableRows = students.data?.data ?? [];
 
   const total = students.data?.meta.total ?? 0;
   const pageSize = students.data?.meta.pageSize ?? 10;
@@ -98,14 +98,11 @@ export function StudentsList() {
 
   return (
     <div className="space-y-5">
-      <StudentsHeader
-        sessionName={activeSession?.name}
-        onImport={() => setImportOpen(true)}
-      />
+      <StudentsHeader />
 
-      <StudentsSummary />
+      <StudentsSummary data={summary.data} isPending={summary.isPending} />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
+      {/* <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]"> */}
         <StudentsTable
           rows={tableRows}
           isPending={students.isPending}
@@ -119,18 +116,13 @@ export function StudentsList() {
             setClassId(v);
             setPage(1);
           }}
-          houseId={houseId}
-          onHouseIdChange={(v) => {
-            setHouseId(v);
-            setPage(1);
-          }}
           status={status}
           onStatusChange={(v) => {
             setStatus(v);
             setPage(1);
           }}
+          statusTabs={statusTabs}
           classes={classes.data ?? []}
-          houses={houses.data ?? []}
           page={page}
           pages={pages}
           total={total}
@@ -139,8 +131,8 @@ export function StudentsList() {
           onOpenStudent={(id) => setStudentId(id)}
           onArchive={setArchiveId}
         />
-        <StudentsSidebar />
-      </div>
+        {/* <StudentsSidebar /> */}
+      {/* </div> */}
 
       <StudentDetailSheet
         studentId={sheetStudentId}

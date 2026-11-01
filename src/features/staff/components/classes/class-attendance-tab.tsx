@@ -8,7 +8,9 @@ import { useSession } from '@/lib/auth/permissions';
 import { useAttendanceSummary, useRegisters } from '../../hooks/use-attendance';
 import { addDays, formatDate, localToday, statusLabel } from '../../lib/format';
 import { QueryState } from '../../lib/shared';
-import { EmptyPanel, Panel } from '../shared/panel';
+import { EmptyState } from '@/components/patterns/empty-state';
+import { Loader } from '@/components/patterns/loader';
+import { Panel } from '../shared/panel';
 import { StatusBadge } from '../shared/status-badge';
 
 const WINDOW_DAYS = 30;
@@ -33,11 +35,13 @@ export function ClassAttendanceTab({ classId }: { classId: number }) {
           description={`${formatDate(from)} to ${formatDate(to)}`}
         >
           {summary.isPending ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <Loader variant="inline" label="Loading attendance" />
           ) : !summary.data ? (
-            <p className="text-sm text-muted-foreground">
-              No attendance has been recorded for this class in this period.
-            </p>
+            <EmptyState
+              title="No attendance recorded"
+              description="No attendance has been recorded for this class in this period."
+              className="border-0 bg-transparent py-6"
+            />
           ) : (
             <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
               <div>
@@ -80,7 +84,7 @@ export function ClassAttendanceTab({ classId }: { classId: number }) {
           onRetry={() => void registers.refetch()}
           isEmpty={(registers.data?.data ?? []).length === 0}
           empty={
-            <EmptyPanel
+            <EmptyState
               icon={ClipboardList}
               title="No registers yet"
               description="Registers for this class will be listed here."
